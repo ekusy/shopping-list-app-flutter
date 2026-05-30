@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shopping_list_app/domain/entities/item.dart';
 import 'package:shopping_list_app/presentation/widgets/item_card.dart';
@@ -43,24 +44,34 @@ void main() {
       ),
     );
 
-    await tester.tap(find.text('🗑️'));
+    // InkWell の内訳: チェックボックス(IconButton) + 買うよ + 購入済 + 削除 = 4。
+    // 末尾が削除ボタン。
+    final buttons = find.byType(InkWell);
+    expect(buttons, findsNWidgets(4));
+    await tester.tap(buttons.last);
     await tester.pump();
     expect(deleted, isTrue);
   });
 
-  testWidgets('購入済みアイテムは未購入に戻すアイコンを表示する', (tester) async {
+  testWidgets('購入済みアイテムは「買うよ」ボタンを隠し、戻すと onSetPurchased(false) を呼ぶ',
+      (tester) async {
+    bool? purchasedArg;
     await pumpLocalized(
       tester,
       ItemCard(
         item: _item(status: ItemStatus.purchased),
         onSetVolunteer: (_) {},
-        onSetPurchased: (_) {},
+        onSetPurchased: (v) => purchasedArg = v,
         onDelete: () {},
       ),
     );
 
-    // 購入済みでは「買うよ」ボタンが消え、未購入に戻すアイコン（↩）が出る。
-    expect(find.text('↩'), findsOneWidget);
-    expect(find.text('🙋'), findsNothing);
+    // InkWell の内訳: チェックボックス(IconButton) + 戻す + 削除 = 3。
+    // 「買うよ」は isBought=true で非表示。at(1) が「戻す」ボタン。
+    final buttons = find.byType(InkWell);
+    expect(buttons, findsNWidgets(3));
+    await tester.tap(buttons.at(1));
+    await tester.pump();
+    expect(purchasedArg, isFalse);
   });
 }
