@@ -1,0 +1,253 @@
+{
+  "common": {
+    "cancel": "Cancel",
+    "ok": "OK",
+    "all": "All",
+    "delete": "Delete"
+  },
+  "network": {
+    "offline_banner": "You are offline (waiting for reconnection)",
+    "syncing": "Syncing...",
+    "synced": "Synced"
+  },
+  "status": {
+    "adding": "Adding...",
+    "pending_count": "{count} pending"
+  },
+  "app": {
+    "title": "Shopping List",
+    "loading": "Loading...",
+    "error": {
+      "fetch": "Failed to fetch data",
+      "add": "Error: Could not add item",
+      "update": "Failed to update",
+      "delete": "Failed to delete"
+    },
+    "success": {
+      "add": "Added!",
+      "volunteer": "Volunteered!",
+      "bought": "Marked as bought!",
+      "delete": "Deleted"
+    },
+    "info": {
+      "delete_confirm": "Are you sure you want to delete?"
+    }
+  },
+  "form": {
+    "placeholder_name": "Item to buy",
+    "placeholder_note": "Note (optional)",
+    "add_button": "Add",
+    "adding": "Adding...",
+    "category": {
+      "unclassified": "Unclassified",
+      "food": "Food",
+      "daily_necessities": "Daily Necessities",
+      "other": "Other"
+    },
+    "photo_button": "📷 Photo"
+  },
+  "list": {
+    "empty": "List is empty",
+    "bought_section": "Bought",
+    "manage": "Lists",
+    "create": "Create List",
+    "name_placeholder": "List name",
+    "rename": "Rename",
+    "delete": "Delete List",
+    "confirm_delete_with_items": "All items in \"{name}\" will also be deleted. Are you sure?",
+    "min_one_required": "At least one list is required",
+    "clear_purchased": "Clear all purchased",
+    "confirm_clear_purchased": "Delete all purchased items?",
+    "detail_add": "More details",
+    "bought_section_count": "Bought ({count})"
+  },
+  "item": {
+    "volunteer": "I'll buy it!",
+    "cancel_volunteer": "Cancel",
+    "bought": "Bought",
+    "return": "Return",
+    "volunteer_badge": "I will buy",
+    "volunteered_by": "{name} will buy",
+    "someone_volunteering": "Take over",
+    "pending_sync": "Pending sync",
+    "volunteer_conflict_title": "Already taken",
+    "volunteer_conflict_message": "{name} is already buying this item. Take over?",
+    "name_required": "Please enter an item name",
+    "name_placeholder": "Item name",
+    "edit_button": "Edit",
+    "edit_title": "Edit Item",
+    "edit_save": "Save",
+    "edit_saving": "Saving..."
+  },
+  "group": {
+    "settings": {
+      "title": "Group Settings",
+      "name_label": "Group Name",
+      "save": "Save",
+      "saving": "Saving...",
+      "name_success": "Group name updated",
+      "notifications_label": "Notifications",
+      "leave_group": "Leave Group",
+      "disband_group": "Disband Group",
+      "leave_confirm": "Are you sure you want to leave this group?",
+      "disband_confirm": "Are you sure you want to disband this group? All members will be removed.",
+      "members_label": "Members",
+      "owner_badge": "Owner",
+      "you_badge": "You",
+      "members_loading": "Loading members...",
+      "members_error": "Failed to load members",
+      "remove_member": "Remove",
+      "remove_member_confirm": "Remove {name} from the group?",
+      "error": {
+        "empty_name": "Please enter a group name",
+        "owner_cannot_leave": "You cannot leave as the group owner. Please disband or transfer ownership.",
+        "leave_failed": "Failed to leave group",
+        "disband_failed": "Failed to disband group",
+        "save_failed": "Failed to update group name",
+        "cannot_remove_owner": "You cannot remove the group owner",
+        "remove_member_failed": "Failed to remove member"
+      }
+    },
+    "switcher": {
+      "title": "Switch Group",
+      "active_badge": "Active",
+      "switch_button": "Switch",
+      "create_new": "Create New Group",
+      "join_with_code": "Join with invite code",
+      "leave": "Leave",
+      "disband": "Disband"
+    },
+    "create": {
+      "title": "Create Group",
+      "name_placeholder": "Enter group name",
+      "button": "Create",
+      "creating": "Creating...",
+      "invite_code_label": "Invite Code",
+      "copy_button": "Copy Code",
+      "copied_toast": "Code Copied",
+      "copy_url_button": "Copy Link",
+      "copied_url_toast": "Link Copied",
+      "share_button": "Share Link",
+      "invite_url_label": "Invite Link",
+      "proceed_button": "Go to List",
+      "join_instead": "Have an invite code?",
+      "join_instead_link": "Join with code",
+      "existing_groups": "Your Groups",
+      "error": {
+        "empty_name": "Please enter a group name",
+        "create_failed": "Failed to create group",
+        "share_failed": "Failed to share"
+      }
+    },
+    "join": {
+      "title": "Join Group",
+      "code_label": "Invite Code",
+      "code_placeholder": "Enter invite code",
+      "button": "Join",
+      "joining": "Joining...",
+      "confirm_title": "Join this group?",
+      "confirm_message": "You are about to join \"{groupName}\".",
+      "confirm_button": "Join",
+      "already_have_group": "You are already in a group. Please leave or disband it before joining another.",
+      "success": "You have joined the group",
+      "error": {
+        "empty_code": "Please enter an invite code",
+        "invalid_code": "Invalid invite code",
+        "already_member": "You are already a member of this group",
+        "join_failed": "Failed to join group"
+      }
+    },
+    "invite": {
+      "code_label": "Invite Code",
+      "url_label": "Invite Link",
+      "copy_button": "Copy Code",
+      "copied_toast": "Code Copied",
+      "copy_url_button": "Copy Link",
+      "copied_url_toast": "Link Copied",
+      "share_button": "Share Link",
+      "share_title": "Join my shopping list",
+      "share_message": "Join my shopping list group",
+      "share_failed": "Failed to share"
+    }
+  },
+  "tag": {
+    "manage": "Tags",
+    "create": "Add Tag",
+    "name_placeholder": "Tag name (max 20 chars)",
+    "rename": "Rename",
+    "delete": "Delete Tag",
+    "confirm_delete": "Delete '{name}'?",
+    "no_tag": "No tag",
+    "default_urgent": "Urgent",
+    "default_bulk": "Bulk buy",
+    "items_count": "{count} items",
+    "section_delete": "Delete this section",
+    "section_confirm_delete": "Delete all items in tag '{name}'?",
+    "limit_reached_free": "Up to 5 tags (free plan)",
+    "limit_reached_paid": "Up to 50 tags (paid plan)",
+    "remaining": "{count} more tags allowed",
+    "error": {
+      "add_failed": "Failed to add tag",
+      "rename_failed": "Failed to rename tag",
+      "delete_failed": "Failed to delete tag",
+      "limit_exceeded": "Tag limit reached"
+    }
+  },
+  "select": {
+    "count": "{count} selected",
+    "change_tag": "Change Tag",
+    "cancel": "Cancel"
+  },
+  "sidebar": {
+    "open": "Open menu",
+    "language": "Language",
+    "profile": "Profile",
+    "logout": "Logout"
+  },
+  "quick_add": {
+    "placeholder": "Add item...",
+    "hide": "Hide quick add",
+    "show": "Show"
+  },
+  "profile": {
+    "title": "Profile",
+    "display_name": "Display Name",
+    "avatar": "Avatar",
+    "change_avatar": "Change Photo",
+    "save": "Save",
+    "saving": "Saving...",
+    "success": "Profile updated",
+    "delete_account": "Delete Account",
+    "delete_confirm": "Are you sure you want to delete your account? This action cannot be undone.",
+    "back": "Back",
+    "error": {
+      "update_failed": "Failed to update profile",
+      "cannot_delete_owner": "You cannot delete your account while you are the owner of a group. Please disband or transfer ownership first.",
+      "delete_failed": "Failed to delete account"
+    }
+  },
+  "auth": {
+    "login": "Log In",
+    "signup": "Sign Up",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "password_confirm": "Password Confirmation",
+    "display_name": "Username (optional)",
+    "show_password": "Show",
+    "hide_password": "Hide",
+    "need_account": "Need an account?",
+    "has_account": "Already have an account?",
+    "error": {
+      "login_failed": "Failed to log in",
+      "passwords_do_not_match": "Passwords do not match",
+      "signup_failed": "Failed to create an account",
+      "empty_password": "Please enter a password",
+      "email_already_in_use": "This email address is already in use",
+      "weak_password": "Password must be at least 6 characters",
+      "invalid_email": "Please enter a valid email address",
+      "invalid_credential": "Email or password is incorrect",
+      "too_many_requests": "Too many attempts. Please try again later."
+    }
+  }
+}

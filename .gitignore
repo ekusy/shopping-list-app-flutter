@@ -14,6 +14,14 @@ skills-lock.json
 .buildlog/
 .history
 
+# IDE (IntelliJ / Android Studio)
+.idea/
+*.iml
+
+# Build output (on this machine `build` is a symlink to a tmpfs dir).
+# The `build/` rule below only matches directories, so ignore the symlink too.
+/build
+
 
 
 # Flutter repo-specific

@@ -1,0 +1,253 @@
+{
+  "common": {
+    "cancel": "キャンセル",
+    "ok": "OK",
+    "all": "すべて",
+    "delete": "削除"
+  },
+  "network": {
+    "offline_banner": "オフラインです（再接続を待っています）",
+    "syncing": "同期中...",
+    "synced": "同期しました"
+  },
+  "status": {
+    "adding": "追加中...",
+    "pending_count": "同期待ち {count} 件"
+  },
+  "app": {
+    "title": "Shopping List",
+    "loading": "Loading...",
+    "error": {
+      "fetch": "データの取得に失敗しました",
+      "add": "エラー: 追加できませんでした",
+      "update": "更新に失敗しました",
+      "delete": "削除に失敗しました"
+    },
+    "success": {
+      "add": "追加しました！",
+      "volunteer": "担当しました！",
+      "bought": "購入済みにしました！",
+      "delete": "削除しました"
+    },
+    "info": {
+      "delete_confirm": "削除しますか？"
+    }
+  },
+  "form": {
+    "placeholder_name": "買うもの",
+    "placeholder_note": "メモ (オプション)",
+    "add_button": "追加",
+    "adding": "追加中...",
+    "category": {
+      "unclassified": "未分類",
+      "food": "食品",
+      "daily_necessities": "日用品",
+      "other": "その他"
+    },
+    "photo_button": "📷 写真"
+  },
+  "list": {
+    "empty": "リストは空です",
+    "bought_section": "購入済み",
+    "manage": "リスト",
+    "create": "リストを作成",
+    "name_placeholder": "リスト名",
+    "rename": "名前を変更",
+    "delete": "リストを削除",
+    "confirm_delete_with_items": "「{name}」内のアイテムもすべて削除されます。削除しますか？",
+    "min_one_required": "最低1件のリストが必要です",
+    "clear_purchased": "購入済みを全削除",
+    "confirm_clear_purchased": "購入済みのアイテムをすべて削除しますか？",
+    "detail_add": "詳細追加",
+    "bought_section_count": "購入済み ({count}件)"
+  },
+  "item": {
+    "volunteer": "買うよ！",
+    "cancel_volunteer": "担当解除",
+    "bought": "購入済",
+    "return": "未購入に戻す",
+    "volunteer_badge": "私が買います",
+    "volunteered_by": "{name} が買います",
+    "someone_volunteering": "代わりに買う",
+    "pending_sync": "同期待ち",
+    "volunteer_conflict_title": "すでに担当者がいます",
+    "volunteer_conflict_message": "{name} がこのアイテムを買います。代わりに担当しますか？",
+    "name_required": "アイテム名を入力してください",
+    "name_placeholder": "アイテム名",
+    "edit_button": "編集",
+    "edit_title": "アイテムを編集",
+    "edit_save": "保存する",
+    "edit_saving": "保存中..."
+  },
+  "group": {
+    "settings": {
+      "title": "グループ設定",
+      "name_label": "グループ名",
+      "save": "保存する",
+      "saving": "保存中...",
+      "name_success": "グループ名を更新しました",
+      "notifications_label": "通知",
+      "leave_group": "グループから脱退",
+      "disband_group": "グループを解散",
+      "leave_confirm": "このグループから脱退しますか？",
+      "disband_confirm": "グループを解散しますか？メンバー全員がグループから削除されます。",
+      "members_label": "メンバー",
+      "owner_badge": "オーナー",
+      "you_badge": "あなた",
+      "members_loading": "メンバーを読み込み中...",
+      "members_error": "メンバーの取得に失敗しました",
+      "remove_member": "退場させる",
+      "remove_member_confirm": "{name} をグループから退場させますか？",
+      "error": {
+        "empty_name": "グループ名を入力してください",
+        "owner_cannot_leave": "グループオーナーのまま脱退できません。解散または譲渡してください。",
+        "leave_failed": "脱退に失敗しました",
+        "disband_failed": "解散に失敗しました",
+        "save_failed": "グループ名の更新に失敗しました",
+        "cannot_remove_owner": "オーナーを退場させることはできません",
+        "remove_member_failed": "退場処理に失敗しました"
+      }
+    },
+    "switcher": {
+      "title": "グループを切り替え",
+      "active_badge": "使用中",
+      "switch_button": "切り替え",
+      "create_new": "新規グループを作成",
+      "join_with_code": "招待コードで参加",
+      "leave": "脱退",
+      "disband": "解散"
+    },
+    "create": {
+      "title": "グループを作成",
+      "name_placeholder": "グループ名を入力",
+      "button": "作成する",
+      "creating": "作成中...",
+      "invite_code_label": "招待コード",
+      "copy_button": "コードをコピー",
+      "copied_toast": "コードをコピーしました",
+      "copy_url_button": "リンクをコピー",
+      "copied_url_toast": "リンクをコピーしました",
+      "share_button": "リンクをシェア",
+      "invite_url_label": "招待リンク",
+      "proceed_button": "リストへ進む",
+      "join_instead": "招待コードをお持ちの場合",
+      "join_instead_link": "コードで参加する",
+      "existing_groups": "参加済みグループ",
+      "error": {
+        "empty_name": "グループ名を入力してください",
+        "create_failed": "グループの作成に失敗しました",
+        "share_failed": "共有に失敗しました"
+      }
+    },
+    "join": {
+      "title": "グループに参加",
+      "code_label": "招待コード",
+      "code_placeholder": "招待コードを入力",
+      "button": "参加する",
+      "joining": "参加中...",
+      "confirm_title": "グループに参加しますか？",
+      "confirm_message": "グループ「{groupName}」に参加します。",
+      "confirm_button": "参加する",
+      "already_have_group": "すでにグループに参加しているため、別のグループに参加するには現在のグループを解散・脱退してください",
+      "success": "グループに参加しました",
+      "error": {
+        "empty_code": "招待コードを入力してください",
+        "invalid_code": "招待コードが無効です",
+        "already_member": "すでにこのグループのメンバーです",
+        "join_failed": "参加に失敗しました"
+      }
+    },
+    "invite": {
+      "code_label": "招待コード",
+      "url_label": "招待リンク",
+      "copy_button": "コードをコピー",
+      "copied_toast": "コードをコピーしました",
+      "copy_url_button": "リンクをコピー",
+      "copied_url_toast": "リンクをコピーしました",
+      "share_button": "リンクをシェア",
+      "share_title": "買い物リストへの招待",
+      "share_message": "買い物リストグループに参加してください",
+      "share_failed": "共有に失敗しました"
+    }
+  },
+  "tag": {
+    "manage": "タグ",
+    "create": "タグを追加",
+    "name_placeholder": "タグ名（最大20文字）",
+    "rename": "名前を変更",
+    "delete": "タグを削除",
+    "confirm_delete": "「{name}」を削除しますか？",
+    "no_tag": "タグなし",
+    "default_urgent": "急ぎ",
+    "default_bulk": "まとめ買い",
+    "items_count": "{count}件",
+    "section_delete": "このセクションを削除",
+    "section_confirm_delete": "タグ「{name}」の全アイテムを削除しますか？",
+    "limit_reached_free": "タグは最大5件まで（無料プラン）",
+    "limit_reached_paid": "タグは最大50件まで（有料プラン）",
+    "remaining": "あと{count}件追加可能",
+    "error": {
+      "add_failed": "タグの追加に失敗しました",
+      "rename_failed": "タグ名の変更に失敗しました",
+      "delete_failed": "タグの削除に失敗しました",
+      "limit_exceeded": "タグの上限に達しました"
+    }
+  },
+  "select": {
+    "count": "{count}件選択中",
+    "change_tag": "タグを変更",
+    "cancel": "キャンセル"
+  },
+  "sidebar": {
+    "open": "メニューを開く",
+    "language": "言語",
+    "profile": "プロフィール",
+    "logout": "ログアウト"
+  },
+  "quick_add": {
+    "placeholder": "商品を追加...",
+    "hide": "クイック追加を隠す",
+    "show": "表示する"
+  },
+  "profile": {
+    "title": "プロフィール",
+    "display_name": "表示名",
+    "avatar": "アバター画像",
+    "change_avatar": "画像を変更",
+    "save": "保存する",
+    "saving": "保存中...",
+    "success": "プロフィールを更新しました",
+    "delete_account": "退会する",
+    "delete_confirm": "退会してもよいですか？この操作は取り消せません。",
+    "back": "戻る",
+    "error": {
+      "update_failed": "プロフィールの更新に失敗しました",
+      "cannot_delete_owner": "グループオーナーのまま退会できません。グループを解散または譲渡してください",
+      "delete_failed": "退会処理に失敗しました"
+    }
+  },
+  "auth": {
+    "login": "ログイン",
+    "signup": "サインアップ",
+    "logout": "ログアウト",
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "password_confirm": "パスワード（確認）",
+    "display_name": "ユーザー名（任意）",
+    "show_password": "表示",
+    "hide_password": "非表示",
+    "need_account": "アカウントをお持ちでないですか？",
+    "has_account": "すでにアカウントをお持ちですか？",
+    "error": {
+      "login_failed": "ログインに失敗しました",
+      "passwords_do_not_match": "パスワードが一致しません",
+      "signup_failed": "アカウント作成に失敗しました",
+      "empty_password": "パスワードを入力してください",
+      "email_already_in_use": "このメールアドレスはすでに使用されています",
+      "weak_password": "パスワードは6文字以上で入力してください",
+      "invalid_email": "メールアドレスの形式が正しくありません",
+      "invalid_credential": "メールアドレスまたはパスワードが正しくありません",
+      "too_many_requests": "試行回数が多すぎます。しばらくしてから再度お試しください"
+    }
+  }
+}
