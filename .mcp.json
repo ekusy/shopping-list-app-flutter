@@ -2,7 +2,7 @@
   "mcpServers": {
     "dart": {
       "type": "stdio",
-      "command": "dart",
+      "command": "/snap/bin/dart",
       "args": [
         "mcp-server"
       ],

@@ -1,0 +1,29 @@
+goal: shopping-list-appをFlutterで再構成する
+check:
+  - shopping-list-appの機能をFlutterで再構成する
+  - shopping-list-app-flutterにshopping-list-appの全機能が実装される
+  - shopping-list-app-flutterにshopping-list-appと同等の単体テストが成功している
+  - shopping-list-app-flutterのWebビルドが成功する
+  - shopping-list-app-flutterのAndroidビルドが成功する
+  - shopping-list-app-flutterをデプロイする準備が完了している
+  - Flutterのベストプラクティスに従ってコードを構築する
+  - ユーザーインターフェースが直感的で使いやすいことを確認する
+  - 残ユーザータスクが明確化されている
+  - 既存のドキュメント類がFlutterコードベースで作成されている
+Constraints:
+  - shopping-list-appのコードベースをFlutterに移行する際に、既存の機能を損なわないようにする
+  - Flutterのフレームワークとツールを効果的に活用して、効率的な開発プロセスを確保する
+  - ユーザーエクスペリエンスを向上させるために、Flutterのウィジェットとデザイン原則を適切に使用する
+  - コードの品質と保守性を確保するために、Flutterのベストプラクティスに従う
+  - 単体テストを実装して、Flutterコードベースの機能を検証する
+  - コードの再利用とテスト促進を目的として、コードのモジュール化、アーキテクチャへの準拠を徹底する
+  - 例えば、MVVMやClean Architectureなどのアーキテクチャパターンを採用することが考えられる
+  - 各クラス、コンポーネントは単一の責任を持ち、明確なインターフェースを提供することを目指す
+  - 各クラス、コンポーネントは可能な限り小さく、理解しやすいものにすることを目指す
+  - コードのモジュール化を促進するために、適切なパッケージ構造を採用することが考えられる
+  - Flutterのビルドシステムとデプロイメントプロセスを理解し、適切に活用する
+  - 特定のベンダーに依存する機能は抽象化して、将来的な変更に柔軟に対応できるようにする
+  - iOS/Android両方のプラットフォームでの互換性を確保する
+  - 適切な単位でコミットを実施する
+  - F:\Develop\ShoppingListApp\shopping-list-app-flutter 配下以外のファイルを変更しない
+  - F:\Develop\ShoppingListApp 配下以外のファイルを参照しない
