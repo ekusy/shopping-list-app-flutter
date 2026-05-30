@@ -1,0 +1,59 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ユーザードキュメント: 本人のみ読み書き可
+    match /users/{uid} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == uid;
+    }
+
+    match /groups/{groupId} {
+      // メンバーのみ読み取り可
+      allow read: if request.auth != null
+                  && request.auth.uid in resource.data.memberIds;
+
+      // 新規作成: 自分が ownerId かつ memberIds に含まれる場合
+      // 更新: 現在のメンバーによる変更のみ許可
+      allow write: if request.auth != null
+                   && (
+                     (request.resource.data.ownerId == request.auth.uid
+                      && request.resource.data.memberIds.hasAll([request.auth.uid]))
+                     ||
+                     request.auth.uid in resource.data.memberIds
+                   );
+
+      // アイテム（フラットパス #142〜）: グループメンバーのみ読み書き可
+      match /items/{itemId} {
+        allow read, write: if request.auth != null
+                           && request.auth.uid in
+                              get(/databases/$(database)/documents/groups/$(groupId))
+                              .data.memberIds;
+      }
+
+      // タグ: グループメンバーのみ読み書き可
+      match /tags/{tagId} {
+        allow read, write: if request.auth != null
+                           && request.auth.uid in
+                              get(/databases/$(database)/documents/groups/$(groupId))
+                              .data.memberIds;
+      }
+
+      // リスト（#142 で廃止。既存データ互換のためルールは残置）:
+      // グループメンバーのみ読み書き可
+      match /lists/{listId} {
+        allow read, write: if request.auth != null
+                           && request.auth.uid in
+                              get(/databases/$(database)/documents/groups/$(groupId))
+                              .data.memberIds;
+
+        match /items/{itemId} {
+          allow read, write: if request.auth != null
+                             && request.auth.uid in
+                                get(/databases/$(database)/documents/groups/$(groupId))
+                                .data.memberIds;
+        }
+      }
+    }
+  }
+}
