@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code スキル・MCPカタログ</title>
+<style>
+  :root {
+    --tier0: #6b7280; --tier0-bg: #f3f4f6; --tier0-border: #d1d5db;
+    --tier1: #059669; --tier1-bg: #ecfdf5; --tier1-border: #6ee7b7;
+    --tier2: #2563eb; --tier2-bg: #eff6ff; --tier2-border: #93c5fd;
+    --tier3: #7c3aed; --tier3-bg: #f5f3ff; --tier3-border: #c4b5fd;
+    --repo:  #d97706; --repo-bg:  #fffbeb; --repo-border: #fcd34d;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9fafb; color: #111827; line-height: 1.6; }
+  header { background: #1e1b4b; color: #fff; padding: 2rem; }
+  header h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem; }
+  header p  { font-size: 0.875rem; color: #a5b4fc; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem; }
+
+  /* Tier legend */
+  .legend { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
+  .legend-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  /* Filter buttons */
+  .filters { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
+  .filter-btn {
+    padding: 0.3rem 0.9rem; border-radius: 999px; border: 1px solid #d1d5db;
+    background: #fff; cursor: pointer; font-size: 0.8rem; transition: all .15s;
+  }
+  .filter-btn.active, .filter-btn:hover { background: #1e1b4b; color: #fff; border-color: #1e1b4b; }
+
+  /* Cards grid */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem; }
+  .card {
+    background: #fff; border-radius: 0.75rem; border: 1px solid #e5e7eb;
+    padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem;
+    transition: box-shadow .15s;
+  }
+  .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+
+  /* Tier badge */
+  .card-header { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+  .card-name { font-weight: 700; font-size: 1rem; }
+  .badge {
+    font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.6rem;
+    border-radius: 999px; white-space: nowrap;
+  }
+  .tier0 .badge { background: var(--tier0-bg); color: var(--tier0); border: 1px solid var(--tier0-border); }
+  .tier1 .badge { background: var(--tier1-bg); color: var(--tier1); border: 1px solid var(--tier1-border); }
+  .tier2 .badge { background: var(--tier2-bg); color: var(--tier2); border: 1px solid var(--tier2-border); }
+  .tier3 .badge { background: var(--tier3-bg); color: var(--tier3); border: 1px solid var(--tier3-border); }
+  .repo  .badge { background: var(--repo-bg);  color: var(--repo);  border: 1px solid var(--repo-border);  }
+
+  .card-desc { font-size: 0.875rem; color: #374151; }
+
+  /* Tags */
+  .tags { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+  .tag {
+    font-size: 0.7rem; padding: 0.1rem 0.5rem; border-radius: 4px;
+    background: #f3f4f6; color: #4b5563; border: 1px solid #e5e7eb;
+  }
+
+  /* Meta row */
+  .meta { display: flex; gap: 0.5rem; flex-wrap: wrap; font-size: 0.75rem; }
+  .meta-item { display: flex; align-items: center; gap: 0.2rem; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+  .dot-ok  { background: #059669; }
+  .dot-req { background: #ef4444; }
+  .dot-no  { background: #9ca3af; }
+
+  /* Install */
+  .install-label { font-size: 0.7rem; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+  .install-code {
+    background: #1e1b4b; color: #c7d2fe; border-radius: 0.4rem;
+    padding: 0.5rem 0.75rem; font-size: 0.72rem; font-family: 'Menlo', 'Monaco', monospace;
+    white-space: pre-wrap; word-break: break-all; cursor: pointer;
+    position: relative;
+  }
+  .install-code:hover::after {
+    content: 'コピー';
+    position: absolute; top: 0.25rem; right: 0.5rem;
+    font-size: 0.65rem; color: #a5b4fc;
+  }
+
+  /* Source */
+  .source { font-size: 0.75rem; }
+  .source a { color: #2563eb; text-decoration: none; }
+  .source a:hover { text-decoration: underline; }
+
+  .section-title { font-size: 1.1rem; font-weight: 700; color: #1e1b4b; margin: 2rem 0 1rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+
+  /* hidden class */
+  .card.hidden { display: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Claude Code スキル・MCP カタログ</h1>
+  <p>Tier、用途、配布元で整理した導入候補一覧 — 2026-05</p>
+</header>
+
+<div class="container">
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--tier0)"></div><span>Tier 0: 基盤（既導入）</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--tier1)"></div><span>Tier 1: 汎用・即効性あり</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--tier2)"></div><span>Tier 2: プロジェクト構成次第</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--tier3)"></div><span>Tier 3: チーム・プロセス連携</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--repo)"></div><span>スキルリポジトリ</span></div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <button class="filter-btn active" onclick="filterCards('all', this)">すべて</button>
+    <button class="filter-btn" onclick="filterCards('tier0', this)">Tier 0</button>
+    <button class="filter-btn" onclick="filterCards('tier1', this)">Tier 1</button>
+    <button class="filter-btn" onclick="filterCards('tier2', this)">Tier 2</button>
+    <button class="filter-btn" onclick="filterCards('tier3', this)">Tier 3</button>
+    <button class="filter-btn" onclick="filterCards('repo', this)">スキルリポジトリ</button>
+    <button class="filter-btn" onclick="filterCards('nokey', this)">APIキー不要</button>
+  </div>
+
+  <div class="section-title">MCP サーバー</div>
+  <div class="grid" id="card-grid">
+
+    <!-- Tier 0 -->
+    <div class="card tier0" data-tier="tier0" data-nokey="true">
+      <div class="card-header">
+        <span class="card-name">Dart MCP Server</span>
+        <span class="badge">Tier 0 — 基盤</span>
+      </div>
+      <p class="card-desc">dart analyze・テスト実行・pub.dev 検索・コード整形・シンボル解決。Flutter 開発の中核ツール。</p>
+      <div class="tags">
+        <span class="tag">静的解析</span><span class="tag">自動テスト</span><span class="tag">デバッグ</span><span class="tag">ドキュメント</span>
+      </div>
+      <div class="meta">
+        <div class="meta-item"><span class="dot dot-no"></span> APIキー不要</div>
+        <div class="meta-item"><span class="dot dot-no"></span> Node.js 不要</div>
+        <div class="meta-item"><span class="dot dot-req"></span> Dart 3.9+</div>
+      </div>
+      <div class="install-label">インストール</div>
+      <div class="install-code" onclick="copyCode(this)">claude mcp add --scope project --transport stdio dart -- dart mcp-server</div>
+      <div class="source">配布元: <a href="https://docs.flutter.dev/ai/mcp-server" target="_blank">flutter.dev / Google</a></div>
+    </div>
+
+    <!-- Tier 1 -->
+    <div class="card tier1" data-tier="tier1" data-nokey="true">
+      <div class="card-header">
+        <span class="card-name">Context7</span>
+        <span class="badge">Tier 1 — 汎用</span>
+      </div>
+      <p class="card-desc">pub.dev・Flutter・任意ライブラリのドキュメントをリアルタイム参照。バージョン差異・新 API 対応に強い。</p>
+      <div class="tags">
+        <span class="tag">ドキュメント</span><span class="tag">仕様作成</span><span class="tag">アーキテクチャ</span>
+      </div>
+      <div class="meta">
+        <div class="meta-item"><span class="dot dot-no"></span> APIキー不要</div>
+        <div class="meta-item"><span class="dot dot-no"></span> Node.js 不要</div>
+      </div>
+      <div class="install-label">インストール</div>
+      <div class="install-code" onclick="copyCode(this)">claude mcp add --transport http context7 https://mcp.context7.com/mcp</div>
+      <div class="source">配布元: <a href="https://context7.com" target="_blank">Upstash / context7.com</a></div>
+    </div>
+
+    <div class="card tier1" data-tier="tier1" data-nokey="true">
+      <div class="card-header">
+        <span class="card-name">Sequential Thinking</span>
+        <span class="badge">Tier 1 — 汎用</span>
+      </div>
+      <p class="card-desc">複雑な設計・デバッグ・要件分解を段階的推論で解決。アーキテクチャ検討や難易度の高いバグ調査に有効。</p>
+      <div class="tags">
+        <span class="tag">アーキテクチャ</span><span class="tag">要件定義</span><span class="tag">デバッグ</span>
+      </div>
+      <div class="meta">
+        <div class="meta-item"><span class="dot dot-no"></span> APIキー不要</div>
+        <div class="meta-item"><span class="dot dot-ok"></span> Node.js 必要</div>
+      </div>
+      <div class="install-label">インストール</div>
+      <div class="install-code" onclick="copyCode(this)">claude mcp add sequential-thinking npx -- -y @modelcontextprotocol/server-sequential-thinking</div>
+      <div class="source">配布元: <a href="https://github.com/modelcontextprotocol/servers" target="_blank">Anthropic / MCP公式</a></div>
+    </div>
+
+    <!-- Tier 2 -->
+    <div class="card tier2" data-tier="tier2" data-nokey="true">
+      <div class="card-header">
+        <span class="card-name">Firebase MCP</span>
+        <span class="badge">Tier 2 — 構成次第</span>
+      </div>
+      <p class="card-desc">Firestore・Auth・Crashlytics・FCM を AI から直接操作。Firebase バックエンドを使う Flutter アプリに最適。</p>
+      <div class="tags">
+        <span class="tag">デバッグ</span><span class="tag">CI/CD</span><span class="tag">自動テスト</span>
+      </div>
+      <div class="meta">
+        <div class="meta-item"><span class="dot dot-no"></span> APIキー不要（firebase login）</div>
+        <div class="meta-item"><span class="dot dot-ok"></span> Node.js 必要</div>
+      </div>
+      <div class="install-label">インストール</div>
+      <div class="install-code" onclick="copyCode(this)">claude mcp add firebase npx -- -y firebase-tools@latest mcp</div>
+      <div class="source">配布元: <a href="https://firebase.google.com/docs/ai-assistance/mcp-server" target="_blank">Google / Firebase公式</a></div>
+    </div>
+
+    <div class="card tier2" data-tier="tier2">
+      <div class="card-header">
+        <span class="card-name">Figma MCP</span>
+        <span class="badge">Tier 2 — 構成次第</span>
+      </div>
+      <p class="card-desc">Figma デザインのコンポーネント・デザイントークン・オートレイアウトを読み取りコード生成。デザイン→Flutter ウィジェット変換。</p>
+      <div class="tags">
+        <span class="tag">デザイン</span><span class="tag">UI/UX</span><span class="tag">仕様作成</span>
+      </div>
+      <div class="meta">
+        <div class="meta-item"><span class="dot dot-req"></span> Figma APIキー必要</div>
+        <div class="meta-item"><span class="dot dot-ok"></span> Node.js 必要</div>
+      </div>
+      <div class="install-label">インストール（要: Figma API Token）</div>
+      <div class="install-code" onclick="copyCode(this)">claude mcp add figma npx -- -y figma-mcp-server</div>
+      <div class="source">配布元: <a href="https://help.figma.com/hc/en-us/articles/32132100833559" target="_blank">Figma / 公式</a></div>
+    </div>
+
+    <div class="card tier2" data-tier="tier2" data-nokey="true">
+      <div class="card-header">
+        <span class="card-name">Playwright MCP</span>
+        <span class="badge">Tier 2 — 構成次第</span>
+      </div>
+      <p class="card-desc">ブラウザ自動化・アクセシビリティツリーを活用した E2E テスト生成・実行。Flutter Web テストに有効。</p>
+      <div class="tags">
+        <span class="tag">自動テスト</span><span class="tag">UI/UX</span><span class="tag">デバッグ</span>
+      </div>
+      <div class="meta">
+        <div class="meta-item"><span class="dot dot-no"></span> APIキー不要</div>
+        <div class="meta-item"><span class="dot dot-ok"></span> Node.js 必要</div>
+      </div>
+      <div class="install-label">インストール</div>
+      <div class="install-code" onclick="copyCode(this)">claude mcp add playwright npx -- @playwright/mcp@latest</div>
+      <div class="source">配布元: <a href="https://github.com/microsoft/playwright-mcp" target="_blank">Microsoft / 公式</a></div>
+    </div>
+
+    <!-- Tier 3 -->
+    <div class="card tier3" data-tier="tier3" data-nokey="true">
+      <div class="card-header">
+        <span class="card-name">Notion MCP</span>
+        <span class="badge">Tier 3 — チーム連携</span>
+      </div>
+      <p class="card-desc">要件定義書・仕様・設計ノートを Notion から参照・更新。ドキュメント駆動開発の起点として活用。</p>
+      <div class="tags">
+        <span class="tag">要件定義</span><span class="tag">仕様作成</span><span class="tag">ドキュメント</span>
+      </div>
+      <div class="meta">
+        <div class="meta-item"><span class="dot dot-req"></span> Notion APIキー必要</div>
+        <div class="meta-item"><span class="dot dot-no"></span> Node.js 不要（HTTP）</div>
+      </div>
+      <div class="install-label">インストール（OAuth で自動認証）</div>
+      <div class="install-code" onclick="copyCode(this)">claude mcp add --transport http notion https://mcp.notion.com/mcp</div>
+      <div class="source">配布元: <a href="https://www.notion.so/product/mcp" target="_blank">Notion / 公式</a></div>
+    </div>
+
+    <div class="card tier3" data-tier="tier3">
+      <div class="card-header">
+        <span class="card-name">Linear MCP</span>
+        <span class="badge">Tier 3 — チーム連携</span>
+      </div>
+      <p class="card-desc">チケット・スプリント・ロードマップ操作。Figma デザインリンクとの連携も可。要件→チケット変換ワークフローに有効。</p>
+      <div class="tags">
+        <span class="tag">要件定義</span><span class="tag">タスク管理</span><span class="tag">CI/CD</span>
+      </div>
+      <div class="meta">
+        <div class="meta-item"><span class="dot dot-req"></span> Linear APIキー必要</div>
+        <div class="meta-item"><span class="dot dot-ok"></span> Node.js 必要</div>
+      </div>
+      <div class="install-label">インストール（LINEAR_API_KEY が必要）</div>
+      <div class="install-code" onclick="copyCode(this)">claude mcp add linear npx -- -y linear-mcp-server</div>
+      <div class="source">配布元: <a href="https://linear.app/developers/mcp" target="_blank">Linear / 公式</a></div>
+    </div>
+
+    <div class="card tier3" data-tier="tier3" data-nokey="true">
+      <div class="card-header">
+        <span class="card-name">Sentry MCP</span>
+        <span class="badge">Tier 3 — チーム連携</span>
+      </div>
+      <p class="card-desc">クラッシュレポート・スタックトレースを AI から直接参照してデバッグ。本番エラーの原因特定を高速化。</p>
+      <div class="tags">
+        <span class="tag">デバッグ</span><span class="tag">静的解析</span><span class="tag">CI/CD</span>
+      </div>
+      <div class="meta">
+        <div class="meta-item"><span class="dot dot-req"></span> Sentry Auth Token 必要</div>
+        <div class="meta-item"><span class="dot dot-no"></span> Node.js 不要（HTTP）</div>
+      </div>
+      <div class="install-label">インストール（OAuth で自動認証）</div>
+      <div class="install-code" onclick="copyCode(this)">claude mcp add --transport http sentry https://mcp.sentry.dev/mcp</div>
+      <div class="source">配布元: <a href="https://sentry.io/product/mcp/" target="_blank">Sentry / 公式</a></div>
+    </div>
+
+    <div class="card tier3" data-tier="tier3">
+      <div class="card-header">
+        <span class="card-name">Slack MCP</span>
+        <span class="badge">Tier 3 — チーム連携</span>
+      </div>
+      <p class="card-desc">チャンネル検索・DM・メッセージ投稿。議事録→仕様への変換や、Slack スレッドから要件を抽出するワークフローに活用。</p>
+      <div class="tags">
+        <span class="tag">要件定義</span><span class="tag">ドキュメント</span>
+      </div>
+      <div class="meta">
+        <div class="meta-item"><span class="dot dot-req"></span> Slack Token 必要</div>
+        <div class="meta-item"><span class="dot dot-ok"></span> Node.js 必要</div>
+      </div>
+      <div class="install-label">インストール（xoxc / xoxd トークンが必要）</div>
+      <div class="install-code" onclick="copyCode(this)">claude mcp add slack npx -- -y slack-mcp-server</div>
+      <div class="source">配布元: <a href="https://docs.slack.dev/ai/slack-mcp-server" target="_blank">Slack / 公式</a></div>
+    </div>
+
+    <div class="card tier3" data-tier="tier3" data-nokey="true">
+      <div class="card-header">
+        <span class="card-name">Git MCP</span>
+        <span class="badge">Tier 3 — チーム連携</span>
+      </div>
+      <p class="card-desc">ローカルリポジトリのコミット・差分・ログ・blame 操作。GitHub MCP（リモート操作）と併用するとフルカバー。</p>
+      <div class="tags">
+        <span class="tag">Git</span><span class="tag">デバッグ</span><span class="tag">CI/CD</span>
+      </div>
+      <div class="meta">
+        <div class="meta-item"><span class="dot dot-no"></span> APIキー不要</div>
+        <div class="meta-item"><span class="dot dot-no"></span> Node.js 不要（uvx）</div>
+      </div>
+      <div class="install-label">インストール（uvx / Python 必要）</div>
+      <div class="install-code" onclick="copyCode(this)">claude mcp add git uvx -- mcp-server-git</div>
+      <div class="source">配布元: <a href="https://github.com/modelcontextprotocol/servers" target="_blank">Anthropic / MCP公式</a></div>
+    </div>
+
+  </div><!-- /grid -->
+
+  <div class="section-title">スキルリポジトリ</div>
+  <div class="grid">
+
+    <div class="card tier0 repo" data-tier="repo">
+      <div class="card-header">
+        <span class="card-name">ECC — Everything Claude Code</span>
+        <span class="badge">スキルリポジトリ</span>
+      </div>
+      <p class="card-desc">60 エージェント・232 スキル・75 コマンド・セキュリティスキャナーを搭載。Anthropic ハッカソン優勝作。</p>
+      <div class="tags">
+        <span class="tag">アーキテクチャ</span><span class="tag">要件定義</span><span class="tag">自動テスト</span>
+        <span class="tag">CI/CD</span><span class="tag">デバッグ</span><span class="tag">Git</span><span class="tag">静的解析</span>
+      </div>
+      <div class="meta">
+        <div class="meta-item"><span class="dot dot-no"></span> APIキー不要</div>
+        <div class="meta-item"><span class="dot dot-ok"></span> Node.js（npx ecc-agentshield のみ）</div>
+      </div>
+      <div class="install-label">インストール（手動 or プラグイン）</div>
+      <div class="install-code" onclick="copyCode(this)">git clone --depth=1 https://github.com/affaan-m/everything-claude-code.git /tmp/ecc
+# ユーザーレベル
+cp /tmp/ecc/agents/*.md ~/.claude/agents/
+cp /tmp/ecc/commands/*.md ~/.claude/commands/
+cp -r /tmp/ecc/skills/* ~/.claude/skills/
+cp -r /tmp/ecc/rules/common ~/.claude/rules/
+rm -rf /tmp/ecc</div>
+      <div class="source">配布元: <a href="https://github.com/affaan-m/everything-claude-code" target="_blank">affaan-m / MIT License</a></div>
+    </div>
+
+    <div class="card repo" data-tier="repo">
+      <div class="card-header">
+        <span class="card-name">alirezarezvani/claude-skills</span>
+        <span class="badge">スキルリポジトリ</span>
+      </div>
+      <p class="card-desc">338 スキル・16 ドメイン対応。アーキテクチャ・CI/CD・TDD・ドキュメント・UI/UX・C レベルアドバイザーまで網羅。</p>
+      <div class="tags">
+        <span class="tag">アーキテクチャ</span><span class="tag">仕様作成</span><span class="tag">ドキュメント</span>
+        <span class="tag">CI/CD</span><span class="tag">自動テスト</span><span class="tag">デバッグ</span>
+        <span class="tag">UI/UX</span><span class="tag">デザイン</span><span class="tag">Git</span>
+      </div>
+      <div class="meta">
+        <div class="meta-item"><span class="dot dot-no"></span> APIキー不要</div>
+        <div class="meta-item"><span class="dot dot-no"></span> Node.js 不要</div>
+      </div>
+      <div class="install-label">インストール（手動）</div>
+      <div class="install-code" onclick="copyCode(this)">git clone --depth=1 https://github.com/alirezarezvani/claude-skills.git /tmp/cskills
+mkdir -p ~/.claude/skills
+cp -r /tmp/cskills/skills/* ~/.claude/skills/
+rm -rf /tmp/cskills</div>
+      <div class="source">配布元: <a href="https://github.com/alirezarezvani/claude-skills" target="_blank">alirezarezvani / MIT License</a></div>
+    </div>
+
+    <div class="card tier0 repo" data-tier="repo">
+      <div class="card-header">
+        <span class="card-name">dart-lang/skills + flutter/skills</span>
+        <span class="badge">スキルリポジトリ</span>
+      </div>
+      <p class="card-desc">Dart・Flutter 公式チームが提供するスキル。ユニットテスト生成・依存解決・静的解析修正・レスポンシブレイアウト等。</p>
+      <div class="tags">
+        <span class="tag">自動テスト</span><span class="tag">静的解析</span><span class="tag">UI/UX</span>
+      </div>
+      <div class="meta">
+        <div class="meta-item"><span class="dot dot-no"></span> APIキー不要</div>
+        <div class="meta-item"><span class="dot dot-ok"></span> Node.js 必要（npx）</div>
+      </div>
+      <div class="install-label">インストール</div>
+      <div class="install-code" onclick="copyCode(this)">npx --yes skills add dart-lang/skills --skill '*' --agent universal
+npx --yes skills add flutter/skills --skill '*' --agent universal</div>
+      <div class="source">配布元: <a href="https://docs.flutter.dev/ai/agent-skills" target="_blank">Dart / Flutter 公式チーム</a></div>
+    </div>
+
+  </div><!-- /grid -->
+
+  <!-- Summary table -->
+  <div class="section-title">サマリー</div>
+  <div style="overflow-x:auto">
+  <table style="width:100%;border-collapse:collapse;font-size:0.82rem;background:#fff;border-radius:0.5rem;overflow:hidden;border:1px solid #e5e7eb">
+    <thead style="background:#1e1b4b;color:#fff">
+      <tr>
+        <th style="padding:.6rem 1rem;text-align:left">ツール</th>
+        <th style="padding:.6rem;text-align:center">Tier</th>
+        <th style="padding:.6rem;text-align:left">主な用途</th>
+        <th style="padding:.6rem;text-align:center">APIキー</th>
+        <th style="padding:.6rem;text-align:center">Node.js</th>
+        <th style="padding:.6rem;text-align:left">配布元</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="border-bottom:1px solid #f3f4f6;background:#f9fafb">
+        <td style="padding:.5rem 1rem;font-weight:600">Dart MCP Server</td>
+        <td style="padding:.5rem;text-align:center"><span style="color:var(--tier0);font-weight:700">0</span></td>
+        <td style="padding:.5rem">静的解析・テスト・デバッグ・ドキュメント</td>
+        <td style="padding:.5rem;text-align:center">—</td>
+        <td style="padding:.5rem;text-align:center">—</td>
+        <td style="padding:.5rem">Google / flutter.dev</td>
+      </tr>
+      <tr style="border-bottom:1px solid #f3f4f6">
+        <td style="padding:.5rem 1rem;font-weight:600">Context7</td>
+        <td style="padding:.5rem;text-align:center"><span style="color:var(--tier1);font-weight:700">1</span></td>
+        <td style="padding:.5rem">ドキュメント参照・仕様確認・アーキテクチャ</td>
+        <td style="padding:.5rem;text-align:center">—</td>
+        <td style="padding:.5rem;text-align:center">—</td>
+        <td style="padding:.5rem">Upstash / context7.com</td>
+      </tr>
+      <tr style="border-bottom:1px solid #f3f4f6;background:#f9fafb">
+        <td style="padding:.5rem 1rem;font-weight:600">Sequential Thinking</td>
+        <td style="padding:.5rem;text-align:center"><span style="color:var(--tier1);font-weight:700">1</span></td>
+        <td style="padding:.5rem">アーキテクチャ・要件定義・デバッグ</td>
+        <td style="padding:.5rem;text-align:center">—</td>
+        <td style="padding:.5rem;text-align:center">✓</td>
+        <td style="padding:.5rem">Anthropic / MCP公式</td>
+      </tr>
+      <tr style="border-bottom:1px solid #f3f4f6">
+        <td style="padding:.5rem 1rem;font-weight:600">Firebase MCP</td>
+        <td style="padding:.5rem;text-align:center"><span style="color:var(--tier2);font-weight:700">2</span></td>
+        <td style="padding:.5rem">デバッグ・CI/CD・テスト</td>
+        <td style="padding:.5rem;text-align:center">—（ログイン）</td>
+        <td style="padding:.5rem;text-align:center">✓</td>
+        <td style="padding:.5rem">Google / Firebase公式</td>
+      </tr>
+      <tr style="border-bottom:1px solid #f3f4f6;background:#f9fafb">
+        <td style="padding:.5rem 1rem;font-weight:600">Figma MCP</td>
+        <td style="padding:.5rem;text-align:center"><span style="color:var(--tier2);font-weight:700">2</span></td>
+        <td style="padding:.5rem">デザイン・UI/UX・仕様作成</td>
+        <td style="padding:.5rem;text-align:center">✓</td>
+        <td style="padding:.5rem;text-align:center">✓</td>
+        <td style="padding:.5rem">Figma / 公式</td>
+      </tr>
+      <tr style="border-bottom:1px solid #f3f4f6">
+        <td style="padding:.5rem 1rem;font-weight:600">Playwright MCP</td>
+        <td style="padding:.5rem;text-align:center"><span style="color:var(--tier2);font-weight:700">2</span></td>
+        <td style="padding:.5rem">自動テスト・UI/UX・デバッグ</td>
+        <td style="padding:.5rem;text-align:center">—</td>
+        <td style="padding:.5rem;text-align:center">✓</td>
+        <td style="padding:.5rem">Microsoft / 公式</td>
+      </tr>
+      <tr style="border-bottom:1px solid #f3f4f6;background:#f9fafb">
+        <td style="padding:.5rem 1rem;font-weight:600">Notion MCP</td>
+        <td style="padding:.5rem;text-align:center"><span style="color:var(--tier3);font-weight:700">3</span></td>
+        <td style="padding:.5rem">要件定義・仕様作成・ドキュメント</td>
+        <td style="padding:.5rem;text-align:center">✓</td>
+        <td style="padding:.5rem;text-align:center">—</td>
+        <td style="padding:.5rem">Notion / 公式</td>
+      </tr>
+      <tr style="border-bottom:1px solid #f3f4f6">
+        <td style="padding:.5rem 1rem;font-weight:600">Linear MCP</td>
+        <td style="padding:.5rem;text-align:center"><span style="color:var(--tier3);font-weight:700">3</span></td>
+        <td style="padding:.5rem">要件定義・タスク管理・CI/CD</td>
+        <td style="padding:.5rem;text-align:center">✓</td>
+        <td style="padding:.5rem;text-align:center">✓</td>
+        <td style="padding:.5rem">Linear / 公式</td>
+      </tr>
+      <tr style="border-bottom:1px solid #f3f4f6;background:#f9fafb">
+        <td style="padding:.5rem 1rem;font-weight:600">Sentry MCP</td>
+        <td style="padding:.5rem;text-align:center"><span style="color:var(--tier3);font-weight:700">3</span></td>
+        <td style="padding:.5rem">デバッグ・静的解析・CI/CD</td>
+        <td style="padding:.5rem;text-align:center">✓</td>
+        <td style="padding:.5rem;text-align:center">—</td>
+        <td style="padding:.5rem">Sentry / 公式</td>
+      </tr>
+      <tr style="border-bottom:1px solid #f3f4f6">
+        <td style="padding:.5rem 1rem;font-weight:600">Slack MCP</td>
+        <td style="padding:.5rem;text-align:center"><span style="color:var(--tier3);font-weight:700">3</span></td>
+        <td style="padding:.5rem">要件定義・ドキュメント</td>
+        <td style="padding:.5rem;text-align:center">✓</td>
+        <td style="padding:.5rem;text-align:center">✓</td>
+        <td style="padding:.5rem">Slack / 公式</td>
+      </tr>
+      <tr style="border-bottom:1px solid #f3f4f6;background:#f9fafb">
+        <td style="padding:.5rem 1rem;font-weight:600">Git MCP</td>
+        <td style="padding:.5rem;text-align:center"><span style="color:var(--tier3);font-weight:700">3</span></td>
+        <td style="padding:.5rem">Git・デバッグ・CI/CD</td>
+        <td style="padding:.5rem;text-align:center">—</td>
+        <td style="padding:.5rem;text-align:center">—</td>
+        <td style="padding:.5rem">Anthropic / MCP公式</td>
+      </tr>
+      <tr style="border-bottom:1px solid #f3f4f6">
+        <td style="padding:.5rem 1rem;font-weight:600">ECC</td>
+        <td style="padding:.5rem;text-align:center"><span style="color:var(--repo);font-weight:700">Repo</span></td>
+        <td style="padding:.5rem">全領域（60エージェント・232スキル）</td>
+        <td style="padding:.5rem;text-align:center">—</td>
+        <td style="padding:.5rem;text-align:center">一部</td>
+        <td style="padding:.5rem">affaan-m / MIT</td>
+      </tr>
+      <tr style="border-bottom:1px solid #f3f4f6;background:#f9fafb">
+        <td style="padding:.5rem 1rem;font-weight:600">alirezarezvani/claude-skills</td>
+        <td style="padding:.5rem;text-align:center"><span style="color:var(--repo);font-weight:700">Repo</span></td>
+        <td style="padding:.5rem">全領域（338スキル・16ドメイン）</td>
+        <td style="padding:.5rem;text-align:center">—</td>
+        <td style="padding:.5rem;text-align:center">—</td>
+        <td style="padding:.5rem">alirezarezvani / MIT</td>
+      </tr>
+      <tr>
+        <td style="padding:.5rem 1rem;font-weight:600">dart-lang/skills + flutter/skills</td>
+        <td style="padding:.5rem;text-align:center"><span style="color:var(--repo);font-weight:700">Repo</span></td>
+        <td style="padding:.5rem">静的解析・自動テスト・UI/UX</td>
+        <td style="padding:.5rem;text-align:center">—</td>
+        <td style="padding:.5rem;text-align:center">✓</td>
+        <td style="padding:.5rem">Dart / Flutter公式チーム</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p style="margin-top:2rem;font-size:0.75rem;color:#6b7280;text-align:center">
+    生成日: 2026-05-30 — Claude Code スキルカタログ
+  </p>
+</div>
+
+<script>
+function filterCards(tier, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  document.querySelectorAll('.card').forEach(card => {
+    if (tier === 'all') {
+      card.classList.remove('hidden');
+    } else if (tier === 'nokey') {
+      card.dataset.nokey === 'true' ? card.classList.remove('hidden') : card.classList.add('hidden');
+    } else {
+      card.dataset.tier === tier ? card.classList.remove('hidden') : card.classList.add('hidden');
+    }
+  });
+}
+
+function copyCode(el) {
+  navigator.clipboard.writeText(el.textContent).then(() => {
+    const orig = el.style.background;
+    el.style.background = '#1e3a5f';
+    setTimeout(() => { el.style.background = orig; }, 300);
+  });
+}
+</script>
+</body>
+</html>

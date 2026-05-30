@@ -1,3 +1,10 @@
+# common
+tokens
+
+# Claude Code - installed via setup (re-installable)
+.agents/
+skills-lock.json
+
 # Miscellaneous
 *.class
 *.lock
