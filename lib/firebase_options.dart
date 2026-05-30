@@ -31,28 +31,31 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'YOUR_WEB_API_KEY',
-    appId: 'YOUR_WEB_APP_ID',
-    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    authDomain: 'YOUR_PROJECT_ID.firebaseapp.com',
-    storageBucket: 'YOUR_PROJECT_ID.appspot.com',
+    apiKey: 'AIzaSyDtUI6cbIH3oGb9MUh9_li4NKRkn78JDeU',
+    appId: '1:570396817942:web:a270ab1c582f5f6b075337',
+    messagingSenderId: '570396817942',
+    projectId: 'household-shopping-list-f7c12',
+    authDomain: 'household-shopping-list-f7c12.firebaseapp.com',
+    storageBucket: 'household-shopping-list-f7c12.firebasestorage.app',
+    measurementId: 'G-TKWJ4302MT',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'YOUR_ANDROID_API_KEY',
-    appId: 'YOUR_ANDROID_APP_ID',
-    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    storageBucket: 'YOUR_PROJECT_ID.appspot.com',
+    apiKey: 'AIzaSyAcaVKAjZjT9yM5rXy7jO6inP85eVC-P7k',
+    appId: '1:570396817942:android:eed6c7241c3f95f2075337',
+    messagingSenderId: '570396817942',
+    projectId: 'household-shopping-list-f7c12',
+    storageBucket: 'household-shopping-list-f7c12.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'YOUR_IOS_API_KEY',
-    appId: 'YOUR_IOS_APP_ID',
-    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    storageBucket: 'YOUR_PROJECT_ID.appspot.com',
+    apiKey: 'AIzaSyB2CXxZwk5Q_7fythbkUVA-1KMAqqqjjho',
+    appId: '1:570396817942:ios:f570b65b66e0bb1d075337',
+    messagingSenderId: '570396817942',
+    projectId: 'household-shopping-list-f7c12',
+    storageBucket: 'household-shopping-list-f7c12.firebasestorage.app',
+    iosClientId: '570396817942-tmrg96k4u0ecc5gucr6tlhoqj5bvb5lc.apps.googleusercontent.com',
     iosBundleId: 'com.ekusy.shoppingListApp',
   );
+
 }
