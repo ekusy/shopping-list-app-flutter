@@ -40,15 +40,16 @@ _flutter_standalone() {
 # ============================================================
 install_flutter() {
     log_info "Flutter をインストール中..."
+    # /snap/bin を PATH の先頭に置き、Windows版(CRLF)より優先させる
+    export PATH="/snap/bin:$PATH"
     if snap list flutter &>/dev/null; then
         log_success "Flutter は既にインストール済みです"
-        flutter --version
+        /snap/bin/flutter --version
         return
     fi
     sudo snap install flutter --classic
     log_success "Flutter インストール完了"
-    export PATH="$PATH:/snap/bin"
-    flutter --version
+    /snap/bin/flutter --version
 }
 
 # ============================================================
@@ -84,11 +85,21 @@ install_chromium() {
 install_linux_deps() {
     log_info "Linux Desktop ビルド用パッケージをインストール中..."
     sudo apt-get update -qq
+
+    # Ubuntu バージョンによって利用可能な libstdc++ のメジャー番号が異なるため動的に選択
+    local stdcpp_pkg
+    stdcpp_pkg=$(apt-cache search '^libstdc\+\+-[0-9]+-dev$' 2>/dev/null \
+        | awk '{print $1}' | sort -t'-' -k3 -n | tail -1)
+    if [ -z "$stdcpp_pkg" ]; then
+        log_warn "libstdc++-dev パッケージが見つかりません。スキップします。"
+        stdcpp_pkg=""
+    fi
+
     sudo apt-get install -y --no-install-recommends \
         clang cmake ninja-build pkg-config \
-        libgtk-3-dev liblzma-dev libstdc++-12-dev \
-        curl git unzip xz-utils zip \
-        2>/dev/null
+        libgtk-3-dev liblzma-dev \
+        ${stdcpp_pkg:+"$stdcpp_pkg"} \
+        curl git unzip xz-utils zip
     log_success "依存パッケージのインストール完了"
 }
 
@@ -112,7 +123,7 @@ accept_android_licenses() {
     fi
 
     log_info "Android ライセンスを承認中 (すべてに y を入力)..."
-    yes | flutter doctor --android-licenses 2>/dev/null || true
+    yes | /snap/bin/flutter doctor --android-licenses 2>/dev/null || true
     log_success "Android ライセンス承認完了"
 }
 
@@ -127,7 +138,8 @@ configure_shell() {
         SHELL_RC="$HOME/.bashrc"
     fi
 
-    local LINE='export PATH="$PATH:/snap/bin:$HOME/Android/Sdk/platform-tools"'
+    # /snap/bin を先頭に置いてWindowsのflutter(CRLF版)より優先させる
+    local LINE='export PATH="/snap/bin:$HOME/Android/Sdk/platform-tools:$PATH"'
     if ! grep -qF '/snap/bin' "$SHELL_RC" 2>/dev/null; then
         echo "" >> "$SHELL_RC"
         echo "# Flutter / Android SDK" >> "$SHELL_RC"
@@ -144,7 +156,7 @@ configure_shell() {
 run_flutter_doctor() {
     log_info "flutter doctor を実行中..."
     echo ""
-    flutter doctor -v
+    /snap/bin/flutter doctor -v
     echo ""
 }
 

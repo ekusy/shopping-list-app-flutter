@@ -87,11 +87,12 @@ install_vscode_extensions() {
     log_info "VS Code 拡張機能をインストール中..."
 
     if ! which code &>/dev/null; then
-        log_error "'code' コマンドが見つかりません。VS Code がインストールされているか確認してください。"
+        log_warn "'code' コマンドが見つかりません。VS Code 拡張機能のインストールをスキップします。"
         if is_wsl2; then
-            log_warn "WSL2 の場合: Windows 側の VS Code から Remote - WSL で接続し直してください。"
+            log_warn "WSL2 の場合: Windows 側で VS Code を起動し Remote - WSL で接続後、"
+            log_warn "再度このスクリプトを実行するか手動でインストールしてください。"
         fi
-        return 1
+        return 0
     fi
 
     # 既インストール済み拡張機能一覧を取得（大文字小文字を無視した比較用）
