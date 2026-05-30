@@ -1,34 +1,29 @@
 # 残作業・デプロイ準備ガイド
 
 このリポジトリは Flutter への移植（機能・UI・単体テスト）が完了し、
-`flutter analyze` クリーン / 単体テスト 64 件成功 / **Web ビルド成功** の状態です。
+`flutter analyze` クリーン / 単体テスト 64 件成功 / **Web ビルド成功** / **Firebase 接続済み** の状態です。
 一方で、**実行・配布には以下のユーザー作業が必要**です（環境要因・要シークレットのため自動化不可）。
 
-凡例: 🔴 必須 / 🟡 推奨 / 🟢 任意
+凡例: ✅ 完了 / 🔴 必須 / 🟡 推奨 / 🟢 任意
 
 ---
 
-## 1. 🔴 Firebase プロジェクト接続
+## 1. ✅ Firebase プロジェクト接続（完了）
 
-現状 `lib/firebase_options.dart` は `YOUR_*` プレースホルダのテンプレートです。
-このままでも UI のビルド・起動はできますが、認証・Firestore・Storage へは接続できません。
+`flutterfire configure` により `household-shopping-list-f7c12` プロジェクトに接続済み。
+- `lib/firebase_options.dart`: 実値に更新（コミット済み）
+- `android/app/google-services.json`: 生成済み（**gitignored** / クローン後は再生成が必要）
+- Android Gradle に `com.google.gms.google-services` プラグイン追加済み
 
-### 手順
-1. [Firebase コンソール](https://console.firebase.google.com/) でプロジェクトを作成
-   （または既存の `shopping-list-app` プロジェクトを再利用）。
-2. Authentication で **メール/パスワード** サインインを有効化。
-3. Cloud Firestore と Storage を有効化。
-4. FlutterFire CLI で設定ファイルを生成（テンプレートを上書き）:
-   ```bash
-   dart pub global activate flutterfire_cli
-   flutterfire configure
-   ```
-   - Android の applicationId / iOS の bundleId は `com.ekusy.shopping_list_app` /
-     `com.ekusy.shoppingListApp` を想定（`android/app/build.gradle.kts` ・
-     `lib/firebase_options.dart` 参照）。
-   - これにより `lib/firebase_options.dart` が実値で上書きされ、Android は
-     `google-services.json`、iOS は `GoogleService-Info.plist` が配置されます。
-     これらは **コミットしない**（`.gitignore` 済み / シークレット相当）。
+再生成が必要な場合（クローン直後など）:
+```bash
+dart pub global activate flutterfire_cli
+flutterfire configure --project=household-shopping-list-f7c12 \
+  --platforms=android,ios,web \
+  --android-package-name=com.ekusy.shopping_list_app \
+  --ios-bundle-id=com.ekusy.shoppingListApp \
+  --yes
+```
 
 ### Firestore セキュリティルールのデプロイ
 本リポジトリに `firestore.rules`（元アプリから移植）と `firebase.json` を同梱済み。
@@ -114,7 +109,7 @@ firebase deploy --only hosting       # firebase.json の hosting 設定を使用
 | 同等の単体テストが成功 | ✅ 64 件成功 |
 | Web ビルド成功 | ✅ 確認済み |
 | Android ビルド成功 | 🔴 要 Android SDK（本ドキュメント §2） |
-| デプロイ準備完了 | 🟡 Firebase 接続 + ルール/Hosting 設定済み、要シークレット投入（§1, §4） |
+| デプロイ準備完了 | 🟡 ✅ Firebase 接続済み・ルール/Hosting 設定済み。残: Firestore ルールデプロイ（§1）、Web Hosting deploy（§4） |
 | Flutter ベストプラクティス準拠 | ✅ クリーンアーキテクチャ + MVVM + Riverpod |
 | 直感的な UI | ✅ 元アプリの UX を踏襲 |
 | 残ユーザータスクの明確化 | ✅ 本ドキュメント |
