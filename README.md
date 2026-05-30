@@ -48,25 +48,63 @@ lib/
 # 1. 依存取得
 flutter pub get
 
-# 2. Firebase 設定（未設定だと認証・DBは動かないが UI のビルド/起動は可能）
+# 2. Firebase 設定ファイルを再生成（クローン直後など google-services.json がない場合）
 #    詳細は docs/REMAINING_TASKS.md を参照
-flutterfire configure      # lib/firebase_options.dart を生成
+dart pub global activate flutterfire_cli
+flutterfire configure \
+  --project=household-shopping-list-f7c12 \
+  --platforms=android,ios,web \
+  --android-package-name=com.ekusy.shopping_list_app \
+  --ios-bundle-id=com.ekusy.shoppingListApp \
+  --yes
 
 # 3. 起動
-flutter run -d chrome      # Web
+flutter run -d chrome      # Web（Chrome が必要）
 flutter run                # 接続中の Android/iOS 端末・エミュレータ
 ```
 
 ## 開発コマンド
 
-```bash
-flutter analyze            # 静的解析（flutter_lints）
-flutter test               # 単体・ウィジェットテスト（64件）
-flutter test --coverage    # カバレッジ収集（coverage/lcov.info）
+### 解析・フォーマット
 
-flutter build web          # Web 静的ビルド（build/web へ出力）
-flutter build apk          # Android APK
-flutter build appbundle    # Android App Bundle（Play 配布用）
+```bash
+flutter analyze                                              # lint（flutter_lints）
+dart format lib test                                         # コードフォーマット（上書き）
+dart format --output=none --set-exit-if-changed lib test     # フォーマットチェックのみ（CI用）
+```
+
+### テスト
+
+```bash
+flutter test                           # 全テスト
+flutter test test/widgets/             # ウィジェットテストのみ
+flutter test --name "テスト名"          # 名前でフィルタ
+flutter test --coverage                # カバレッジ収集 → coverage/lcov.info
+```
+
+### 起動
+
+```bash
+flutter run -d chrome                  # Web・デバッグ起動（ホットリロード有効）
+flutter run -d chrome --web-port=5000  # ポート指定
+flutter run -d chrome --release        # リリースモードで動作確認
+flutter run                            # 接続中の Android/iOS 端末
+```
+
+### ビルド
+
+```bash
+flutter build web                      # Web 静的ビルド → build/web/
+flutter build apk                      # Android APK（要 Android SDK）
+flutter build appbundle                # Android App Bundle（Play 配布用）
+```
+
+### Firebase
+
+```bash
+firebase deploy --only firestore:rules # Firestore セキュリティルール
+firebase deploy --only hosting         # Web を Firebase Hosting にデプロイ
+firebase emulators:start               # ローカルエミュレータ（Firestore / Auth）
 ```
 
 ## 主な機能
@@ -93,5 +131,5 @@ flutter test
 
 ## 残作業・デプロイ準備
 
-このリポジトリ単体では Firebase 未接続・Android ビルド未検証です。
-セットアップとデプロイの手順は [docs/REMAINING_TASKS.md](./docs/REMAINING_TASKS.md) を参照してください。
+Firebase 接続・Firestore ルールデプロイ済み。Android ビルドは環境依存のため未検証。
+詳細は [docs/REMAINING_TASKS.md](./docs/REMAINING_TASKS.md) を参照してください。
