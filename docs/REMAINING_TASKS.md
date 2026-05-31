@@ -33,27 +33,22 @@ firebase deploy --only firestore:rules
 
 ---
 
-## 2. 🔴 Android ビルド検証
+## 2. 🟡 Android ビルド検証
 
-開発機（WSL）に **Android SDK が未インストール**のため、Android ビルドは未検証です。
+Docker イメージに **Android SDK + JDK 21 を組み込み済み**。ホスト側に必要なのは
+`adb`（platform-tools）だけ。完全手順は **[`docs/ANDROID_DOCKER.md`](./ANDROID_DOCKER.md)** を参照。
 
-### 手順
-1. Android Studio または command-line tools で Android SDK を導入し、
-   `flutter doctor` がグリーンになることを確認。
-   ```bash
-   flutter doctor          # Android toolchain の項目を解消する
-   ```
-2. ビルド:
-   ```bash
-   flutter build apk            # 動作確認用 APK
-   flutter build appbundle      # Play 配布用 App Bundle (.aab)
-   ```
-3. リリース署名（Play 配布時）:
-   - キーストアを作成し `android/key.properties` を用意（**コミット禁止** / `.gitignore` 済み）。
-   - `android/app/build.gradle.kts` に署名設定を追加（現状はデバッグ署名のまま）。
+### 概要
+- ビルド: `docker compose run --rm flutter flutter build apk` / `... build appbundle`
+- デバッグ: ホストで `adb -a -P 5037 nodaemon server start` → コンテナの `flutter run`
+- インストール: `docker compose run --rm flutter flutter install`
+- USB / Wi-Fi デバッグ両対応（Android 11+）
 
-> WSL 補足: `dart` / `flutter` は Windows 版 SDK を指す PATH 設定になっている場合があります。
-> Linux 版（例: `/snap/bin/flutter`）を使用してください。
+### 残課題
+- **実機での動作検証**（メンテナ手元に Android 端末が無いため未確認）
+- **リリース署名設定**: `android/app/build.gradle.kts` の release ビルドは現状デバッグ
+  キーで署名される。Play 配布時はキーストア生成 + `android/key.properties` 整備が必要
+  （手順は `docs/ANDROID_DOCKER.md` §7）。
 
 ---
 
@@ -108,7 +103,7 @@ firebase deploy --only hosting       # firebase.json の hosting 設定を使用
 | 全機能を Flutter で再構成 | ✅ 完了（`lists` 等の廃止機能を除く） |
 | 同等の単体テストが成功 | ✅ 64 件成功 |
 | Web ビルド成功 | ✅ 確認済み |
-| Android ビルド成功 | 🔴 要 Android SDK（本ドキュメント §2） |
+| Android ビルド成功 | 🟡 Docker に SDK 組込済（§2 / `ANDROID_DOCKER.md`）。実機検証は手元端末待ち |
 | デプロイ準備完了 | 🟡 ✅ Firebase 接続済み・ルール/Hosting 設定済み。残: Firestore ルールデプロイ（§1）、Web Hosting deploy（§4） |
 | Flutter ベストプラクティス準拠 | ✅ クリーンアーキテクチャ + MVVM + Riverpod |
 | 直感的な UI | ✅ 元アプリの UX を踏襲 |

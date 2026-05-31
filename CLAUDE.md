@@ -8,8 +8,9 @@ Claude Code がこのリポジトリで作業する際のガイドライン。
 直接インストールする必要はない。
 
 - **Flutter 3.44.0 / Dart 3.12.0**（コンテナ内）
-- **Web ターゲットのみ**（Android / iOS はコンテナ外での対応が必要）
-- ブラウザはホスト側のものを使用（`flutter run -d web-server` → `localhost:5000`）
+- **Web / Android 対応**（iOS は macOS + Xcode が必要なためコンテナ外）
+- Web: ブラウザはホスト側のものを使用（`flutter run -d web-server` → `localhost:5000`）
+- Android: コンテナ内ビルド + ホスト側 adb 経由で実機・Wi-Fi デバッグ（手順は `docs/ANDROID_DOCKER.md`）
 
 ## Docker コマンド
 
@@ -49,7 +50,21 @@ docker compose run --rm flutter flutter test --coverage
 
 ```bash
 docker compose run --rm flutter flutter build web --release
+docker compose run --rm flutter flutter build apk --release          # Android APK
+docker compose run --rm flutter flutter build appbundle --release    # Android App Bundle (.aab)
 ```
+
+### Android デバッグ・インストール
+
+ホスト側で adb server を起動した上で：
+
+```bash
+docker compose run --rm flutter flutter devices
+docker compose run --rm --service-ports flutter flutter run -d <device-id>
+docker compose run --rm flutter flutter install
+```
+
+詳細手順（USB / Wi-Fi 接続、署名、トラブルシュート）は `docs/ANDROID_DOCKER.md`。
 
 ### Firebase
 
@@ -79,6 +94,8 @@ docker compose run --rm flutter bash
 |---|---|---|
 | `pub_cache` | `/root/.pub-cache` | pub パッケージキャッシュ（再ビルド高速化） |
 | `build_vol` | `/app/build` | ビルド出力（ホスト FS を経由しない高速パス） |
+| `gradle_cache` | `/root/.gradle` | Gradle 依存・ラッパー DL（Android ビルド高速化） |
+| `dart_tool_vol` | `/app/.dart_tool` | package_config.json（ホスト絶対パス混入回避） |
 
 ## アーキテクチャ概要
 
@@ -129,6 +146,6 @@ perf:     パフォーマンス改善
 ## 残作業
 
 詳細は `docs/REMAINING_TASKS.md` を参照。
-- Android ビルド検証（要 Android SDK）
+- Android ビルド検証 → 手順は `docs/ANDROID_DOCKER.md`（コンテナ完結 + ホスト adb proxy）
 - iOS ビルド（要 macOS + Xcode）
 - Firebase Hosting デプロイ（`firebase deploy --only hosting`）

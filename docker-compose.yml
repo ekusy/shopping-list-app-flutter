@@ -9,6 +9,7 @@ services:
       - pub_cache:/root/.pub-cache      # pub キャッシュ（再ビルド高速化）
       - build_vol:/app/build            # ビルド出力（ホスト FS を避け高速化）
       - dart_tool_vol:/app/.dart_tool   # package_config.json をコンテナ内で生成（ホストの絶対パスを混入させない）
+      - gradle_cache:/root/.gradle      # Gradle 依存・ラッパー DL キャッシュ（Android ビルド高速化）
     ports:
       - "5000:5000"   # flutter run -d web-server
       - "9100:9100"   # Flutter DevTools (docs/DEBUGGING.md)
@@ -19,12 +20,20 @@ services:
     stdin_open: true  # ホットリロード用（r キー入力を受け付ける）
     tty: true
     working_dir: /app
+    extra_hosts:
+      # ホスト側 adb server (Windows / Linux / Mac) に host.docker.internal で到達できるようにする。
+      # Docker Desktop では自動だが、Linux ホストでも同名で解決できるよう明示。
+      - "host.docker.internal:host-gateway"
     environment:
       # ホストの `.env` (compose が自動読込) or 環境変数から取得。未設定なら空文字。
       # 詳細は docs/DEPLOYMENT.md を参照。
       - FIREBASE_TOKEN=${FIREBASE_TOKEN:-}
+      # ホスト側で起動した adb server に接続する（Android デバッグ・インストール時に使用）。
+      # ホスト側手順は docs/ANDROID_DOCKER.md を参照。
+      - ADB_SERVER_SOCKET=tcp:host.docker.internal:5037
 
 volumes:
   pub_cache:
   build_vol:
   dart_tool_vol:
+  gradle_cache:
