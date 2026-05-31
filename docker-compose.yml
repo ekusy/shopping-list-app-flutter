@@ -1,0 +1,24 @@
+services:
+  flutter:
+    build:
+      context: .
+      args:
+        FLUTTER_VERSION: "3.44.0"
+    volumes:
+      - .:/app                          # ソースコードをホストからマウント
+      - pub_cache:/root/.pub-cache      # pub キャッシュ（再ビルド高速化）
+      - build_vol:/app/build            # ビルド出力（ホスト FS を避け高速化）
+      - dart_tool_vol:/app/.dart_tool   # package_config.json をコンテナ内で生成（ホストの絶対パスを混入させない）
+    ports:
+      - "5000:5000"   # flutter run -d web-server
+    stdin_open: true  # ホットリロード用（r キー入力を受け付ける）
+    tty: true
+    working_dir: /app
+    env_file:
+      - path: .env    # FIREBASE_TOKEN 等（docs/DEPLOYMENT.md 参照）
+        required: false
+
+volumes:
+  pub_cache:
+  build_vol:
+  dart_tool_vol:

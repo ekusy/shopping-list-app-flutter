@@ -1,7 +1,7 @@
 #!/bin/bash
 # ============================================================
 # 開発環境 セットアップスクリプト（メインエントリーポイント）
-# 対象: Ubuntu 26.04+ (x86_64) / WSL2
+# 対象: Linux / macOS（x86_64 / arm64）
 # 使い方: ./setup/setup.sh
 # ============================================================
 set -e
@@ -22,41 +22,43 @@ log_error()   { echo -e "${RED}[ERROR]${NC} $1"; }
 export -f log_info log_success log_warn log_error
 
 # ============================================================
-# 実行環境チェック
+# 1. Docker 確認
 # ============================================================
-require_sudo() {
-    if [ "$EUID" -eq 0 ]; then
-        log_error "rootで実行しないでください。sudoは内部で使用します。"
+check_docker() {
+    log_info "Docker を確認中..."
+    if ! command -v docker &>/dev/null; then
+        log_error "Docker が見つかりません。https://docs.docker.com/get-docker/ からインストールしてください。"
         exit 1
     fi
-    sudo -v || { log_error "sudo 権限が必要です"; exit 1; }
-    while true; do sudo -n true; sleep 50; done &
-    SUDO_KEEPALIVE_PID=$!
-    trap 'kill $SUDO_KEEPALIVE_PID 2>/dev/null' EXIT
+    if ! docker compose version &>/dev/null; then
+        log_error "Docker Compose (V2) が見つかりません。Docker Desktop または docker-compose-plugin をインストールしてください。"
+        exit 1
+    fi
+    log_success "Docker $(docker --version | awk '{print $3}' | tr -d ',')"
+    log_success "Docker Compose $(docker compose version --short)"
 }
 
 # ============================================================
-# CRLF 除去（Windows ファイルシステム上での実行対策）
+# 2. Docker イメージビルド
 # ============================================================
-strip_crlf() {
-    for _sh in "$SCRIPT_DIR"/*.sh; do
-        sed -i 's/\r//' "$_sh" 2>/dev/null || true
-    done
-    unset _sh
+build_image() {
+    log_info "Flutter Docker イメージをビルド中（初回は数分かかります）..."
+    docker compose -f "${SCRIPT_DIR}/../docker-compose.yml" build
+    log_success "イメージビルド完了"
 }
 
 # ============================================================
-# サブスクリプトの存在確認
+# 3. VS Code 拡張機能（オプション）
 # ============================================================
-check_subscripts() {
-    local missing=0
-    for script in setup_flutter.sh setup_vscode.sh setup_node.sh; do
-        if [ ! -f "$SCRIPT_DIR/$script" ]; then
-            log_error "サブスクリプトが見つかりません: $SCRIPT_DIR/$script"
-            missing=1
-        fi
-    done
-    [ "$missing" -eq 0 ] || exit 1
+install_vscode_extensions() {
+    if ! command -v code &>/dev/null; then
+        log_warn "'code' コマンドが見つかりません。VS Code 拡張機能のインストールをスキップします。"
+        return
+    fi
+
+    log_info "VS Code 拡張機能をインストール中..."
+    source "${SCRIPT_DIR}/setup_vscode.sh"
+    vscode_main
 }
 
 # ============================================================
@@ -65,44 +67,24 @@ check_subscripts() {
 main() {
     echo ""
     echo "========================================"
-    echo "  開発環境 セットアップ"
-    echo "  Flutter + VS Code + Node.js / Skills (Ubuntu 26.04 / WSL2)"
+    echo "  開発環境 セットアップ（Docker）"
     echo "========================================"
     echo ""
 
-    require_sudo
-    strip_crlf
-    check_subscripts
+    check_docker
+    build_image
+    install_vscode_extensions
 
-    # --- Flutter 開発環境 ---
-    log_info "Flutter 開発環境のセットアップを開始します..."
-    # shellcheck source=setup_flutter.sh
-    source "$SCRIPT_DIR/setup_flutter.sh"
-    flutter_main
-
-    # --- VS Code 環境 ---
-    log_info "VS Code 環境のセットアップを開始します..."
-    # shellcheck source=setup_vscode.sh
-    source "$SCRIPT_DIR/setup_vscode.sh"
-    vscode_main
-
-    # --- Node.js + Dart/Flutter Agent Skills ---
-    log_info "Node.js / Dart・Flutter Agent Skills のセットアップを開始します..."
-    # shellcheck source=setup_node.sh
-    source "$SCRIPT_DIR/setup_node.sh"
-    node_main
-
+    echo ""
     echo "========================================"
+    log_success "セットアップ完了！"
     echo ""
-    log_success "全セットアップ完了！"
+    echo "開発サーバー起動:"
+    echo "  docker compose run --rm --service-ports flutter \\"
+    echo "    flutter run -d web-server --web-hostname=0.0.0.0 --web-port=5000"
     echo ""
-    echo "次のステップ:"
-    echo "  1. Android Studio を起動し、SDK Manager から"
-    echo "     Android SDK (API 34+) と Build-Tools をインストール"
-    echo "  2. 'flutter doctor --android-licenses' でライセンス承認"
-    echo "  3. シェルを再起動: source ~/.bashrc (または ~/.zshrc)"
-    echo ""
-    echo "  iOS/Windows ビルドは Codemagic を利用してください。"
+    echo "ブラウザで http://localhost:5000 にアクセスしてください。"
+    echo "========================================"
     echo ""
 }
 

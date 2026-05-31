@@ -1,6 +1,6 @@
 #!/bin/bash
 # Node.js セットアップ
-# 対象: Ubuntu 26.04+ (x86_64) / WSL2
+# 対象: Linux / macOS（x86_64 / arm64）
 # スタンドアロン実行可: ./setup_node.sh
 # setup.sh からの呼び出しも可
 set -e

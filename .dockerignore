@@ -1,0 +1,12 @@
+# ビルド成果物・キャッシュ（イメージに含めない）
+build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# Git 履歴（不要）
+.git/
+
+# ログ
+*.log
+flutter_*.log
