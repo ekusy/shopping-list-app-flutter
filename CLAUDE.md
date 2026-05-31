@@ -4,71 +4,81 @@ Claude Code がこのリポジトリで作業する際のガイドライン。
 
 ## 環境
 
-- Flutter 3.44 / Dart 3.12（`/snap/bin/flutter`、`/snap/bin/dart`）
-- WSL 上で Windows 側の Flutter SDK（`/mnt/g/flutter/...`）が PATH に混入する。
-  `settings.json` の `env.PATH` で `/snap/bin` を先頭に固定済み。
-  **`flutter` / `dart` は常に `/snap/bin/` のものを使う。**
-- Android SDK 未インストール（Android ビルドはユーザー環境依存）
-- Chrome: `/usr/bin/google-chrome`（Web デバッグ用）
+開発環境は Docker に統一している。ホストマシンに Flutter / Dart / Firebase CLI を
+直接インストールする必要はない。
 
-## 開発コマンド
+- **Flutter 3.44.0 / Dart 3.12.0**（コンテナ内）
+- **Web ターゲットのみ**（Android / iOS はコンテナ外での対応が必要）
+- ブラウザはホスト側のものを使用（`flutter run -d web-server` → `localhost:5000`）
+
+## Docker コマンド
+
+### イメージビルド（初回 / Dockerfile 変更時）
+
+```bash
+docker compose build
+```
+
+### 開発サーバー起動（ホットリロード有効）
+
+```bash
+docker compose run --rm --service-ports flutter \
+  flutter run -d web-server --web-hostname=0.0.0.0 --web-port=5000
+```
+
+ホストのブラウザで `http://localhost:5000` にアクセス。
+ターミナルで `r` キー押下でホットリロード、`R` でフルリスタート。
 
 ### 静的解析・フォーマット
 
 ```bash
-flutter analyze                        # lint（flutter_lints）
-dart format lib test                   # コードフォーマット
-dart format --output=none --set-exit-if-changed lib test  # フォーマットチェックのみ
+docker compose run --rm flutter flutter analyze
+docker compose run --rm flutter dart format lib test
+docker compose run --rm flutter dart format --output=none --set-exit-if-changed lib test
 ```
 
 ### テスト
 
 ```bash
-flutter test                           # 全テスト実行
-flutter test test/widgets/             # ウィジェットテストのみ
-flutter test --name "テスト名"          # 名前でフィルタ
-flutter test --coverage                # カバレッジ収集 → coverage/lcov.info
-```
-
-### ローカル起動（Web）
-
-```bash
-flutter run -d chrome                  # Chrome でデバッグ起動（ホットリロード有効）
-flutter run -d chrome --web-port=5000  # ポート指定
-flutter run -d chrome --release        # リリースモードで起動
+docker compose run --rm flutter flutter test
+docker compose run --rm flutter flutter test test/widgets/
+docker compose run --rm flutter flutter test --coverage
 ```
 
 ### ビルド
 
 ```bash
-flutter build web                      # Web 静的ビルド → build/web/
-flutter build web --release            # リリースビルド（tree-shake icons 有効）
-flutter build apk                      # Android APK（要 Android SDK）
-flutter build appbundle                # Android App Bundle（Play 配布用）
+docker compose run --rm flutter flutter build web --release
 ```
 
 ### Firebase
 
 ```bash
-firebase deploy --only firestore:rules # Firestore セキュリティルールをデプロイ
-firebase deploy --only hosting         # Web を Firebase Hosting にデプロイ
-firebase emulators:start               # ローカルエミュレータ起動（Firestore / Auth）
+docker compose run --rm flutter firebase deploy --only hosting
+docker compose run --rm flutter firebase deploy --only firestore:rules
+docker compose run --rm flutter firebase emulators:start
 ```
 
 ### 依存管理
 
 ```bash
-flutter pub get                        # 依存解決
-flutter pub upgrade                    # パッチ・マイナーアップグレード
-flutter pub outdated                   # 更新可能パッケージ一覧
-dart pub global activate flutterfire_cli  # FlutterFire CLI インストール/更新
-flutterfire configure \
-  --project=household-shopping-list-f7c12 \
-  --platforms=android,ios,web \
-  --android-package-name=com.ekusy.shopping_list_app \
-  --ios-bundle-id=com.ekusy.shoppingListApp \
-  --yes                                # Firebase 設定ファイル再生成
+docker compose run --rm flutter flutter pub get
+docker compose run --rm flutter flutter pub upgrade
+docker compose run --rm flutter flutter pub outdated
 ```
+
+### コンテナに入る（対話操作）
+
+```bash
+docker compose run --rm flutter bash
+```
+
+### ボリューム構成
+
+| ボリューム名 | マウント先 | 用途 |
+|---|---|---|
+| `pub_cache` | `/root/.pub-cache` | pub パッケージキャッシュ（再ビルド高速化） |
+| `build_vol` | `/app/build` | ビルド出力（ホスト FS を経由しない高速パス） |
 
 ## アーキテクチャ概要
 
@@ -114,12 +124,11 @@ perf:     パフォーマンス改善
 - `android/app/google-services.json`（flutterfire configure で再生成）
 - `ios/Runner/GoogleService-Info.plist`
 - `.firebase/`、`firebase-debug.log`
-- `build/`（このマシンでは `/tmp/sla_build` へのシンボリックリンク）
+- `build/`
 
 ## 残作業
 
 詳細は `docs/REMAINING_TASKS.md` を参照。
 - Android ビルド検証（要 Android SDK）
 - iOS ビルド（要 macOS + Xcode）
-- Firestore ルールのデプロイ → 完了
 - Firebase Hosting デプロイ（`firebase deploy --only hosting`）
