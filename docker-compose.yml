@@ -11,6 +11,11 @@ services:
       - dart_tool_vol:/app/.dart_tool   # package_config.json をコンテナ内で生成（ホストの絶対パスを混入させない）
     ports:
       - "5000:5000"   # flutter run -d web-server
+      - "9100:9100"   # Flutter DevTools (docs/DEBUGGING.md)
+      - "8181:8181"   # Dart DDS (VS Code attach 用)
+      - "4000:4000"   # Firebase Emulator UI
+      - "8080:8080"   # Firestore Emulator
+      - "9099:9099"   # Firebase Auth Emulator
     stdin_open: true  # ホットリロード用（r キー入力を受け付ける）
     tty: true
     working_dir: /app

@@ -1,6 +1,11 @@
 # common
 tokens
 
+# Local environment variables (Firebase tokens, etc.) — see docs/DEPLOYMENT.md
+.env
+.env.local
+.env.*.local
+
 # Claude Code - installed via setup (re-installable)
 .agents/
 skills-lock.json
