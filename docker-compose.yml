@@ -19,9 +19,10 @@ services:
     stdin_open: true  # ホットリロード用（r キー入力を受け付ける）
     tty: true
     working_dir: /app
-    env_file:
-      - path: .env    # FIREBASE_TOKEN 等（docs/DEPLOYMENT.md 参照）
-        required: false
+    environment:
+      # ホストの `.env` (compose が自動読込) or 環境変数から取得。未設定なら空文字。
+      # 詳細は docs/DEPLOYMENT.md を参照。
+      - FIREBASE_TOKEN=${FIREBASE_TOKEN:-}
 
 volumes:
   pub_cache:

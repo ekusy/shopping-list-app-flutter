@@ -29,8 +29,7 @@ docker compose run --rm flutter flutter pub get
 ## 開発サーバー起動 (ホットリロード有効)
 
 ```bash
-docker compose run --rm --service-ports flutter \
-  flutter run -d web-server --web-hostname=0.0.0.0 --web-port=5000
+docker compose run --rm --service-ports flutter flutter run -d web-server --web-hostname=0.0.0.0 --web-port=5000
 ```
 
 - ホストのブラウザで `http://localhost:5000` にアクセス

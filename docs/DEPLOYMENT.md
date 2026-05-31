@@ -123,9 +123,13 @@ docker compose run --rm flutter firebase hosting:channel:deploy preview-$(date +
 
 ### 環境変数の受け渡し
 
-`docker-compose.yml` の `env_file: - .env` により、ホストの `.env` の値が
-コンテナ内に環境変数として注入される。Firebase CLI は `FIREBASE_TOKEN` を
-自動で検知して非対話モードで動作するため、毎回ログインする必要がない。
+`docker-compose.yml` の `environment: FIREBASE_TOKEN=${FIREBASE_TOKEN:-}` により、
+ホストの環境変数 (または compose が自動読込する `.env`) からコンテナへ
+`FIREBASE_TOKEN` が渡される。Firebase CLI は `FIREBASE_TOKEN` を自動で検知して
+非対話モードで動作するため、毎回ログインする必要がない。
+
+`.env` が存在しない場合は空文字が渡されるだけで、エラーにはならない
+(デプロイ以外の通常作業を妨げない)。
 
 ### ビルド出力の保持
 
@@ -161,4 +165,4 @@ docker volume rm shopping-list-app-flutter_build_vol
 - `firestore.rules` — Firestore セキュリティルール
 - `.firebaserc` — プロジェクトエイリアス
 - `.env.example` — 環境変数テンプレート
-- `docker-compose.yml` — コンテナ定義 (`env_file` で `.env` を読み込み)
+- `docker-compose.yml` — コンテナ定義 (`environment` で `FIREBASE_TOKEN` を注入)
