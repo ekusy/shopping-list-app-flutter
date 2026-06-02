@@ -8,9 +8,10 @@ Claude Code がこのリポジトリで作業する際のガイドライン。
 直接インストールする必要はない。
 
 - **Flutter 3.44.0 / Dart 3.12.0**（コンテナ内）
-- **Web / Android 対応**（iOS は macOS + Xcode が必要なためコンテナ外）
-- Web: ブラウザはホスト側のものを使用（`flutter run -d web-server` → `localhost:5000`）
-- Android: コンテナ内ビルド + ホスト側 adb 経由で実機・Wi-Fi デバッグ（手順は `docs/ANDROID_DOCKER.md`）
+- 対応プラットフォーム: **Web / Android / iOS**
+  - Web: コンテナ内で完結。ブラウザはホスト側を使用（`flutter run -d web-server` → `localhost:5000`）
+  - Android: コンテナ内ビルド + ホスト側 adb 経由で実機・Wi-Fi デバッグ（手順は `docs/ANDROID_DOCKER.md`）
+  - iOS: **macOS + Xcode 必須**のため Docker 化対象外。Mac ホスト上で直接 `flutter` を実行する
 
 ## Docker コマンド
 
@@ -66,6 +67,28 @@ docker compose run --rm flutter flutter install
 
 詳細手順（USB / Wi-Fi 接続、署名、トラブルシュート）は `docs/ANDROID_DOCKER.md`。
 
+### iOS ビルド・デバッグ（macOS ホスト上で実行）
+
+iOS は Docker 不可。macOS + Xcode 環境で **コンテナを経由せず直接** 実行する：
+
+```bash
+# 初回のみ: CocoaPods 同期
+cd ios && pod install && cd ..
+
+# シミュレータ / 実機ビルド & 実行
+flutter run -d "iPhone 15"        # 起動中のシミュレータを指定
+flutter run -d <device-id>        # 実機 (flutter devices で取得)
+
+# 配布用ビルド
+flutter build ios --release        # Xcode で archive する前段
+flutter build ipa --release        # App Store 提出用 .ipa
+```
+
+事前準備：
+- `flutterfire configure --platforms=ios` で `ios/Runner/GoogleService-Info.plist` を生成（`.gitignore` 済 / コミット禁止）
+- Xcode で Runner.xcworkspace を開き、Signing & Capabilities にチーム / bundleId を設定
+- App Tracking / Photo Library 等の Info.plist usage description が必要なら追加
+
 ### Firebase
 
 ```bash
@@ -115,6 +138,19 @@ test/
 └── widgets/         # ウィジェットテスト
 ```
 
+## 設計ドキュメント
+
+実装の前提となる設計は `docs/` 配下に集約している。関連する変更を行う際は該当ドキュメントも更新すること。
+
+- `docs/内部設計/アーキテクチャ概要.md` — レイヤー構成・依存方向・エラー変換のハブ
+- `docs/内部設計/ドメインモデル.md` — エンティティ・Firestore パス階層
+- `docs/内部設計/ユースケース.md` / `データフロー.md` / `状態遷移.md`
+- `docs/外部仕様/エラー仕様.md` — AppError コード一覧・i18n キー対応
+
+エラーハンドリングは、UI 層では `lib/core/errors/app_error.dart` の `AppError` のみを扱い、
+Firebase 固有の例外は `lib/data/firebase/firebase_error_converter.dart` で `AppError` に
+変換してから送出する（詳細は `docs/外部仕様/エラー仕様.md`）。
+
 ## テスト作成のルール
 
 - ウィジェットテストで `easy_localization` を使う場合は必ず
@@ -146,6 +182,6 @@ perf:     パフォーマンス改善
 ## 残作業
 
 詳細は `docs/REMAINING_TASKS.md` を参照。
-- Android ビルド検証 → 手順は `docs/ANDROID_DOCKER.md`（コンテナ完結 + ホスト adb proxy）
-- iOS ビルド（要 macOS + Xcode）
+- Android: Docker に SDK 組込済。実機検証とリリース署名設定が残（`docs/ANDROID_DOCKER.md`）
+- iOS: scaffold あり。`flutterfire configure --platforms=ios` 後に Xcode で署名・実機ビルド検証が残
 - Firebase Hosting デプロイ（`firebase deploy --only hosting`）
