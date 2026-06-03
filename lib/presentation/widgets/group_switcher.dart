@@ -40,10 +40,12 @@ class _GroupSwitcherDialogState extends ConsumerState<_GroupSwitcherDialog> {
     try {
       await ref.read(groupControllerProvider.notifier).leaveGroup(groupId);
     } catch (e) {
-      setState(() => _actionError = e is AppError &&
-              e.code == AppErrorCode.groupOwnerCannotLeave
-          ? 'group.settings.error.owner_cannot_leave'.tr()
-          : 'group.settings.error.leave_failed'.tr());
+      setState(
+        () => _actionError =
+            e is AppError && e.code == AppErrorCode.groupOwnerCannotLeave
+            ? 'group.settings.error.owner_cannot_leave'.tr()
+            : 'group.settings.error.leave_failed'.tr(),
+      );
     }
   }
 
@@ -92,7 +94,9 @@ class _GroupSwitcherDialogState extends ConsumerState<_GroupSwitcherDialog> {
                   child: Text(
                     _actionError!,
                     style: const TextStyle(
-                        color: AppColors.error, fontSize: AppFontSizes.sm),
+                      color: AppColors.error,
+                      fontSize: AppFontSizes.sm,
+                    ),
                   ),
                 ),
               Flexible(
@@ -135,7 +139,9 @@ class _GroupSwitcherDialogState extends ConsumerState<_GroupSwitcherDialog> {
           if (isActive)
             Container(
               padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
+                horizontal: AppSpacing.sm,
+                vertical: AppSpacing.xs,
+              ),
               decoration: BoxDecoration(
                 color: AppColors.primary,
                 borderRadius: BorderRadius.circular(AppRadii.full),
@@ -143,7 +149,9 @@ class _GroupSwitcherDialogState extends ConsumerState<_GroupSwitcherDialog> {
               child: Text(
                 'group.switcher.active_badge'.tr(),
                 style: const TextStyle(
-                    color: AppColors.white, fontSize: AppFontSizes.xs),
+                  color: AppColors.white,
+                  fontSize: AppFontSizes.xs,
+                ),
               ),
             )
           else ...[
@@ -153,7 +161,8 @@ class _GroupSwitcherDialogState extends ConsumerState<_GroupSwitcherDialog> {
                 Navigator.of(context).pop();
               },
               style: OutlinedButton.styleFrom(
-                  visualDensity: VisualDensity.compact),
+                visualDensity: VisualDensity.compact,
+              ),
               child: Text('group.switcher.switch_button'.tr()),
             ),
             const SizedBox(width: AppSpacing.xs),
@@ -164,9 +173,11 @@ class _GroupSwitcherDialogState extends ConsumerState<_GroupSwitcherDialog> {
                 side: const BorderSide(color: AppColors.error),
                 visualDensity: VisualDensity.compact,
               ),
-              child: Text(isOwner
-                  ? 'group.switcher.disband'.tr()
-                  : 'group.switcher.leave'.tr()),
+              child: Text(
+                isOwner
+                    ? 'group.switcher.disband'.tr()
+                    : 'group.switcher.leave'.tr(),
+              ),
             ),
           ],
         ],

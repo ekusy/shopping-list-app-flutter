@@ -72,8 +72,11 @@ class _TagManagerContentState extends ConsumerState<_TagManagerContent> {
             .renameTag(tagId, trimmed);
       } catch (_) {
         if (mounted) {
-          AppFeedback.showToast(context, 'tag.error.rename_failed'.tr(),
-              type: ToastType.error);
+          AppFeedback.showToast(
+            context,
+            'tag.error.rename_failed'.tr(),
+            type: ToastType.error,
+          );
         }
       }
     }
@@ -90,8 +93,11 @@ class _TagManagerContentState extends ConsumerState<_TagManagerContent> {
       await ref.read(groupControllerProvider.notifier).deleteTag(tagId);
     } catch (_) {
       if (mounted) {
-        AppFeedback.showToast(context, 'tag.error.delete_failed'.tr(),
-            type: ToastType.error);
+        AppFeedback.showToast(
+          context,
+          'tag.error.delete_failed'.tr(),
+          type: ToastType.error,
+        );
       }
     }
   }
@@ -130,8 +136,9 @@ class _TagManagerContentState extends ConsumerState<_TagManagerContent> {
               children: [
                 for (final tag in tags)
                   Padding(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppSpacing.xs,
+                    ),
                     child: Row(
                       children: [
                         Expanded(
@@ -141,7 +148,9 @@ class _TagManagerContentState extends ConsumerState<_TagManagerContent> {
                                   autofocus: true,
                                   maxLength: ValidationLimits.tagName,
                                   decoration: const InputDecoration(
-                                      isDense: true, counterText: ''),
+                                    isDense: true,
+                                    counterText: '',
+                                  ),
                                   onSubmitted: (_) => _commitRename(tag.id),
                                   onTapOutside: (_) => _commitRename(tag.id),
                                 )
@@ -152,17 +161,23 @@ class _TagManagerContentState extends ConsumerState<_TagManagerContent> {
                                   }),
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(
-                                        vertical: AppSpacing.sm),
-                                    child: Text(tag.name,
-                                        overflow: TextOverflow.ellipsis),
+                                      vertical: AppSpacing.sm,
+                                    ),
+                                    child: Text(
+                                      tag.name,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   ),
                                 ),
                         ),
                         IconButton(
-                          icon: const Text('×',
-                              style: TextStyle(
-                                  color: AppColors.deleteText,
-                                  fontWeight: FontWeight.w700)),
+                          icon: const Text(
+                            '×',
+                            style: TextStyle(
+                              color: AppColors.deleteText,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
                           onPressed: () => _delete(tag.id, tag.name),
                         ),
                       ],
@@ -176,11 +191,12 @@ class _TagManagerContentState extends ConsumerState<_TagManagerContent> {
             child: Text(
               limitReached
                   ? (tagLimit <= PlanLimits.freeTagLimit
-                          ? 'tag.limit_reached_free'
-                          : 'tag.limit_reached_paid')
-                      .tr()
-                  : 'tag.remaining'
-                      .tr(namedArgs: {'count': '${tagLimit - tags.length}'}),
+                            ? 'tag.limit_reached_free'
+                            : 'tag.limit_reached_paid')
+                        .tr()
+                  : 'tag.remaining'.tr(
+                      namedArgs: {'count': '${tagLimit - tags.length}'},
+                    ),
               textAlign: TextAlign.right,
               style: TextStyle(
                 fontSize: AppFontSizes.xs,

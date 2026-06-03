@@ -59,8 +59,14 @@ class Group {
       _listEquals(other.memberIds, memberIds);
 
   @override
-  int get hashCode =>
-      Object.hash(id, name, ownerId, inviteCode, plan, Object.hashAll(memberIds));
+  int get hashCode => Object.hash(
+    id,
+    name,
+    ownerId,
+    inviteCode,
+    plan,
+    Object.hashAll(memberIds),
+  );
 }
 
 bool _listEquals(List<String> a, List<String> b) {

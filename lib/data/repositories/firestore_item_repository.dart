@@ -53,7 +53,9 @@ class FirestoreItemRepository implements ItemRepository {
   ) async {
     try {
       await _itemsCol(groupId).doc(itemId).update({
-        'status': purchased ? ItemStatus.purchased.code : ItemStatus.active.code,
+        'status': purchased
+            ? ItemStatus.purchased.code
+            : ItemStatus.active.code,
       });
     } catch (e) {
       throw toAppError(e);
@@ -94,9 +96,9 @@ class FirestoreItemRepository implements ItemRepository {
   @override
   Future<void> deletePurchasedItems(String groupId) async {
     try {
-      final snapshot = await _itemsCol(groupId)
-          .where('status', isEqualTo: ItemStatus.purchased.code)
-          .get();
+      final snapshot = await _itemsCol(
+        groupId,
+      ).where('status', isEqualTo: ItemStatus.purchased.code).get();
       if (snapshot.docs.isEmpty) return;
       final batch = _db.batch();
       for (final doc in snapshot.docs) {
@@ -111,8 +113,9 @@ class FirestoreItemRepository implements ItemRepository {
   @override
   Future<void> deleteItemsByTag(String groupId, String tagId) async {
     try {
-      final snapshot =
-          await _itemsCol(groupId).where('tagId', isEqualTo: tagId).get();
+      final snapshot = await _itemsCol(
+        groupId,
+      ).where('tagId', isEqualTo: tagId).get();
       if (snapshot.docs.isEmpty) return;
       final batch = _db.batch();
       for (final doc in snapshot.docs) {
@@ -144,9 +147,9 @@ class FirestoreItemRepository implements ItemRepository {
 
   @override
   Stream<List<Item>> watchItems(String groupId) {
-    return _itemsCol(groupId)
-        .snapshots(includeMetadataChanges: true)
-        .map((snapshot) {
+    return _itemsCol(groupId).snapshots(includeMetadataChanges: true).map((
+      snapshot,
+    ) {
       final items = snapshot.docs.map(itemFromDoc).toList();
       // order フィールド優先で昇順、未設定時は createdAt の降順（新しいものが上）。
       items.sort((a, b) {

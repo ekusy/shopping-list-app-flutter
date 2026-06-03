@@ -50,7 +50,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       return;
     }
     try {
-      final profile = await ref.read(userRepositoryProvider).getUserProfile(uid);
+      final profile = await ref
+          .read(userRepositoryProvider)
+          .getUserProfile(uid);
       if (profile != null) {
         _displayName.text = profile.displayName;
         _avatarUrl = profile.avatarUrl;
@@ -75,10 +77,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       _saving = true;
     });
     try {
-      final newUrl = await ref.read(authControllerProvider).updateProfile(
-            _displayName.text,
-            imageBytes: _selectedBytes,
-          );
+      final newUrl = await ref
+          .read(authControllerProvider)
+          .updateProfile(_displayName.text, imageBytes: _selectedBytes);
       if (newUrl != null) _avatarUrl = newUrl;
       _selectedBytes = null;
       setState(() => _success = 'profile.success'.tr());
@@ -113,10 +114,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       await ref.read(authControllerProvider).deleteAccount();
       // ログアウト状態になりルーターが /login へ遷移する。
     } catch (e) {
-      setState(() => _deleteError = e is AppError &&
-              e.code == AppErrorCode.authCannotDeleteOwner
-          ? 'profile.error.cannot_delete_owner'.tr()
-          : 'profile.error.delete_failed'.tr());
+      setState(
+        () => _deleteError =
+            e is AppError && e.code == AppErrorCode.authCannotDeleteOwner
+            ? 'profile.error.cannot_delete_owner'.tr()
+            : 'profile.error.delete_failed'.tr(),
+      );
     }
   }
 
@@ -125,7 +128,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     if (_loading) {
       return const Scaffold(
         backgroundColor: AppColors.background,
-        body: Center(child: CircularProgressIndicator(color: AppColors.primary)),
+        body: Center(
+          child: CircularProgressIndicator(color: AppColors.primary),
+        ),
       );
     }
 
@@ -164,9 +169,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             child: preview == null
                                 ? Text(
                                     _displayName.text.isNotEmpty
-                                        ? _displayName.text
-                                            .characters.first
-                                            .toUpperCase()
+                                        ? _displayName.text.characters.first
+                                              .toUpperCase()
                                         : '?',
                                     style: const TextStyle(
                                       color: AppColors.white,
@@ -198,8 +202,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       onChanged: (_) => setState(() {}),
                     ),
                     const SizedBox(height: AppSpacing.md),
-                    if (_success != null)
-                      _MessageBox(_success!, success: true),
+                    if (_success != null) _MessageBox(_success!, success: true),
                     if (_saveError != null) _MessageBox(_saveError!),
                     FilledButton(
                       onPressed: _saving ? null : _save,

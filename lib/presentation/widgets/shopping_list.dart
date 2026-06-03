@@ -39,7 +39,7 @@ class ShoppingList extends ConsumerStatefulWidget {
   final VoidCallback onClearPurchased;
   final void Function(String? tagId) onDeleteSection;
   final Future<void> Function(List<String> itemIds, String? tagId)
-      onBulkTagChange;
+  onBulkTagChange;
 
   @override
   ConsumerState<ShoppingList> createState() => _ShoppingListState();
@@ -122,8 +122,7 @@ class _ShoppingListState extends ConsumerState<ShoppingList> {
     final tagIdSet = {for (final t in tags) t.id};
     final sections = <_Section>[];
     for (final tag in tags) {
-      final tagItems =
-          activeItems.where((i) => i.tagId == tag.id).toList();
+      final tagItems = activeItems.where((i) => i.tagId == tag.id).toList();
       if (tagItems.isNotEmpty) {
         sections.add(_Section(tag.id, tag.name, tagItems));
       }
@@ -201,8 +200,10 @@ class _ShoppingListState extends ConsumerState<ShoppingList> {
                     style: const TextStyle(fontSize: AppFontSizes.xs),
                   ),
                 ),
-                Text(collapsed ? '▼' : '▲',
-                    style: const TextStyle(color: AppColors.textSecondary)),
+                Text(
+                  collapsed ? '▼' : '▲',
+                  style: const TextStyle(color: AppColors.textSecondary),
+                ),
               ],
             ),
           ),
@@ -233,8 +234,9 @@ class _ShoppingListState extends ConsumerState<ShoppingList> {
               children: [
                 Expanded(
                   child: Text(
-                    'list.bought_section_count'
-                        .tr(namedArgs: {'count': '${boughtItems.length}'}),
+                    'list.bought_section_count'.tr(
+                      namedArgs: {'count': '${boughtItems.length}'},
+                    ),
                     style: const TextStyle(
                       fontSize: AppFontSizes.xl,
                       color: AppColors.textSecondary,
@@ -252,8 +254,10 @@ class _ShoppingListState extends ConsumerState<ShoppingList> {
                     style: const TextStyle(fontSize: AppFontSizes.xs),
                   ),
                 ),
-                Text(_purchasedExpanded ? '▲' : '▼',
-                    style: const TextStyle(color: AppColors.textSecondary)),
+                Text(
+                  _purchasedExpanded ? '▲' : '▼',
+                  style: const TextStyle(color: AppColors.textSecondary),
+                ),
               ],
             ),
           ),
@@ -266,19 +270,18 @@ class _ShoppingListState extends ConsumerState<ShoppingList> {
   }
 
   Widget _itemCard(Item item) => ItemCard(
-        key: ValueKey(item.id),
-        item: item,
-        currentUid: widget.currentUid,
-        memberNames: widget.memberNames,
-        selectionMode: _selectionMode,
-        isSelected: _selected.contains(item.id),
-        onSelect: () => _toggleSelect(item.id),
-        onSetVolunteer: (uid) => widget.onSetVolunteer(item.id, uid),
-        onSetPurchased: (purchased) =>
-            widget.onSetPurchased(item.id, purchased),
-        onEdit: () => widget.onEdit(item.id),
-        onDelete: () => widget.onDelete(item.id),
-      );
+    key: ValueKey(item.id),
+    item: item,
+    currentUid: widget.currentUid,
+    memberNames: widget.memberNames,
+    selectionMode: _selectionMode,
+    isSelected: _selected.contains(item.id),
+    onSelect: () => _toggleSelect(item.id),
+    onSetVolunteer: (uid) => widget.onSetVolunteer(item.id, uid),
+    onSetPurchased: (purchased) => widget.onSetPurchased(item.id, purchased),
+    onEdit: () => widget.onEdit(item.id),
+    onDelete: () => widget.onDelete(item.id),
+  );
 }
 
 class _Section {

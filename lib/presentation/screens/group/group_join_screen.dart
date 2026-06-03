@@ -66,7 +66,9 @@ class _GroupJoinScreenState extends ConsumerState<GroupJoinScreen> {
     final confirmed = await showConfirmDialog(
       context,
       title: 'group.join.confirm_title'.tr(),
-      message: 'group.join.confirm_message'.tr(namedArgs: {'groupName': groupName}),
+      message: 'group.join.confirm_message'.tr(
+        namedArgs: {'groupName': groupName},
+      ),
       confirmLabel: 'group.join.confirm_button'.tr(),
     );
     if (!confirmed) return;
@@ -160,9 +162,11 @@ class _GroupJoinScreenState extends ConsumerState<GroupJoinScreen> {
                       if (_error != null) ErrorBanner(_error!),
                       FilledButton(
                         onPressed: _joining ? null : _join,
-                        child: Text(_joining
-                            ? 'group.join.joining'.tr()
-                            : 'group.join.button'.tr()),
+                        child: Text(
+                          _joining
+                              ? 'group.join.joining'.tr()
+                              : 'group.join.button'.tr(),
+                        ),
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       TextButton(

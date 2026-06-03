@@ -54,8 +54,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '570396817942',
     projectId: 'household-shopping-list-f7c12',
     storageBucket: 'household-shopping-list-f7c12.firebasestorage.app',
-    iosClientId: '570396817942-tmrg96k4u0ecc5gucr6tlhoqj5bvb5lc.apps.googleusercontent.com',
+    iosClientId:
+        '570396817942-tmrg96k4u0ecc5gucr6tlhoqj5bvb5lc.apps.googleusercontent.com',
     iosBundleId: 'com.ekusy.shoppingListApp',
   );
-
 }

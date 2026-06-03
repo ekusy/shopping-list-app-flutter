@@ -7,8 +7,11 @@ void main() {
       for (var i = 0; i < 50; i++) {
         final code = generateInviteCode();
         expect(code.length, 8);
-        expect(RegExp(r'^[0-9A-Z]{8}$').hasMatch(code), isTrue,
-            reason: 'unexpected code: $code');
+        expect(
+          RegExp(r'^[0-9A-Z]{8}$').hasMatch(code),
+          isTrue,
+          reason: 'unexpected code: $code',
+        );
       }
     });
 

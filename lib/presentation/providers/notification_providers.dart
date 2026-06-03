@@ -27,10 +27,14 @@ class NotificationsController extends Notifier<bool> {
     final uid = ref.read(authRepositoryProvider).currentUser?.uid;
     if (uid == null) return;
     state = enabled;
-    await ref.read(userRepositoryProvider).updateNotificationEnabled(uid, enabled);
+    await ref
+        .read(userRepositoryProvider)
+        .updateNotificationEnabled(uid, enabled);
   }
 }
 
 /// 通知設定コントローラのプロバイダ。
 final notificationsControllerProvider =
-    NotifierProvider<NotificationsController, bool>(NotificationsController.new);
+    NotifierProvider<NotificationsController, bool>(
+      NotificationsController.new,
+    );

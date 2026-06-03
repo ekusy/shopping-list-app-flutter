@@ -7,8 +7,7 @@ import 'group_providers.dart';
 import 'repository_providers.dart';
 
 /// uid を表示名にフォールバック変換する（表示名が空なら uid 先頭 6 文字）。
-String _fallbackName(String uid) =>
-    uid.length <= 6 ? uid : uid.substring(0, 6);
+String _fallbackName(String uid) => uid.length <= 6 ? uid : uid.substring(0, 6);
 
 /// 各メンバーのユーザードキュメントを購読し、`uid → displayName` マップを合成するストリーム。
 Stream<Map<String, String>> _watchMemberNames(
@@ -30,18 +29,22 @@ Stream<Map<String, String>> _watchMemberNames(
   );
 
   for (final uid in memberIds) {
-    final sub = repo.watchUser(uid).listen(
-      (user) {
-        final dn = user?.displayName.trim();
-        names[uid] = (dn != null && dn.isNotEmpty) ? dn : _fallbackName(uid);
-        controller.add(Map.of(names));
-      },
-      onError: (_) {
-        // 表示名解決エラーは UI を止めない（uid フォールバック）。
-        names[uid] = _fallbackName(uid);
-        controller.add(Map.of(names));
-      },
-    );
+    final sub = repo
+        .watchUser(uid)
+        .listen(
+          (user) {
+            final dn = user?.displayName.trim();
+            names[uid] = (dn != null && dn.isNotEmpty)
+                ? dn
+                : _fallbackName(uid);
+            controller.add(Map.of(names));
+          },
+          onError: (_) {
+            // 表示名解決エラーは UI を止めない（uid フォールバック）。
+            names[uid] = _fallbackName(uid);
+            controller.add(Map.of(names));
+          },
+        );
     subs.add(sub);
   }
 

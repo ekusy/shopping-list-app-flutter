@@ -71,7 +71,8 @@ class _BulkActionBarState extends State<BulkActionBar> {
                   FilledButton(
                     onPressed: _applying
                         ? null
-                        : () => setState(() => _showTagPicker = !_showTagPicker),
+                        : () =>
+                              setState(() => _showTagPicker = !_showTagPicker),
                     style: FilledButton.styleFrom(
                       visualDensity: VisualDensity.compact,
                     ),

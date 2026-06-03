@@ -49,9 +49,11 @@ class _GroupCreateScreenState extends ConsumerState<GroupCreateScreen> {
           .createGroup(_groupName.text.trim());
       setState(() => _inviteCode = code);
     } catch (e) {
-      setState(() => _error = e is AppError
-          ? 'group.create.error.create_failed'.tr()
-          : 'group.create.error.create_failed'.tr());
+      setState(
+        () => _error = e is AppError
+            ? 'group.create.error.create_failed'.tr()
+            : 'group.create.error.create_failed'.tr(),
+      );
     } finally {
       if (mounted) setState(() => _creating = false);
     }
@@ -107,17 +109,18 @@ class _GroupCreateScreenState extends ConsumerState<GroupCreateScreen> {
       TextField(
         controller: _groupName,
         enabled: !_creating,
-        decoration:
-            InputDecoration(hintText: 'group.create.name_placeholder'.tr()),
+        decoration: InputDecoration(
+          hintText: 'group.create.name_placeholder'.tr(),
+        ),
         onSubmitted: (_) => _creating ? null : _create(),
       ),
       const SizedBox(height: AppSpacing.md),
       if (_error != null) ErrorBanner(_error!),
       FilledButton(
         onPressed: _creating ? null : _create,
-        child: Text(_creating
-            ? 'group.create.creating'.tr()
-            : 'group.create.button'.tr()),
+        child: Text(
+          _creating ? 'group.create.creating'.tr() : 'group.create.button'.tr(),
+        ),
       ),
       const SizedBox(height: AppSpacing.sm),
       Row(
@@ -131,8 +134,7 @@ class _GroupCreateScreenState extends ConsumerState<GroupCreateScreen> {
             ),
           ),
           TextButton(
-            onPressed:
-                _creating ? null : () => context.push('/group/join'),
+            onPressed: _creating ? null : () => context.push('/group/join'),
             child: Text('group.create.join_instead_link'.tr()),
           ),
         ],
@@ -153,7 +155,10 @@ class _GroupCreateScreenState extends ConsumerState<GroupCreateScreen> {
             child: Row(
               children: [
                 Expanded(
-                  child: Text(g.name as String, overflow: TextOverflow.ellipsis),
+                  child: Text(
+                    g.name as String,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 OutlinedButton(
                   onPressed: () {
@@ -250,9 +255,8 @@ class _GroupCreateScreenState extends ConsumerState<GroupCreateScreen> {
     if (!mounted) return;
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(
-        content: Text(toast),
-        duration: const Duration(seconds: 2),
-      ));
+      ..showSnackBar(
+        SnackBar(content: Text(toast), duration: const Duration(seconds: 2)),
+      );
   }
 }

@@ -2,12 +2,7 @@
 ///
 /// グループ内で共有されるラベル。元の `TagDoc & { id }` を統合した型。
 class Tag {
-  const Tag({
-    required this.id,
-    required this.name,
-    this.createdAt,
-    this.order,
-  });
+  const Tag({required this.id, required this.name, this.createdAt, this.order});
 
   final String id;
   final String name;

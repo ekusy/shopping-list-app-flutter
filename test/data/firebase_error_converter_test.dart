@@ -36,23 +36,27 @@ void main() {
 
     test('Firestore コードをマッピングする', () {
       expect(
-        toAppError(FirebaseException(
-                plugin: 'cloud_firestore', code: 'permission-denied'))
-            .code,
+        toAppError(
+          FirebaseException(
+            plugin: 'cloud_firestore',
+            code: 'permission-denied',
+          ),
+        ).code,
         AppErrorCode.dataPermissionDenied,
       );
       expect(
         toAppError(
-                FirebaseException(plugin: 'cloud_firestore', code: 'not-found'))
-            .code,
+          FirebaseException(plugin: 'cloud_firestore', code: 'not-found'),
+        ).code,
         AppErrorCode.dataNotFound,
       );
     });
 
     test('未知の Firestore コードは dataUnknown', () {
       expect(
-        toAppError(FirebaseException(plugin: 'cloud_firestore', code: 'weird'))
-            .code,
+        toAppError(
+          FirebaseException(plugin: 'cloud_firestore', code: 'weird'),
+        ).code,
         AppErrorCode.dataUnknown,
       );
     });

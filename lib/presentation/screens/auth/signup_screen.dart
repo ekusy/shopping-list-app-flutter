@@ -49,7 +49,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       _loading = true;
     });
     try {
-      await ref.read(authControllerProvider).signup(
+      await ref
+          .read(authControllerProvider)
+          .signup(
             _email.text,
             _password.text,
             displayName: _displayName.text.isEmpty ? null : _displayName.text,
@@ -116,8 +118,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     TextField(
                       controller: _displayName,
                       autocorrect: false,
-                      decoration:
-                          InputDecoration(labelText: 'auth.display_name'.tr()),
+                      decoration: InputDecoration(
+                        labelText: 'auth.display_name'.tr(),
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.md),
                     TextField(
@@ -140,7 +143,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                       label: 'auth.password_confirm'.tr(),
                       visible: _showPasswordConfirm,
                       onToggle: () => setState(
-                          () => _showPasswordConfirm = !_showPasswordConfirm),
+                        () => _showPasswordConfirm = !_showPasswordConfirm,
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.md),
                     FilledButton(

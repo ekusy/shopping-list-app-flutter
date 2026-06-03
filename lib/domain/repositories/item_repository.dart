@@ -43,7 +43,11 @@ abstract class ItemRepository {
   /// 複数アイテムのタグ ID を一括更新する。
   ///
   /// @param tagId 設定するタグ ID。null でタグを解除する。
-  Future<void> batchUpdateTag(String groupId, List<String> itemIds, String? tagId);
+  Future<void> batchUpdateTag(
+    String groupId,
+    List<String> itemIds,
+    String? tagId,
+  );
 
   /// アイテムコレクションをリアルタイム購読する。
   /// order 昇順優先、未設定時は createdAt 降順でソートして返す。

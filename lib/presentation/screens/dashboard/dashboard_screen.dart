@@ -39,7 +39,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   int _nextOrder() {
     final items = ref.read(itemsProvider).value ?? const [];
-    return items.fold<int>(0, (max, i) => (i.order ?? 0) > max ? i.order! : max) + 1;
+    return items.fold<int>(
+          0,
+          (max, i) => (i.order ?? 0) > max ? i.order! : max,
+        ) +
+        1;
   }
 
   Future<void> _quickAdd(String name) async {
@@ -57,11 +61,16 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
     AppFeedback.showLoading(context, 'status.adding'.tr());
     try {
-      await ref.read(itemRepositoryProvider).addItem(groupId, draft, _nextOrder());
+      await ref
+          .read(itemRepositoryProvider)
+          .addItem(groupId, draft, _nextOrder());
     } catch (_) {
       if (mounted) {
-        AppFeedback.showToast(context, 'app.error.add'.tr(),
-            type: ToastType.error);
+        AppFeedback.showToast(
+          context,
+          'app.error.add'.tr(),
+          type: ToastType.error,
+        );
       }
     } finally {
       if (mounted) AppFeedback.hide(context);
@@ -77,13 +86,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           .addItem(groupId, draft.copyWith(addedBy: _uid), _nextOrder());
       if (mounted) {
         Navigator.of(context).pop(); // フォームのボトムシートを閉じる
-        AppFeedback.showToast(context, 'app.success.add'.tr(),
-            type: ToastType.success);
+        AppFeedback.showToast(
+          context,
+          'app.success.add'.tr(),
+          type: ToastType.success,
+        );
       }
     } catch (_) {
       if (mounted) {
-        AppFeedback.showToast(context, 'app.error.add'.tr(),
-            type: ToastType.error);
+        AppFeedback.showToast(
+          context,
+          'app.error.add'.tr(),
+          type: ToastType.error,
+        );
       }
     }
   }
@@ -94,13 +109,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     try {
       await ref.read(itemRepositoryProvider).setVolunteer(groupId, id, uid);
       if (uid != null && uid == _uid && mounted) {
-        AppFeedback.showToast(context, 'app.success.volunteer'.tr(),
-            type: ToastType.success);
+        AppFeedback.showToast(
+          context,
+          'app.success.volunteer'.tr(),
+          type: ToastType.success,
+        );
       }
     } catch (_) {
       if (mounted) {
-        AppFeedback.showToast(context, 'app.error.update'.tr(),
-            type: ToastType.error);
+        AppFeedback.showToast(
+          context,
+          'app.error.update'.tr(),
+          type: ToastType.error,
+        );
       }
     }
   }
@@ -109,15 +130,23 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final groupId = _groupId;
     if (groupId == null) return;
     try {
-      await ref.read(itemRepositoryProvider).setPurchased(groupId, id, purchased);
+      await ref
+          .read(itemRepositoryProvider)
+          .setPurchased(groupId, id, purchased);
       if (purchased && mounted) {
-        AppFeedback.showToast(context, 'app.success.bought'.tr(),
-            type: ToastType.success);
+        AppFeedback.showToast(
+          context,
+          'app.success.bought'.tr(),
+          type: ToastType.success,
+        );
       }
     } catch (_) {
       if (mounted) {
-        AppFeedback.showToast(context, 'app.error.update'.tr(),
-            type: ToastType.error);
+        AppFeedback.showToast(
+          context,
+          'app.error.update'.tr(),
+          type: ToastType.error,
+        );
       }
     }
   }
@@ -133,7 +162,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         final groupId = _groupId;
         if (groupId == null) return;
         try {
-          await ref.read(itemRepositoryProvider).updateItemDetails(
+          await ref
+              .read(itemRepositoryProvider)
+              .updateItemDetails(
                 groupId,
                 id,
                 name: name,
@@ -143,13 +174,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               );
           if (mounted) {
             Navigator.of(context).pop();
-            AppFeedback.showToast(context, 'app.success.add'.tr(),
-                type: ToastType.success);
+            AppFeedback.showToast(
+              context,
+              'app.success.add'.tr(),
+              type: ToastType.success,
+            );
           }
         } catch (_) {
           if (mounted) {
-            AppFeedback.showToast(context, 'app.error.update'.tr(),
-                type: ToastType.error);
+            AppFeedback.showToast(
+              context,
+              'app.error.update'.tr(),
+              type: ToastType.error,
+            );
           }
         }
       },
@@ -171,8 +208,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       }
     } catch (_) {
       if (mounted) {
-        AppFeedback.showToast(context, 'app.error.delete'.tr(),
-            type: ToastType.error);
+        AppFeedback.showToast(
+          context,
+          'app.error.delete'.tr(),
+          type: ToastType.error,
+        );
       }
     }
   }
@@ -194,8 +234,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       if (mounted) AppFeedback.showToast(context, 'app.success.delete'.tr());
     } catch (_) {
       if (mounted) {
-        AppFeedback.showToast(context, 'app.error.delete'.tr(),
-            type: ToastType.error);
+        AppFeedback.showToast(
+          context,
+          'app.error.delete'.tr(),
+          type: ToastType.error,
+        );
       }
     }
   }
@@ -204,11 +247,16 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final groupId = _groupId;
     if (groupId == null) return;
     try {
-      await ref.read(itemRepositoryProvider).batchUpdateTag(groupId, ids, tagId);
+      await ref
+          .read(itemRepositoryProvider)
+          .batchUpdateTag(groupId, ids, tagId);
     } catch (_) {
       if (mounted) {
-        AppFeedback.showToast(context, 'app.error.update'.tr(),
-            type: ToastType.error);
+        AppFeedback.showToast(
+          context,
+          'app.error.update'.tr(),
+          type: ToastType.error,
+        );
       }
     }
   }
@@ -224,8 +272,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       if (mounted) AppFeedback.showToast(context, 'app.success.delete'.tr());
     } catch (_) {
       if (mounted) {
-        AppFeedback.showToast(context, 'app.error.delete'.tr(),
-            type: ToastType.error);
+        AppFeedback.showToast(
+          context,
+          'app.error.delete'.tr(),
+          type: ToastType.error,
+        );
       }
     }
   }
@@ -252,10 +303,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('form.add_button'.tr(),
-                      style: const TextStyle(
-                          fontSize: AppFontSizes.xl,
-                          fontWeight: FontWeight.w700)),
+                  Text(
+                    'form.add_button'.tr(),
+                    style: const TextStyle(
+                      fontSize: AppFontSizes.xl,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                   IconButton(
                     icon: const Icon(Icons.close),
                     onPressed: () => Navigator.of(ctx).pop(),
@@ -284,15 +338,24 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       if (wasOffline && isOnline && mounted) {
         final messenger = ScaffoldMessenger.of(context);
         AppFeedback.showLoading(context, 'network.syncing'.tr());
-        Future.delayed(const Duration(seconds: 3), messenger.hideCurrentSnackBar);
+        Future.delayed(
+          const Duration(seconds: 3),
+          messenger.hideCurrentSnackBar,
+        );
       }
     });
 
     final groupName = ref.watch(activeGroupProvider.select((g) => g?.name));
     final hasGroup = ref.watch(activeGroupProvider.select((g) => g != null));
     final items = ref.watch(itemsProvider);
-    final tags = ref.watch(tagsProvider.select((s) => s.value ?? const <Tag>[]));
-    final memberNames = ref.watch(groupMemberNamesProvider.select((s) => s.value ?? const <String, String>{}));
+    final tags = ref.watch(
+      tagsProvider.select((s) => s.value ?? const <Tag>[]),
+    );
+    final memberNames = ref.watch(
+      groupMemberNamesProvider.select(
+        (s) => s.value ?? const <String, String>{},
+      ),
+    );
     final uid = ref.watch(currentUserProvider.select((u) => u?.uid));
     final isOnline = ref.watch(isOnlineProvider.select((s) => s.value ?? true));
     final pendingCount = ref.watch(pendingItemCountProvider);
@@ -324,7 +387,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               child: Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(
-                      maxWidth: AppLayout.maxContentWidth),
+                    maxWidth: AppLayout.maxContentWidth,
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(AppSpacing.md),
                     child: Column(
@@ -335,7 +399,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                             selectedTagIds: _filterTagIds,
                             onToggle: (id) => setState(() {
                               _filterTagIds = _filterTagIds.contains(id)
-                                  ? (_filterTagIds.where((t) => t != id).toList())
+                                  ? (_filterTagIds
+                                        .where((t) => t != id)
+                                        .toList())
                                   : [..._filterTagIds, id];
                             }),
                             onClear: () => setState(() => _filterTagIds = []),
@@ -344,7 +410,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           child: items.isLoading
                               ? const Center(
                                   child: CircularProgressIndicator(
-                                      color: AppColors.primary))
+                                    color: AppColors.primary,
+                                  ),
+                                )
                               : ShoppingList(
                                   items: items.value ?? const [],
                                   filterTagIds: _filterTagIds,
@@ -376,10 +444,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     return Container(
       color: AppColors.white,
       padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: AppLayout.maxContentWidth),
+          constraints: const BoxConstraints(
+            maxWidth: AppLayout.maxContentWidth,
+          ),
           child: Row(
             children: [
               Expanded(
@@ -399,8 +471,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           ),
                         ),
                       ),
-                      const Text(' ▼',
-                          style: TextStyle(color: AppColors.primary)),
+                      const Text(
+                        ' ▼',
+                        style: TextStyle(color: AppColors.primary),
+                      ),
                     ],
                   ),
                 ),
@@ -409,8 +483,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 Padding(
                   padding: const EdgeInsets.only(right: AppSpacing.xs),
                   child: Text(
-                    'status.pending_count'
-                        .tr(namedArgs: {'count': '$pendingCount'}),
+                    'status.pending_count'.tr(
+                      namedArgs: {'count': '$pendingCount'},
+                    ),
                     style: const TextStyle(
                       fontSize: AppFontSizes.xs,
                       color: AppColors.textSecondary,
@@ -424,8 +499,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   visualDensity: VisualDensity.compact,
                   backgroundColor: AppColors.primaryLight,
                 ),
-                child: Text('tag.manage'.tr(),
-                    style: const TextStyle(fontSize: AppFontSizes.xs)),
+                child: Text(
+                  'tag.manage'.tr(),
+                  style: const TextStyle(fontSize: AppFontSizes.xs),
+                ),
               ),
               IconButton(
                 icon: const Icon(Icons.menu),
@@ -448,7 +525,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       padding: const EdgeInsets.all(AppSpacing.md),
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: AppLayout.maxContentWidth),
+          constraints: const BoxConstraints(
+            maxWidth: AppLayout.maxContentWidth,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.end,

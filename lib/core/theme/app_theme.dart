@@ -31,7 +31,9 @@ class AppColors {
   static const Color deleteBg = Color(0x1AF44336); // rgba(244,67,54,0.1)
   static const Color deleteText = Color(0xFFC62828);
   static const Color boughtBg = Color(0x80E6E6E6); // rgba(230,230,230,0.5)
-  static const Color categoryBadgeBg = Color(0x1A646CFF); // rgba(100,108,255,0.1)
+  static const Color categoryBadgeBg = Color(
+    0x1A646CFF,
+  ); // rgba(100,108,255,0.1)
   static const Color white = Color(0xFFFFFFFF);
   static const Color disabled = Color(0xFFCCCCCC);
 }

@@ -46,24 +46,28 @@ class ItemCard extends StatelessWidget {
     final icons = getItemIcons(context.locale.languageCode);
     final isBought = item.isPurchased;
     // 旧 `buyerId === 'me'` データは現ユーザーの宣言として読み出す。
-    final declaredBy = item.buyingBy ??
+    final declaredBy =
+        item.buyingBy ??
         (item.buyerId == 'me' ? (currentUid ?? 'me') : item.buyerId);
     final isMine = declaredBy != null && declaredBy == currentUid;
     final isOthers = declaredBy != null && !isMine;
     final declarerName = declaredBy == null
         ? ''
         : (memberNames[declaredBy] ??
-            (declaredBy.length <= 6 ? declaredBy : declaredBy.substring(0, 6)));
-    final truncatedName =
-        declarerName.length > 8 ? '${declarerName.substring(0, 8)}…' : declarerName;
+              (declaredBy.length <= 6
+                  ? declaredBy
+                  : declaredBy.substring(0, 6)));
+    final truncatedName = declarerName.length > 8
+        ? '${declarerName.substring(0, 8)}…'
+        : declarerName;
 
     final Color bg = selectionMode && isSelected
         ? AppColors.primaryLight
         : isBought
-            ? AppColors.boughtBg
-            : (declaredBy != null ? AppColors.primaryLight : AppColors.surface);
-    final Color border = (selectionMode && isSelected) ||
-            (declaredBy != null && !isBought)
+        ? AppColors.boughtBg
+        : (declaredBy != null ? AppColors.primaryLight : AppColors.surface);
+    final Color border =
+        (selectionMode && isSelected) || (declaredBy != null && !isBought)
         ? AppColors.primary
         : AppColors.surfaceBorder;
 
@@ -109,16 +113,17 @@ class ItemCard extends StatelessWidget {
                       fontSize: AppFontSizes.lg,
                       fontWeight: FontWeight.w600,
                       color: AppColors.textPrimary,
-                      decoration:
-                          isBought ? TextDecoration.lineThrough : null,
+                      decoration: isBought ? TextDecoration.lineThrough : null,
                     ),
                   ),
                 ),
                 if (item.pendingWrite)
                   Padding(
                     padding: const EdgeInsets.only(left: AppSpacing.xs),
-                    child: Text(icons.pendingSync,
-                        style: const TextStyle(fontSize: AppFontSizes.sm)),
+                    child: Text(
+                      icons.pendingSync,
+                      style: const TextStyle(fontSize: AppFontSizes.sm),
+                    ),
                   ),
               ],
             ),
@@ -166,26 +171,26 @@ class ItemCard extends StatelessWidget {
                               AppColors.buyerBadgeText,
                             )
                           : isOthers
-                              ? _badge(
-                                  '${icons.othersBadge} $truncatedName',
-                                  AppColors.categoryBadgeBg,
-                                  AppColors.primary,
-                                )
-                              : const SizedBox.shrink(),
+                          ? _badge(
+                              '${icons.othersBadge} $truncatedName',
+                              AppColors.categoryBadgeBg,
+                              AppColors.primary,
+                            )
+                          : const SizedBox.shrink(),
                     ),
                     if (!isBought)
                       _iconButton(
                         isMine
                             ? icons.cancelVolunteer
                             : isOthers
-                                ? icons.takeOver
-                                : icons.volunteer,
+                            ? icons.takeOver
+                            : icons.volunteer,
                         active: isMine,
                         semanticLabel: isMine
                             ? 'item.cancel_volunteer'.tr()
                             : isOthers
-                                ? 'item.someone_volunteering'.tr()
-                                : 'item.volunteer'.tr(),
+                            ? 'item.someone_volunteering'.tr()
+                            : 'item.volunteer'.tr(),
                         onTap: () => _handleVolunteer(
                           context,
                           isMine: isMine,
@@ -201,10 +206,16 @@ class ItemCard extends StatelessWidget {
                       onTap: () => onSetPurchased(!isBought),
                     ),
                     if (onEdit != null)
-                      _iconButton('✏️',
-                          semanticLabel: 'item.edit_button'.tr(), onTap: onEdit!),
-                    _iconButton(icons.delete,
-                        semanticLabel: 'common.delete'.tr(), onTap: onDelete),
+                      _iconButton(
+                        '✏️',
+                        semanticLabel: 'item.edit_button'.tr(),
+                        onTap: onEdit!,
+                      ),
+                    _iconButton(
+                      icons.delete,
+                      semanticLabel: 'common.delete'.tr(),
+                      onTap: onDelete,
+                    ),
                   ],
                 ),
               ),
@@ -229,8 +240,9 @@ class ItemCard extends StatelessWidget {
       showConfirmDialog(
         context,
         title: 'item.volunteer_conflict_title'.tr(),
-        message: 'item.volunteer_conflict_message'
-            .tr(namedArgs: {'name': declarerName}),
+        message: 'item.volunteer_conflict_message'.tr(
+          namedArgs: {'name': declarerName},
+        ),
       ).then((confirmed) {
         if (confirmed) onSetVolunteer(currentUid);
       });
@@ -240,30 +252,34 @@ class ItemCard extends StatelessWidget {
   }
 
   Widget _badge(String text, Color bg, Color fg) => Align(
-        alignment: Alignment.centerLeft,
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.sm, vertical: 2),
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(AppRadii.full),
-          ),
-          child: Text(
-            text,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: AppFontSizes.xs,
-              color: fg,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
+    alignment: Alignment.centerLeft,
+    child: Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: 2,
+      ),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(AppRadii.full),
+      ),
+      child: Text(
+        text,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontSize: AppFontSizes.xs,
+          color: fg,
+          fontWeight: FontWeight.w700,
         ),
-      );
+      ),
+    ),
+  );
 
-  Widget _iconButton(String label,
-      {required VoidCallback onTap,
-      required String semanticLabel,
-      bool active = false}) {
+  Widget _iconButton(
+    String label, {
+    required VoidCallback onTap,
+    required String semanticLabel,
+    bool active = false,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(left: AppSpacing.xs),
       child: Semantics(

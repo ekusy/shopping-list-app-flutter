@@ -28,14 +28,18 @@ class _FakeAuthRepository implements AuthRepository {
   Future<void> signOut() async {}
 }
 
-Future<void> _settle() => Future<void>.delayed(const Duration(milliseconds: 80));
+Future<void> _settle() =>
+    Future<void>.delayed(const Duration(milliseconds: 80));
 
 ProviderContainer _makeContainer(FakeFirebaseFirestore db) {
-  final container = ProviderContainer(overrides: [
-    firebaseFirestoreProvider.overrideWithValue(db),
-    authRepositoryProvider
-        .overrideWithValue(_FakeAuthRepository(const AuthUser(uid: 'u1'))),
-  ]);
+  final container = ProviderContainer(
+    overrides: [
+      firebaseFirestoreProvider.overrideWithValue(db),
+      authRepositoryProvider.overrideWithValue(
+        _FakeAuthRepository(const AuthUser(uid: 'u1')),
+      ),
+    ],
+  );
   // 各プロバイダを購読してライフサイクルを開始する。
   container.listen(groupControllerProvider, (_, _) {});
   container.listen(tagsProvider, (_, _) {});
@@ -45,8 +49,9 @@ ProviderContainer _makeContainer(FakeFirebaseFirestore db) {
 void main() {
   test('アクティブグループを Firestore から読み込む', () async {
     final db = FakeFirebaseFirestore();
-    final r = await FirestoreGroupRepository(db)
-        .createGroup('u1', 'Family', const []);
+    final r = await FirestoreGroupRepository(
+      db,
+    ).createGroup('u1', 'Family', const []);
 
     final container = _makeContainer(db);
     addTearDown(container.dispose);
@@ -71,15 +76,21 @@ void main() {
 
     await expectLater(
       container.read(groupControllerProvider.notifier).leaveGroup(),
-      throwsA(isA<AppError>()
-          .having((e) => e.code, 'code', AppErrorCode.groupOwnerCannotLeave)),
+      throwsA(
+        isA<AppError>().having(
+          (e) => e.code,
+          'code',
+          AppErrorCode.groupOwnerCannotLeave,
+        ),
+      ),
     );
   });
 
   test('タグ上限（無料5件）を超える追加は dataTagLimitExceeded', () async {
     final db = FakeFirebaseFirestore();
-    final r = await FirestoreGroupRepository(db)
-        .createGroup('u1', 'Family', const []);
+    final r = await FirestoreGroupRepository(
+      db,
+    ).createGroup('u1', 'Family', const []);
     final tagRepo = FirestoreTagRepository(db);
     for (var i = 0; i < 5; i++) {
       await tagRepo.addTag(r.groupId, 'tag$i', i + 1);
@@ -94,8 +105,13 @@ void main() {
 
     await expectLater(
       container.read(groupControllerProvider.notifier).addTag('over'),
-      throwsA(isA<AppError>()
-          .having((e) => e.code, 'code', AppErrorCode.dataTagLimitExceeded)),
+      throwsA(
+        isA<AppError>().having(
+          (e) => e.code,
+          'code',
+          AppErrorCode.dataTagLimitExceeded,
+        ),
+      ),
     );
   });
 }

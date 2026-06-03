@@ -135,9 +135,7 @@ class _AddItemFormState extends ConsumerState<AddItemForm> {
         const SizedBox(height: AppSpacing.sm),
         FilledButton(
           onPressed: _uploading ? null : _submit,
-          child: Text(_uploading
-              ? 'form.adding'.tr()
-              : 'form.add_button'.tr()),
+          child: Text(_uploading ? 'form.adding'.tr() : 'form.add_button'.tr()),
         ),
       ],
     );

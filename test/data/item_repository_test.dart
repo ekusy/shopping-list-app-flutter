@@ -6,15 +6,15 @@ import 'package:shopping_list_app/domain/entities/item.dart';
 const groupId = 'g1';
 
 Item _draft(String name, {String? tagId}) => Item(
-      id: '',
-      name: name,
-      category: '',
-      note: '',
-      imageUrl: '',
-      status: ItemStatus.active,
-      buyingBy: null,
-      tagId: tagId,
-    );
+  id: '',
+  name: name,
+  category: '',
+  note: '',
+  imageUrl: '',
+  status: ItemStatus.active,
+  buyingBy: null,
+  tagId: tagId,
+);
 
 void main() {
   late FakeFirebaseFirestore db;
@@ -25,7 +25,8 @@ void main() {
     repo = FirestoreItemRepository(db);
   });
 
-  Future<Item> firstItem() async => (await repo.watchItems(groupId).first).first;
+  Future<Item> firstItem() async =>
+      (await repo.watchItems(groupId).first).first;
 
   test('addItem はアイテムを作成し order を設定する', () async {
     final id = await repo.addItem(groupId, _draft('milk'), 3);
@@ -54,8 +55,14 @@ void main() {
 
   test('updateItemDetails は tagId=null でフィールドを削除する', () async {
     final id = await repo.addItem(groupId, _draft('milk', tagId: 't1'), 1);
-    await repo.updateItemDetails(groupId, id,
-        name: 'bread', tagId: null, note: 'n', imageUrl: '');
+    await repo.updateItemDetails(
+      groupId,
+      id,
+      name: 'bread',
+      tagId: null,
+      note: 'n',
+      imageUrl: '',
+    );
     final item = await firstItem();
     expect(item.name, 'bread');
     expect(item.note, 'n');

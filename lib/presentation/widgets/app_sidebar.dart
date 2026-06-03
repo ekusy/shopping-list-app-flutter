@@ -75,7 +75,11 @@ class AppSidebar extends ConsumerWidget {
   }
 
   Widget _langButton(
-      BuildContext context, String code, String label, bool active) {
+    BuildContext context,
+    String code,
+    String label,
+    bool active,
+  ) {
     return OutlinedButton(
       onPressed: active
           ? null

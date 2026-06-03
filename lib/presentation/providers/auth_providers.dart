@@ -72,13 +72,13 @@ class AuthController {
     }
     String? avatarUrl;
     if (imageBytes != null) {
-      avatarUrl = await _ref.read(storageRepositoryProvider).uploadAvatar(uid, imageBytes);
+      avatarUrl = await _ref
+          .read(storageRepositoryProvider)
+          .uploadAvatar(uid, imageBytes);
     }
-    await _ref.read(userRepositoryProvider).updateUserProfile(
-          uid,
-          displayName: displayName,
-          avatarUrl: avatarUrl,
-        );
+    await _ref
+        .read(userRepositoryProvider)
+        .updateUserProfile(uid, displayName: displayName, avatarUrl: avatarUrl);
     return avatarUrl;
   }
 
@@ -91,7 +91,9 @@ class AuthController {
     if (uid == null) {
       throw const AppError(AppErrorCode.authUnknown, 'Not authenticated');
     }
-    final ownsGroup = await _ref.read(groupRepositoryProvider).isGroupOwner(uid);
+    final ownsGroup = await _ref
+        .read(groupRepositoryProvider)
+        .isGroupOwner(uid);
     if (ownsGroup) {
       throw const AppError(
         AppErrorCode.authCannotDeleteOwner,

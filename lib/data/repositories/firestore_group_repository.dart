@@ -48,7 +48,9 @@ class FirestoreGroupRepository implements GroupRepository {
       }
 
       // merge: true で users ドキュメント未存在時も作成する。
-      batch.set(_userRef(uid), {'groupId': groupRef.id}, SetOptions(merge: true));
+      batch.set(_userRef(uid), {
+        'groupId': groupRef.id,
+      }, SetOptions(merge: true));
 
       await batch.commit();
       return (groupId: groupRef.id, inviteCode: inviteCode);
@@ -60,8 +62,10 @@ class FirestoreGroupRepository implements GroupRepository {
   @override
   Future<bool> isGroupOwner(String uid) async {
     try {
-      final snap =
-          await _groups.where('ownerId', isEqualTo: uid).limit(1).get();
+      final snap = await _groups
+          .where('ownerId', isEqualTo: uid)
+          .limit(1)
+          .get();
       return snap.docs.isNotEmpty;
     } catch (e) {
       throw toAppError(e);
@@ -82,8 +86,7 @@ class FirestoreGroupRepository implements GroupRepository {
   @override
   Future<List<Group>> getGroupsByMemberId(String uid) async {
     try {
-      final snap =
-          await _groups.where('memberIds', arrayContains: uid).get();
+      final snap = await _groups.where('memberIds', arrayContains: uid).get();
       return snap.docs.map(groupFromDoc).toList();
     } catch (e) {
       throw toAppError(e);
@@ -120,8 +123,9 @@ class FirestoreGroupRepository implements GroupRepository {
       }
 
       final userSnap = await _userRef(uid).get();
-      final currentUserGroupId =
-          userSnap.exists ? (userSnap.data()?['groupId'] as String?) : null;
+      final currentUserGroupId = userSnap.exists
+          ? (userSnap.data()?['groupId'] as String?)
+          : null;
 
       final batch = _db.batch();
       // 別グループをアクティブにしている場合は維持し、誤リダイレクトを防ぐ。
