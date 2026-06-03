@@ -165,6 +165,12 @@ test/
 Firebase 固有の例外は `lib/data/firebase/firebase_error_converter.dart` で `AppError` に
 変換してから送出する（詳細は `docs/外部仕様/エラー仕様.md`）。
 
+## Deferred Loading（遅延ロード）
+
+PR #20 で初期バンドルサイズ削減のため導入済み。
+新しい route（画面）を追加する際は `deferred as` import を検討すること。
+`lib/presentation/` の既存 screen を参照。
+
 ## テスト作成のルール
 
 - ウィジェットテストで `easy_localization` を使う場合は必ず
