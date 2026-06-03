@@ -1,5 +1,6 @@
 # common
 tokens
+working
 
 # Local environment variables (Firebase tokens, etc.) — see docs/DEPLOYMENT.md
 .env

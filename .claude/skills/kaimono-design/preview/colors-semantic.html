@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../colors_and_type.css" />
+<style>
+  html, body { margin: 0; }
+  body { background: var(--surface); font-family: var(--font-sans); padding: 22px 26px; -webkit-font-smoothing: antialiased; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .sw { border-radius: var(--r-md); overflow: hidden; border: 1px solid var(--surface-border); }
+  .chip { height: 50px; display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700; }
+  .cap { padding: 7px 9px; }
+  .name { font-size: 12px; font-weight: 700; color: var(--text-primary); }
+  .hex { font-family: var(--font-num); font-size: 11px; color: var(--text-secondary); text-transform: uppercase; }
+</style>
+</head>
+<body>
+  <div class="grid">
+    <div class="sw"><div class="chip" style="background:var(--error);color:#fff">error</div><div class="cap"><div class="name">error</div><div class="hex">#C62828</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--error-bg);color:var(--error)">banner</div><div class="cap"><div class="name">error bg</div><div class="hex">#FFEBEE</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--success);color:#fff">success</div><div class="cap"><div class="name">success</div><div class="hex">#2E7D32</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--info);color:#fff">info</div><div class="cap"><div class="name">info</div><div class="hex">#1565C0</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--buyer-badge-bg);color:var(--buyer-badge-text)">👤 buying</div><div class="cap"><div class="name">buyer badge</div><div class="hex">#E3F2FD</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--buyer-badge-text);color:#fff">text</div><div class="cap"><div class="name">buyer text</div><div class="hex">#1976D2</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--info-accent);color:#fff">accent</div><div class="cap"><div class="name">info accent</div><div class="hex">#2196F3</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--bought-bg);color:var(--text-secondary)">muted</div><div class="cap"><div class="name">bought bg</div><div class="hex">#E6E6E6 50%</div></div></div>
+  </div>
+</body>
+</html>

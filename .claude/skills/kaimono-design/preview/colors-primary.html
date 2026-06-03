@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../colors_and_type.css" />
+<style>
+  html, body { margin: 0; }
+  body { background: var(--surface); font-family: var(--font-sans); padding: 22px 26px; -webkit-font-smoothing: antialiased; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .sw { border-radius: var(--r-md); overflow: hidden; border: 1px solid var(--surface-border); }
+  .chip { height: 60px; }
+  .cap { padding: 7px 9px; }
+  .name { font-size: 12px; font-weight: 700; color: var(--text-primary); }
+  .hex { font-family: var(--font-num); font-size: 11px; color: var(--text-secondary); text-transform: uppercase; }
+</style>
+</head>
+<body>
+  <div class="grid">
+    <div class="sw"><div class="chip" style="background:var(--primary)"></div><div class="cap"><div class="name">primary</div><div class="hex">#646CFF</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--primary-hover)"></div><div class="cap"><div class="name">hover</div><div class="hex">#7C83FD</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--primary-pressed)"></div><div class="cap"><div class="name">pressed</div><div class="hex">#4F58E6</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--primary-light)"></div><div class="cap"><div class="name">light</div><div class="hex">#EEEEFF</div></div></div>
+  </div>
+</body>
+</html>

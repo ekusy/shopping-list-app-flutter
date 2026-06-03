@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../colors_and_type.css" />
+<style>
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    font-family: var(--font-sans);
+    color: var(--text-primary);
+    padding: 22px 26px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .row { display: flex; align-items: baseline; gap: 16px; padding: 7px 0; border-bottom: 1px solid var(--surface-border); }
+  .row:last-child { border-bottom: 0; }
+  .meta { font-family: var(--font-num); font-size: 12px; color: var(--text-secondary); width: 132px; flex: none; }
+  .meta b { color: var(--text-primary); font-weight: 700; }
+  .sample { color: var(--text-primary); }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="meta"><b>title</b> · 28 / 700</div>
+    <div class="sample" style="font-size:28px;font-weight:700;line-height:1.2">買い物リスト</div>
+  </div>
+  <div class="row">
+    <div class="meta"><b>xxl</b> · 24 / 700</div>
+    <div class="sample" style="font-size:24px;font-weight:700">ログイン</div>
+  </div>
+  <div class="row">
+    <div class="meta"><b>xl</b> · 20 / 700</div>
+    <div class="sample" style="font-size:20px;font-weight:700;color:var(--primary)">わが家のリスト ▼</div>
+  </div>
+  <div class="row">
+    <div class="meta"><b>lg</b> · 16 / 600</div>
+    <div class="sample" style="font-size:16px;font-weight:600">牛乳 1本</div>
+  </div>
+  <div class="row">
+    <div class="meta"><b>md</b> · 14 / 400</div>
+    <div class="sample" style="font-size:14px">急ぎで買うものリスト</div>
+  </div>
+  <div class="row">
+    <div class="meta"><b>sm</b> · 13 / 400</div>
+    <div class="sample" style="font-size:13px;color:var(--text-secondary)">あと3件追加可能です</div>
+  </div>
+  <div class="row">
+    <div class="meta"><b>xs</b> · 12 / 700</div>
+    <div class="sample" style="font-size:12px;font-weight:700;letter-spacing:.2px">私が買います</div>
+  </div>
+</body>
+</html>

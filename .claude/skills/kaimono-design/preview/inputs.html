@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../colors_and_type.css" />
+<style>
+  html, body { margin: 0; }
+  body { background: var(--surface); font-family: var(--font-sans); padding: 22px 26px; -webkit-font-smoothing: antialiased; }
+  .fld { margin-bottom:14px; }
+  .lab { font-size:12px; color:var(--text-secondary); margin-bottom:5px; }
+  .inp { display:flex; align-items:center; background:var(--input-bg); border:1px solid var(--input-border); border-radius:var(--r-md); padding:11px 14px; font-size:15px; color:var(--text-primary); }
+  .inp.focus { border:2px solid var(--primary); padding:10px 13px; }
+  .ph { color:var(--text-secondary); }
+  .inp .x { margin-left:auto; color:var(--text-secondary); font-size:13px; }
+</style>
+</head>
+<body>
+  <div class="fld">
+    <div class="lab">メールアドレス</div>
+    <div class="inp">you@example.com</div>
+  </div>
+  <div class="fld">
+    <div class="lab">パスワード — focused</div>
+    <div class="inp focus">••••••••<span class="x">表示</span></div>
+  </div>
+  <div class="fld">
+    <div class="lab">タグ — dropdown</div>
+    <div class="inp"><span class="ph">タグなし</span><span class="x">▾</span></div>
+  </div>
+</body>
+</html>

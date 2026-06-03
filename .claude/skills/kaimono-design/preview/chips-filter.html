@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../colors_and_type.css" />
+<style>
+  html, body { margin: 0; }
+  body { background: var(--bg); font-family: var(--font-sans); padding: 22px 26px; -webkit-font-smoothing: antialiased; }
+  .lead { font-size:12.5px;color:var(--text-secondary);margin:0 0 12px; }
+  .bar { display:flex; gap:8px; flex-wrap:wrap; }
+  .chip { font-size:13px; padding:7px 16px; border-radius:9999px; background:var(--surface); color:var(--text-secondary); border:1px solid var(--input-border); font-weight:500; }
+  .chip.sel { background:var(--primary); color:#fff; border-color:var(--primary); font-weight:700; }
+</style>
+</head>
+<body>
+  <p class="lead">Filter chips — horizontal scroll, multi-select <b>OR</b>. Pill, hairline border; selected fills primary.</p>
+  <div class="bar">
+    <span class="chip">すべて</span>
+    <span class="chip sel">急ぎ</span>
+    <span class="chip sel">まとめ買い</span>
+    <span class="chip">日用品</span>
+    <span class="chip">週末</span>
+  </div>
+</body>
+</html>
