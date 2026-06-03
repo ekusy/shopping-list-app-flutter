@@ -50,7 +50,7 @@ docker compose run --rm flutter flutter test --coverage
 ### ビルド
 
 ```bash
-docker compose run --rm flutter flutter build web --release
+docker compose run --rm flutter flutter build web --release --pwa-strategy=offline-first
 docker compose run --rm flutter flutter build apk --release          # Android APK
 docker compose run --rm flutter flutter build appbundle --release    # Android App Bundle (.aab)
 ```
