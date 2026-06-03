@@ -4,9 +4,15 @@ import 'package:shopping_list_app/core/errors/app_error.dart';
 void main() {
   group('AppErrorCode', () {
     test('元実装と互換の文字列コードを保持する', () {
-      expect(AppErrorCode.authInvalidCredential.code, 'auth/invalid-credential');
+      expect(
+        AppErrorCode.authInvalidCredential.code,
+        'auth/invalid-credential',
+      );
       expect(AppErrorCode.dataPermissionDenied.code, 'data/permission-denied');
-      expect(AppErrorCode.groupOwnerCannotLeave.code, 'group/owner-cannot-leave');
+      expect(
+        AppErrorCode.groupOwnerCannotLeave.code,
+        'group/owner-cannot-leave',
+      );
       expect(AppErrorCode.dataTagLimitExceeded.code, 'data/tag-limit-exceeded');
     });
   });

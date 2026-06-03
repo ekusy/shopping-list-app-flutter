@@ -72,10 +72,12 @@ class _GroupSettingsScreenState extends ConsumerState<GroupSettingsScreen> {
     try {
       await ref.read(groupControllerProvider.notifier).leaveGroup();
     } catch (e) {
-      setState(() => _actionError = e is AppError &&
-              e.code == AppErrorCode.groupOwnerCannotLeave
-          ? 'group.settings.error.owner_cannot_leave'.tr()
-          : 'group.settings.error.leave_failed'.tr());
+      setState(
+        () => _actionError =
+            e is AppError && e.code == AppErrorCode.groupOwnerCannotLeave
+            ? 'group.settings.error.owner_cannot_leave'.tr()
+            : 'group.settings.error.leave_failed'.tr(),
+      );
     }
   }
 
@@ -100,17 +102,21 @@ class _GroupSettingsScreenState extends ConsumerState<GroupSettingsScreen> {
     final confirmed = await showConfirmDialog(
       context,
       title: 'group.settings.remove_member'.tr(),
-      message: 'group.settings.remove_member_confirm'.tr(namedArgs: {'name': name}),
+      message: 'group.settings.remove_member_confirm'.tr(
+        namedArgs: {'name': name},
+      ),
       confirmLabel: 'group.settings.remove_member'.tr(),
     );
     if (!confirmed) return;
     try {
       await ref.read(groupControllerProvider.notifier).removeMember(uid);
     } catch (e) {
-      setState(() => _actionError = e is AppError &&
-              e.code == AppErrorCode.groupCannotRemoveOwner
-          ? 'group.settings.error.cannot_remove_owner'.tr()
-          : 'group.settings.error.remove_member_failed'.tr());
+      setState(
+        () => _actionError =
+            e is AppError && e.code == AppErrorCode.groupCannotRemoveOwner
+            ? 'group.settings.error.cannot_remove_owner'.tr()
+            : 'group.settings.error.remove_member_failed'.tr(),
+      );
     }
   }
 
@@ -120,7 +126,8 @@ class _GroupSettingsScreenState extends ConsumerState<GroupSettingsScreen> {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-          SnackBar(content: Text(toast), duration: const Duration(seconds: 2)));
+        SnackBar(content: Text(toast), duration: const Duration(seconds: 2)),
+      );
   }
 
   @override
@@ -129,7 +136,9 @@ class _GroupSettingsScreenState extends ConsumerState<GroupSettingsScreen> {
     if (group == null) {
       return const Scaffold(
         backgroundColor: AppColors.background,
-        body: Center(child: CircularProgressIndicator(color: AppColors.primary)),
+        body: Center(
+          child: CircularProgressIndicator(color: AppColors.primary),
+        ),
       );
     }
     if (!_nameInitialized) {
@@ -148,8 +157,7 @@ class _GroupSettingsScreenState extends ConsumerState<GroupSettingsScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.background,
         leading: BackButton(
-          onPressed: () =>
-              context.canPop() ? context.pop() : context.go('/'),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/'),
         ),
         title: Text('group.settings.title'.tr()),
       ),
@@ -181,9 +189,11 @@ class _GroupSettingsScreenState extends ConsumerState<GroupSettingsScreen> {
                     if (_saveError != null) MessageBox(_saveError!),
                     FilledButton(
                       onPressed: _saving ? null : _saveName,
-                      child: Text(_saving
-                          ? 'group.settings.saving'.tr()
-                          : 'group.settings.save'.tr()),
+                      child: Text(
+                        _saving
+                            ? 'group.settings.saving'.tr()
+                            : 'group.settings.save'.tr(),
+                      ),
                     ),
                     const Divider(height: AppSpacing.xl * 2),
                     _inviteSection(group, inviteUrl),
@@ -210,9 +220,11 @@ class _GroupSettingsScreenState extends ConsumerState<GroupSettingsScreen> {
                         side: const BorderSide(color: AppColors.error),
                       ),
                       onPressed: isOwner ? _disband : _leave,
-                      child: Text(isOwner
-                          ? 'group.settings.disband_group'.tr()
-                          : 'group.settings.leave_group'.tr()),
+                      child: Text(
+                        isOwner
+                            ? 'group.settings.disband_group'.tr()
+                            : 'group.settings.leave_group'.tr(),
+                      ),
                     ),
                   ],
                 ),
@@ -225,15 +237,15 @@ class _GroupSettingsScreenState extends ConsumerState<GroupSettingsScreen> {
   }
 
   Widget _label(String text) => Padding(
-        padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-        child: Text(
-          text,
-          style: const TextStyle(
-            color: AppColors.textSecondary,
-            fontSize: AppFontSizes.sm,
-          ),
-        ),
-      );
+    padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+    child: Text(
+      text,
+      style: const TextStyle(
+        color: AppColors.textSecondary,
+        fontSize: AppFontSizes.sm,
+      ),
+    ),
+  );
 
   Widget _inviteSection(Group group, String inviteUrl) {
     return Column(
@@ -320,7 +332,8 @@ class _GroupSettingsScreenState extends ConsumerState<GroupSettingsScreen> {
                         foregroundColor: AppColors.error,
                         side: const BorderSide(color: AppColors.error),
                         padding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.sm),
+                          horizontal: AppSpacing.sm,
+                        ),
                         minimumSize: const Size(0, 32),
                       ),
                       onPressed: () => _removeMember(
@@ -341,20 +354,19 @@ class _GroupSettingsScreenState extends ConsumerState<GroupSettingsScreen> {
   }
 
   Widget _badge(String text, Color color) => Container(
-        margin: const EdgeInsets.only(left: AppSpacing.xs),
-        padding:
-            const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 2),
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(AppRadii.sm),
-        ),
-        child: Text(
-          text,
-          style: const TextStyle(
-            color: AppColors.white,
-            fontSize: AppFontSizes.xs,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      );
+    margin: const EdgeInsets.only(left: AppSpacing.xs),
+    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 2),
+    decoration: BoxDecoration(
+      color: color,
+      borderRadius: BorderRadius.circular(AppRadii.sm),
+    ),
+    child: Text(
+      text,
+      style: const TextStyle(
+        color: AppColors.white,
+        fontSize: AppFontSizes.xs,
+        fontWeight: FontWeight.w600,
+      ),
+    ),
+  );
 }

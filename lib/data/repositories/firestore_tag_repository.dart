@@ -25,7 +25,12 @@ class FirestoreTagRepository implements TagRepository {
         'createdAt': FieldValue.serverTimestamp(),
         'order': order,
       });
-      return Tag(id: ref.id, name: name, createdAt: DateTime.now(), order: order);
+      return Tag(
+        id: ref.id,
+        name: name,
+        createdAt: DateTime.now(),
+        order: order,
+      );
     } catch (e) {
       throw toAppError(e);
     }
@@ -43,8 +48,9 @@ class FirestoreTagRepository implements TagRepository {
   @override
   Future<void> deleteTagAndClearItems(String groupId, String tagId) async {
     try {
-      final snapshot =
-          await _itemsCol(groupId).where('tagId', isEqualTo: tagId).get();
+      final snapshot = await _itemsCol(
+        groupId,
+      ).where('tagId', isEqualTo: tagId).get();
       final batch = _db.batch();
       for (final doc in snapshot.docs) {
         batch.update(doc.reference, {'tagId': FieldValue.delete()});

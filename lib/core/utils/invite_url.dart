@@ -29,6 +29,8 @@ String buildInviteUrl(String code) {
 
 /// ベース URL の末尾スラッシュを除いて `/group/join?code=XXX` を結合する。
 String _joinPath(String base, String code) {
-  final normalized = base.endsWith('/') ? base.substring(0, base.length - 1) : base;
+  final normalized = base.endsWith('/')
+      ? base.substring(0, base.length - 1)
+      : base;
   return '$normalized/group/join?code=${Uri.encodeComponent(code)}';
 }

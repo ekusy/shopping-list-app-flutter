@@ -19,7 +19,8 @@ Future<void> showItemEditModal(
     String? tagId,
     String note,
     String imageUrl,
-  ) onSave,
+  )
+  onSave,
 }) {
   return showModalBottomSheet<void>(
     context: context,
@@ -29,9 +30,7 @@ Future<void> showItemEditModal(
       borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.lg)),
     ),
     builder: (ctx) => Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(ctx).viewInsets.bottom,
-      ),
+      padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
       child: _ItemEditContent(item: item, onSave: onSave),
     ),
   );
@@ -46,7 +45,8 @@ class _ItemEditContent extends ConsumerStatefulWidget {
     String? tagId,
     String note,
     String imageUrl,
-  ) onSave;
+  )
+  onSave;
 
   @override
   ConsumerState<_ItemEditContent> createState() => _ItemEditContentState();
@@ -165,8 +165,11 @@ class _ItemEditContentState extends ConsumerState<_ItemEditContent> {
                         icon: const CircleAvatar(
                           radius: 10,
                           backgroundColor: AppColors.errorAccent,
-                          child:
-                              Icon(Icons.close, size: 14, color: Colors.white),
+                          child: Icon(
+                            Icons.close,
+                            size: 14,
+                            color: Colors.white,
+                          ),
                         ),
                         onPressed: () => setState(() => _imageUrl = ''),
                       ),
@@ -187,7 +190,8 @@ class _ItemEditContentState extends ConsumerState<_ItemEditContent> {
           FilledButton(
             onPressed: _saving ? null : _save,
             child: Text(
-                _saving ? 'item.edit_saving'.tr() : 'item.edit_save'.tr()),
+              _saving ? 'item.edit_saving'.tr() : 'item.edit_save'.tr(),
+            ),
           ),
         ],
       ),

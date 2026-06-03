@@ -31,7 +31,8 @@ Group groupFromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
     id: doc.id,
     name: (data['name'] as String?) ?? '',
     ownerId: (data['ownerId'] as String?) ?? '',
-    memberIds: (data['memberIds'] as List<dynamic>?)?.cast<String>() ?? const [],
+    memberIds:
+        (data['memberIds'] as List<dynamic>?)?.cast<String>() ?? const [],
     inviteCode: (data['inviteCode'] as String?) ?? '',
     createdAt: toDateTime(data['createdAt']),
     plan: data['plan'] as String?,

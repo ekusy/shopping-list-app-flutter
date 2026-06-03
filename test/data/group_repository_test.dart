@@ -67,8 +67,13 @@ void main() {
     test('無効なコードは groupInvalidInviteCode', () async {
       await expectLater(
         repo.joinGroup('u2', 'BADCODE0'),
-        throwsA(isA<AppError>().having(
-            (e) => e.code, 'code', AppErrorCode.groupInvalidInviteCode)),
+        throwsA(
+          isA<AppError>().having(
+            (e) => e.code,
+            'code',
+            AppErrorCode.groupInvalidInviteCode,
+          ),
+        ),
       );
     });
 
@@ -76,8 +81,13 @@ void main() {
       final r = await repo.createGroup('u1', 'G', const []);
       await expectLater(
         repo.joinGroup('u1', r.inviteCode),
-        throwsA(isA<AppError>()
-            .having((e) => e.code, 'code', AppErrorCode.groupAlreadyMember)),
+        throwsA(
+          isA<AppError>().having(
+            (e) => e.code,
+            'code',
+            AppErrorCode.groupAlreadyMember,
+          ),
+        ),
       );
     });
   });
@@ -98,8 +108,13 @@ void main() {
       final r = await repo.createGroup('owner', 'G', const []);
       await expectLater(
         repo.removeMember(r.groupId, 'owner'),
-        throwsA(isA<AppError>().having(
-            (e) => e.code, 'code', AppErrorCode.groupCannotRemoveOwner)),
+        throwsA(
+          isA<AppError>().having(
+            (e) => e.code,
+            'code',
+            AppErrorCode.groupCannotRemoveOwner,
+          ),
+        ),
       );
     });
   });

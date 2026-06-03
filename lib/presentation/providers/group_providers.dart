@@ -88,7 +88,9 @@ class GroupController extends Notifier<GroupState> {
 
       // 採用したアクティブグループが groupId と異なるなら永続化して復旧する。
       if (active != null && active.id != groupId) {
-        unawaited(userRepo.updateUserGroupId(uid, active.id).catchError((_) {}));
+        unawaited(
+          userRepo.updateUserGroupId(uid, active.id).catchError((_) {}),
+        );
       }
 
       state = GroupState(group: active, joinedGroups: groups, loading: false);
@@ -104,28 +106,28 @@ class GroupController extends Notifier<GroupState> {
     _groupSub = null;
     if (groupId == null) return;
 
-    _groupSub = ref.read(groupRepositoryProvider).watchGroup(groupId).listen(
-      (updated) {
-        if (updated == null || !updated.memberIds.contains(uid)) {
-          // 退場またはグループ解散 → メンバーシップ状態をリセット。
-          state = state.copyWith(
-            group: () => null,
-            joinedGroups:
-                state.joinedGroups.where((g) => g.id != groupId).toList(),
-          );
-          _groupSub?.cancel();
-          _groupSub = null;
-          return;
-        }
+    _groupSub = ref.read(groupRepositoryProvider).watchGroup(groupId).listen((
+      updated,
+    ) {
+      if (updated == null || !updated.memberIds.contains(uid)) {
+        // 退場またはグループ解散 → メンバーシップ状態をリセット。
         state = state.copyWith(
-          group: () => updated,
+          group: () => null,
           joinedGroups: state.joinedGroups
-              .map((g) => g.id == groupId ? updated : g)
+              .where((g) => g.id != groupId)
               .toList(),
         );
-      },
-      onError: (_) {},
-    );
+        _groupSub?.cancel();
+        _groupSub = null;
+        return;
+      }
+      state = state.copyWith(
+        group: () => updated,
+        joinedGroups: state.joinedGroups
+            .map((g) => g.id == groupId ? updated : g)
+            .toList(),
+      );
+    }, onError: (_) {});
   }
 
   String _requireUid() {
@@ -142,7 +144,10 @@ class GroupController extends Notifier<GroupState> {
   Future<String> createGroup(String groupName) async {
     final uid = _requireUid();
     final groupRepo = ref.read(groupRepositoryProvider);
-    final defaultTagNames = ['tag.default_urgent'.tr(), 'tag.default_bulk'.tr()];
+    final defaultTagNames = [
+      'tag.default_urgent'.tr(),
+      'tag.default_bulk'.tr(),
+    ];
     final result = await groupRepo.createGroup(uid, groupName, defaultTagNames);
 
     final groupData = await groupRepo.getGroup(result.groupId);
@@ -238,7 +243,10 @@ class GroupController extends Notifier<GroupState> {
     state = state.copyWith(group: () => target);
     _subscribeActiveGroup(uid, groupId);
     unawaited(
-      ref.read(userRepositoryProvider).updateUserGroupId(uid, groupId).catchError((_) {}),
+      ref
+          .read(userRepositoryProvider)
+          .updateUserGroupId(uid, groupId)
+          .catchError((_) {}),
     );
   }
 
@@ -263,7 +271,10 @@ class GroupController extends Notifier<GroupState> {
     }
     // tagsProvider は groupController に依存するため、循環依存を避けて
     // リポジトリから現在のタグを直接取得する。
-    final tags = await ref.read(tagRepositoryProvider).watchTags(group.id).first;
+    final tags = await ref
+        .read(tagRepositoryProvider)
+        .watchTags(group.id)
+        .first;
     final limit = PlanLimits.tagLimitFor(group.plan);
     if (tags.length >= limit) {
       throw AppError(
@@ -271,12 +282,15 @@ class GroupController extends Notifier<GroupState> {
         'Tag limit reached ($limit)',
       );
     }
-    final nextOrder = tags.fold<int>(0, (max, t) {
+    final nextOrder =
+        tags.fold<int>(0, (max, t) {
           final o = t.order ?? 0;
           return o > max ? o : max;
         }) +
         1;
-    await ref.read(tagRepositoryProvider).addTag(group.id, name.trim(), nextOrder);
+    await ref
+        .read(tagRepositoryProvider)
+        .addTag(group.id, name.trim(), nextOrder);
   }
 
   /// タグ名を変更する。
@@ -285,7 +299,9 @@ class GroupController extends Notifier<GroupState> {
     if (group == null) {
       throw const AppError(AppErrorCode.dataUnknown, 'No active group');
     }
-    await ref.read(tagRepositoryProvider).updateTagName(group.id, tagId, name.trim());
+    await ref
+        .read(tagRepositoryProvider)
+        .updateTagName(group.id, tagId, name.trim());
   }
 
   /// タグを削除する（参照アイテムの tagId も同一バッチでクリア）。
@@ -294,7 +310,9 @@ class GroupController extends Notifier<GroupState> {
     if (group == null) {
       throw const AppError(AppErrorCode.dataUnknown, 'No active group');
     }
-    await ref.read(tagRepositoryProvider).deleteTagAndClearItems(group.id, tagId);
+    await ref
+        .read(tagRepositoryProvider)
+        .deleteTagAndClearItems(group.id, tagId);
   }
 
   /// オーナーが指定メンバーを強制退場させる（更新は購読で反映）。
@@ -329,8 +347,9 @@ class GroupController extends Notifier<GroupState> {
 }
 
 /// グループコントローラのプロバイダ。
-final groupControllerProvider =
-    NotifierProvider<GroupController, GroupState>(GroupController.new);
+final groupControllerProvider = NotifierProvider<GroupController, GroupState>(
+  GroupController.new,
+);
 
 /// アクティブグループ（未所属は null）。
 final activeGroupProvider = Provider<Group?>(

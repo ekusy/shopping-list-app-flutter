@@ -6,13 +6,13 @@ import 'package:shopping_list_app/presentation/widgets/item_card.dart';
 import '../helpers/test_localization.dart';
 
 Item _item({ItemStatus? status}) => Item(
-      id: 'i1',
-      name: 'Milk',
-      category: '',
-      note: 'note text',
-      imageUrl: '',
-      status: status ?? ItemStatus.active,
-    );
+  id: 'i1',
+  name: 'Milk',
+  category: '',
+  note: 'note text',
+  imageUrl: '',
+  status: status ?? ItemStatus.active,
+);
 
 void main() {
   setUpAll(setUpTestLocalization);
@@ -53,8 +53,9 @@ void main() {
     expect(deleted, isTrue);
   });
 
-  testWidgets('購入済みアイテムは「買うよ」ボタンを隠し、戻すと onSetPurchased(false) を呼ぶ',
-      (tester) async {
+  testWidgets('購入済みアイテムは「買うよ」ボタンを隠し、戻すと onSetPurchased(false) を呼ぶ', (
+    tester,
+  ) async {
     bool? purchasedArg;
     await pumpLocalized(
       tester,
