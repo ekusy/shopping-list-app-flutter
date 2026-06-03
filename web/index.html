@@ -31,6 +31,17 @@
 
   <title>Kaimono</title>
   <link rel="manifest" href="manifest.json">
+
+  <!--
+    Flutter web はデフォルトで Roboto フォントを fonts.googleapis.com / fonts.gstatic.com
+    から実行時ダウンロードする。preconnect でブラウザが事前に DNS 解決・TLS 確立を
+    完了させるため、フォントの取得レイテンシが短縮される。
+    dns-prefetch は preconnect 非対応の旧ブラウザ向けフォールバック。
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
 </head>
 <body>
   <!--
