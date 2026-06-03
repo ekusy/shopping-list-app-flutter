@@ -82,12 +82,21 @@ class AppLayout {
 }
 
 /// アプリ共通の [ThemeData] を構築する。
+///
+/// **フォント戦略（Web）**
+/// - ラテン文字 UI: Flutter が Roboto を Google Fonts CDN から取得（web/index.html の
+///   preconnect でレイテンシ削減済み）。将来的にサブセットを自己ホストする場合は
+///   pubspec.yaml の fonts セクションに登録し fontFamily を 'Roboto' に変更する。
+/// - CJK（日本語）文字: Flutter のフォントフォールバックによりシステムフォントを使用。
+///   大容量の日本語フォントをダウンロードせず済み、転送量を最小化している。
 ThemeData buildAppTheme() {
   final base = ThemeData(
     useMaterial3: true,
     colorSchemeSeed: AppColors.primary,
     scaffoldBackgroundColor: AppColors.background,
-    fontFamily: null,
+    // Roboto を明示し、CJK 文字はシステムフォントへフォールバックさせる。
+    // web/index.html の preconnect により CDN 接続を事前確立済み。
+    fontFamily: 'Roboto',
   );
   return base.copyWith(
     colorScheme: base.colorScheme.copyWith(
