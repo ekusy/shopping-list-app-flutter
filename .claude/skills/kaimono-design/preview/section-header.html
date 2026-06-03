@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../colors_and_type.css" />
+<style>
+  html, body { margin: 0; }
+  body { background: var(--bg); font-family: var(--font-sans); padding: 20px 22px; -webkit-font-smoothing: antialiased; }
+  .lead { font-size:12px;color:var(--text-secondary);margin:0 0 14px; }
+  /* group header (app bar) — primary, with caret */
+  .gh { display:flex; align-items:center; gap:6px; font-size:20px; font-weight:700; color:var(--primary); margin-bottom:16px; }
+  /* tag section header — text-primary, count, bottom rule */
+  .sec { display:flex; align-items:center; gap:10px; padding-bottom:6px; border-bottom:2px solid var(--overlay); }
+  .sec .dot { width:10px;height:10px;border-radius:3px;background:var(--accent-apricot); }
+  .sec .t { font-size:14px; font-weight:700; color:var(--text-primary); }
+  .sec .c { font-size:13px; color:var(--text-secondary); }
+  .sec .caret { margin-left:auto; color:var(--text-secondary); }
+</style>
+</head>
+<body>
+  <p class="lead">Two header levels, deliberately distinct: <b>group name</b> = indigo + caret (tap to switch); <b>tag section</b> = dark label + colored tag dot + count + collapse caret.</p>
+  <div class="gh">わが家のリスト <span style="font-size:14px">▼</span></div>
+  <div class="sec">
+    <span class="dot"></span>
+    <span class="t">急ぎ</span>
+    <span class="c">2件</span>
+    <span class="caret">▲</span>
+  </div>
+</body>
+</html>

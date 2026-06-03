@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../colors_and_type.css" />
+<style>
+  html, body { margin: 0; }
+  body { background: var(--bg); font-family: var(--font-sans); padding: 18px 22px; -webkit-font-smoothing: antialiased; }
+  .badge { font-size:12px; font-weight:700; padding:3px 12px; border-radius:9999px; }
+  .b-mine { background:var(--accent-apricot-light); color:var(--accent-apricot-text); }
+  .b-others { background:var(--buyer-badge-bg); color:var(--buyer-badge-text); }
+  .b-active { background:var(--primary); color:#fff; }
+  .b-owner { background:var(--primary-light); color:var(--primary); }
+  .b-you { background:var(--accent-green-light); color:var(--accent-green); }
+  .b-pending { background:#FFF4E0; color:#9A6A1A; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  .lbl { font-size:11px;color:var(--text-secondary);width:100%;margin:14px 0 4px; }
+  .lbl:first-child { margin-top:0; }
+</style>
+</head>
+<body>
+  <div class="lbl">Item buyer state</div>
+  <div class="row">
+    <span class="badge b-mine">🙋 私が買います</span>
+    <span class="badge b-others">👤 はると</span>
+    <span class="badge b-pending">⏳ 同期待ち</span>
+  </div>
+  <div class="lbl">Group &amp; member</div>
+  <div class="row">
+    <span class="badge b-active">使用中</span>
+    <span class="badge b-owner">オーナー</span>
+    <span class="badge b-you">あなた</span>
+  </div>
+</body>
+</html>

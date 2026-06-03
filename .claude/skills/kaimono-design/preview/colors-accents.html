@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../colors_and_type.css" />
+<style>
+  html, body { margin: 0; }
+  body { background: var(--surface); font-family: var(--font-sans); padding: 22px 26px; -webkit-font-smoothing: antialiased; }
+  .lead { font-size: 12.5px; color: var(--text-secondary); margin: 0 0 14px; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .sw { border-radius: var(--r-md); overflow: hidden; border: 1px solid var(--surface-border); }
+  .chip { height: 58px; display:flex; align-items:center; justify-content:center; font-size:22px; }
+  .cap { padding: 7px 9px; }
+  .name { font-size: 12px; font-weight: 700; color: var(--text-primary); }
+  .role { font-size: 11px; color: var(--text-secondary); }
+  .hex { font-family: var(--font-num); font-size: 11px; color: var(--text-secondary); text-transform: uppercase; }
+</style>
+</head>
+<body>
+  <p class="lead"><b>NEW warm accents</b> — green = done / purchased, apricot = the「買うよ」I'll-buy-it moment.</p>
+  <div class="grid">
+    <div class="sw"><div class="chip" style="background:var(--accent-green)">✅</div><div class="cap"><div class="name">green</div><div class="hex">#2E9E6B</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--accent-green-light);color:var(--accent-green)">done</div><div class="cap"><div class="name">green light</div><div class="hex">#E6F5EE</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--accent-apricot)">🙋</div><div class="cap"><div class="name">apricot</div><div class="hex">#F4A259</div></div></div>
+    <div class="sw"><div class="chip" style="background:var(--accent-apricot-light);color:var(--accent-apricot-text)">買うよ</div><div class="cap"><div class="name">apricot light</div><div class="hex">#FCEEDD</div></div></div>
+  </div>
+</body>
+</html>

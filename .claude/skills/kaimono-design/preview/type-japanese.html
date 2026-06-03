@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../colors_and_type.css" />
+<style>
+  html, body { margin: 0; }
+  body { background: var(--surface); font-family: var(--font-sans); color: var(--text-primary); padding: 22px 26px; -webkit-font-smoothing: antialiased; }
+  .fam { font-size: 13px; color: var(--text-secondary); margin: 0 0 14px; }
+  .fam b { color: var(--text-primary); }
+  .specimen { font-size: 30px; line-height: 1.35; margin: 0 0 16px; }
+  .weights { display: flex; gap: 26px; flex-wrap: wrap; }
+  .w { text-align: left; }
+  .w .glyph { font-size: 30px; }
+  .w .lbl { font-size: 11px; color: var(--text-secondary); font-family: var(--font-num); }
+</style>
+</head>
+<body>
+  <p class="fam"><b>Noto Sans JP</b> — primary family (ja-first, Latin via Roboto fallback). Substitution for the platform default.</p>
+  <div class="specimen">家族みんなで使う、共有の買い物リスト。<span style="color:var(--primary)">気づいたら記録。</span></div>
+  <div class="weights">
+    <div class="w"><div class="glyph" style="font-weight:400">買うよ Aa 123</div><div class="lbl">Regular · 400</div></div>
+    <div class="w"><div class="glyph" style="font-weight:500">買うよ Aa 123</div><div class="lbl">Medium · 500</div></div>
+    <div class="w"><div class="glyph" style="font-weight:600">買うよ Aa 123</div><div class="lbl">SemiBold · 600</div></div>
+    <div class="w"><div class="glyph" style="font-weight:700">買うよ Aa 123</div><div class="lbl">Bold · 700</div></div>
+  </div>
+</body>
+</html>

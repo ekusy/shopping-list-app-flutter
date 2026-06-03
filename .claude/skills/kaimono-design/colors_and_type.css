@@ -1,0 +1,220 @@
+/* ============================================================================
+   Kaimono Shopping List — Design Tokens
+   家族・グループ向け共有買い物リストアプリ (Flutter / Material 3)
+
+   Two layers live here:
+   1. BASELINE  — the tokens shipped in lib/core/theme/app_theme.dart today.
+   2. REFRESHED — the warmer, "family-friendly but clean" evolution proposed
+                  in the UI re-examination brief. These are the working tokens
+                  used throughout this design system & UI kit.
+
+   The refreshed layer is a SUPERSET of the baseline: primary identity (#646CFF)
+   is preserved; we add a warm-neutral surface, a friendly leaf-green for
+   positive/done states, and an apricot accent for the human "買うよ / I'll buy"
+   moment. All choices stay achievable with stock Material 3 components.
+   ============================================================================ */
+
+:root {
+  /* ---------------------------------------------------------------------------
+     COLOR — BRAND / PRIMARY  (unchanged from baseline — keeps app identity)
+     --------------------------------------------------------------------------- */
+  --primary:          #646CFF;   /* periwinkle indigo — headers, primary CTAs, group name */
+  --primary-hover:    #7C83FD;   /* hover / pressed lighten */
+  --primary-pressed:  #4F58E6;   /* proposed darker press state (M3 ripple base) */
+  --primary-light:    #EEEEFF;   /* tint: selected card bg, tag-manage button bg */
+  --primary-tint-10:  rgba(100,108,255,0.10);  /* category badge bg */
+
+  /* ---------------------------------------------------------------------------
+     COLOR — WARM ACCENTS  (NEW — adds the "family warmth" the brief asks for)
+     --------------------------------------------------------------------------- */
+  --accent-green:        #2E9E6B;   /* friendly leaf green — purchased / done / success */
+  --accent-green-hover:  #268A5C;
+  --accent-green-light:  #E6F5EE;   /* done-state card wash, success banners */
+  --accent-apricot:      #F4A259;   /* warm "I'll buy it (買うよ)" volunteer highlight */
+  --accent-apricot-light:#FCEEDD;   /* volunteer badge / row wash */
+  --accent-apricot-text: #B26426;   /* readable apricot text on light */
+
+  /* ---------------------------------------------------------------------------
+     COLOR — NEUTRALS / SURFACES
+     Baseline background is cool blue-grey (#F0F4F8). The refresh warms it a
+     touch toward soft paper for approachability, while staying near-white.
+     --------------------------------------------------------------------------- */
+  --bg:             #F6F5F2;   /* REFRESHED warm paper  (baseline: #F0F4F8) */
+  --bg-baseline:    #F0F4F8;   /* original cool blue-grey, kept for reference */
+  --surface:        #FFFFFF;   /* cards, sheets, app bar */
+  --surface-sunken: #FBFAF7;   /* subtle inset (note blocks, list wells) */
+  --surface-border: #E7E5DF;   /* hairline card/section border (warmer than #E2E4EF) */
+  --overlay:        rgba(0,0,0,0.05);   /* scrim / pressed wash */
+
+  /* ---------------------------------------------------------------------------
+     COLOR — TEXT  (kept — slate reads clean & warm-neutral)
+     --------------------------------------------------------------------------- */
+  --text-primary:   #2C3E50;   /* item names, titles */
+  --text-secondary: #546E7A;   /* counts, hints, secondary labels */
+  --text-disabled:  #B6BEC6;
+  --text-on-primary:#FFFFFF;
+  --text-on-accent: #FFFFFF;
+
+  /* ---------------------------------------------------------------------------
+     COLOR — INPUTS
+     --------------------------------------------------------------------------- */
+  --input-bg:      #FFFFFF;
+  --input-border:  #D9D6CE;   /* warm-neutral (baseline: #D1D5E0) */
+  --input-focus:   var(--primary);
+
+  /* ---------------------------------------------------------------------------
+     COLOR — SEMANTIC / STATUS
+     --------------------------------------------------------------------------- */
+  --error:        #C62828;
+  --error-bg:     #FFEBEE;
+  --error-border: #FFCDD2;
+  --error-accent: #F44336;
+  --success:      #2E7D32;   /* baseline success (kept for banners) */
+  --info:         #1565C0;
+  --info-accent:  #2196F3;
+
+  /* declared-buyer badge (someone is buying) */
+  --buyer-badge-bg:   #E3F2FD;
+  --buyer-badge-text: #1976D2;
+
+  /* bought / muted row */
+  --bought-bg:        rgba(230,230,230,0.50);
+
+  /* ---------------------------------------------------------------------------
+     TYPE — FAMILIES
+     The app ships fontFamily: null → platform default (Roboto on Android/Web,
+     CJK fallback for Japanese). For faithful, warm Japanese rendering we
+     standardise on Noto Sans JP (the de-facto Material CJK face). SUBSTITUTION
+     — see README "If you are missing font files".
+     --------------------------------------------------------------------------- */
+  --font-sans: "Noto Sans JP", "Roboto", -apple-system, BlinkMacSystemFont,
+               "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+  --font-num:  "Roboto", "Noto Sans JP", sans-serif;  /* counts / codes */
+
+  /* ---------------------------------------------------------------------------
+     TYPE — SIZE SCALE  (px — from AppFontSizes)
+     --------------------------------------------------------------------------- */
+  --fs-xs:    12px;   /* badges, counts, micro-labels */
+  --fs-sm:    13px;   /* hints, secondary, chip text */
+  --fs-md:    14px;   /* body, list section title */
+  --fs-lg:    16px;   /* item name, field text */
+  --fs-xl:    20px;   /* group name, sheet title, purchased header */
+  --fs-xxl:   24px;   /* auth screen title */
+  --fs-title: 28px;   /* largest display */
+
+  /* ---------------------------------------------------------------------------
+     TYPE — WEIGHTS
+     --------------------------------------------------------------------------- */
+  --fw-regular: 400;
+  --fw-medium:  500;
+  --fw-semibold:600;
+  --fw-bold:    700;
+
+  --lh-tight: 1.25;
+  --lh-base:  1.5;
+
+  /* ---------------------------------------------------------------------------
+     SPACING  (px — from AppSpacing)
+     --------------------------------------------------------------------------- */
+  --sp-xs:  4px;
+  --sp-sm:  8px;
+  --sp-md: 16px;
+  --sp-lg: 24px;
+  --sp-xl: 32px;
+
+  /* ---------------------------------------------------------------------------
+     RADII  (px — from AppRadii; refresh leans on the larger end for softness)
+     --------------------------------------------------------------------------- */
+  --r-sm:    4px;
+  --r-md:    8px;
+  --r-lg:   16px;    /* cards (refresh default) */
+  --r-xl:   20px;    /* quick-add field, bottom sheet top */
+  --r-full: 9999px;  /* chips, FAB, pill buttons */
+
+  /* ---------------------------------------------------------------------------
+     ELEVATION / SHADOW
+     Baseline relies on 1px borders. The refresh swaps hard borders for soft,
+     warm-tinted shadows on cards & FAB for a friendlier, more tactile feel
+     (Material 3 elevation tokens, kept subtle).
+     --------------------------------------------------------------------------- */
+  --shadow-1: 0 1px 2px rgba(44,62,80,0.06), 0 1px 3px rgba(44,62,80,0.05);
+  --shadow-2: 0 2px 6px rgba(44,62,80,0.08), 0 4px 12px rgba(44,62,80,0.06);
+  --shadow-fab: 0 4px 14px rgba(100,108,255,0.35);
+
+  /* ---------------------------------------------------------------------------
+     LAYOUT
+     --------------------------------------------------------------------------- */
+  --max-content: 800px;   /* AppLayout.maxContentWidth — web wide centring cap */
+
+  /* ---------------------------------------------------------------------------
+     MOTION  (Material 3 emphasised easing; gentle, never bouncy)
+     --------------------------------------------------------------------------- */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasis: cubic-bezier(0.2, 0, 0, 1);
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 300ms;
+}
+
+/* ============================================================================
+   SEMANTIC TYPE ROLES
+   Apply these classes (or @extend the declarations) for consistent text.
+   ============================================================================ */
+
+.t-display {           /* auth title, empty-state hero */
+  font-family: var(--font-sans);
+  font-size: var(--fs-xxl);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-tight);
+  color: var(--text-primary);
+}
+
+.t-h1 {                /* group name in app bar */
+  font-family: var(--font-sans);
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-tight);
+  color: var(--primary);
+}
+
+.t-section {           /* tag section header in list */
+  font-family: var(--font-sans);
+  font-size: var(--fs-md);
+  font-weight: var(--fw-bold);
+  color: var(--text-primary);
+}
+
+.t-item {              /* item name */
+  font-family: var(--font-sans);
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+}
+
+.t-body {
+  font-family: var(--font-sans);
+  font-size: var(--fs-md);
+  font-weight: var(--fw-regular);
+  line-height: var(--lh-base);
+  color: var(--text-primary);
+}
+
+.t-secondary {         /* hints, counts, notes */
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-regular);
+  color: var(--text-secondary);
+}
+
+.t-badge {             /* pill / badge text */
+  font-family: var(--font-sans);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.2px;
+}
+
+.t-button {
+  font-family: var(--font-sans);
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semibold);
+}

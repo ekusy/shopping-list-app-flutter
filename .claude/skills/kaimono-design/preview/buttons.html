@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../colors_and_type.css" />
+<style>
+  html, body { margin: 0; }
+  body { background: var(--surface); font-family: var(--font-sans); padding: 22px 26px; -webkit-font-smoothing: antialiased; }
+  .grp { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:14px; }
+  .btn { font-family:var(--font-sans); font-size:14px; font-weight:600; border:0; cursor:pointer; padding:10px 20px; border-radius:9999px; }
+  .filled { background:var(--primary); color:#fff; }
+  .filled-green { background:var(--accent-green); color:#fff; }
+  .outlined { background:transparent; color:var(--primary); border:1.5px solid var(--primary); }
+  .tonal { background:var(--primary-light); color:var(--primary); }
+  .text { background:transparent; color:var(--primary); padding:10px 12px; }
+  .danger { background:transparent; color:var(--error); padding:10px 12px; }
+  .fab { width:56px;height:56px;border-radius:9999px;background:var(--primary);color:#fff;font-size:26px;box-shadow:var(--shadow-fab);border:0;cursor:pointer; }
+  .lbl { font-size:11px;color:var(--text-secondary);width:100%;margin:0 0 2px; }
+</style>
+</head>
+<body>
+  <div class="grp">
+    <button class="btn filled">追加</button>
+    <button class="btn filled-green">✅ 購入済</button>
+    <button class="btn tonal">タグ</button>
+    <button class="btn outlined">＋ 詳細追加</button>
+  </div>
+  <div class="grp">
+    <button class="btn text">切り替え</button>
+    <button class="btn danger">グループから脱退</button>
+    <button class="fab" title="FAB">＋</button>
+  </div>
+</body>
+</html>
