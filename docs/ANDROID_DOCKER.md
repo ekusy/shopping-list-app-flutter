@@ -115,7 +115,55 @@ PowerShell をそのまま占有するので別ウィンドウで起動するの
    ```
    同じデバイスが表示されれば成功。
 
-### B. Wi-Fi デバッグ（Android 11+）
+### B. ホスト側エミュレーター
+
+Windows Docker Desktop は KVM を提供しないため、エミュレーターはホスト側で起動し
+ホストの adb server 経由でコンテナに接続する。
+
+#### 前提: emulator コマンドの準備
+
+`adb` のみ（platform-tools）では `emulator` コマンドは含まれない。
+以下のどちらかで Android SDK を導入する：
+
+- **Android Studio**（推奨）: インストール後、Virtual Device Manager で AVD を作成
+- **cmdline-tools のみ**（軽量）:
+  ```powershell
+  # https://developer.android.com/tools/releases/cmdline-tools から zip を展開後
+  sdkmanager "emulator" "platforms;android-35" "system-images;android-35;google_apis;x86_64"
+  avdmanager create avd -n Pixel7_API35 -k "system-images;android-35;google_apis;x86_64" --device "pixel_7"
+  ```
+
+#### 手順
+
+1. エミュレーターを起動（Android Studio の AVD Manager または CLI）：
+   ```powershell
+   emulator -avd Pixel7_API35
+   ```
+
+2. ホスト側で adb server を全インターフェースで起動（別ウィンドウ）：
+   ```powershell
+   adb kill-server
+   adb -a -P 5037 nodaemon server start
+   ```
+
+3. ホスト側でエミュレーターが認識されていることを確認：
+   ```powershell
+   adb devices
+   # emulator-5554   device
+   ```
+
+4. コンテナからも見えることを確認：
+   ```powershell
+   docker compose run --rm flutter flutter devices
+   # 例: sdk gphone x86 64 (mobile) • emulator-5554 • android-x86_64 • Android 15 (API 35)
+   ```
+
+5. デバッグ実行：
+   ```powershell
+   docker compose run --rm --service-ports flutter flutter run -d emulator-5554
+   ```
+
+### C. Wi-Fi デバッグ（Android 11+）
 
 USB ケーブル不要。同一 LAN 上で動作する。
 
@@ -308,6 +356,7 @@ docker compose run --rm flutter adb logcat *:E
 | `adb` version mismatch エラー | ホスト adb がコンテナ adb より古い | ホストの platform-tools を最新化 |
 | Gradle ビルドが毎回遅い | `gradle_cache` ボリュームがマウントされていない | `docker compose config` で `gradle_cache:/root/.gradle` を確認 |
 | `Could not resolve all artifacts ... compileSdkVersion=NN` | プリインストール済みプラットフォームと不一致 | 初回ビルドは sdkmanager 経由で自動 DL される。失敗時は手動： `docker compose run --rm flutter sdkmanager "platforms;android-NN"` |
+| `emulator` コマンドが見つからない | platform-tools のみでは emulator は含まれない | Android Studio または cmdline-tools + `sdkmanager "emulator"` を導入 |
 | `flutter run` のホットリロードキーが効かない | `--service-ports` を付けていない / `stdin_open: true` が無効 | コマンドに `--service-ports` を付ける |
 | Wi-Fi デバイスが切れる | スマホがスリープ / IP 変更 | スマホ画面を起こす → `adb connect ...` し直す |
 | `keystore was tampered with, or password was incorrect` | `key.properties` のパスワード不一致 | 再生成 or パスワード確認 |
