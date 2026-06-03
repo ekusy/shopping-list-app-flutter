@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../../../domain/entities/item.dart';
+import '../../../domain/entities/tag.dart';
 import '../../providers/auth_providers.dart';
 import '../../providers/group_members_provider.dart';
 import '../../providers/group_providers.dart';
@@ -271,6 +272,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // easy_localization の .tr() は static インスタンスを使うため BuildContext 依存が
+    // 自動で作られない。context.locale を読むことで EasyLocalizationProvider への
+    // InheritedWidget 依存を明示し、言語切替時に再ビルドされるようにする。
+    final _ = context.locale;
+
     // オンライン復帰時に同期中スナックバーを表示する。
     ref.listen(isOnlineProvider, (prev, next) {
       final wasOffline = prev?.value == false;
@@ -282,12 +288,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       }
     });
 
-    final group = ref.watch(activeGroupProvider);
+    final groupName = ref.watch(activeGroupProvider.select((g) => g?.name));
+    final hasGroup = ref.watch(activeGroupProvider.select((g) => g != null));
     final items = ref.watch(itemsProvider);
-    final tags = ref.watch(tagsProvider).value ?? const [];
-    final memberNames = ref.watch(groupMemberNamesProvider).value ?? const {};
-    final uid = ref.watch(currentUserProvider)?.uid;
-    final isOnline = ref.watch(isOnlineProvider).value ?? true;
+    final tags = ref.watch(tagsProvider.select((s) => s.value ?? const <Tag>[]));
+    final memberNames = ref.watch(groupMemberNamesProvider.select((s) => s.value ?? const <String, String>{}));
+    final uid = ref.watch(currentUserProvider.select((u) => u?.uid));
+    final isOnline = ref.watch(isOnlineProvider.select((s) => s.value ?? true));
     final pendingCount = ref.watch(pendingItemCountProvider);
 
     return Scaffold(
@@ -312,7 +319,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ),
                 ),
               ),
-            _buildHeader(group?.name ?? 'app.title'.tr(), pendingCount),
+            _buildHeader(groupName ?? 'app.title'.tr(), pendingCount),
             Expanded(
               child: Center(
                 child: ConstrainedBox(
@@ -358,7 +365,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 ),
               ),
             ),
-            _buildBottomBar(group != null),
+            _buildBottomBar(hasGroup),
           ],
         ),
       ),

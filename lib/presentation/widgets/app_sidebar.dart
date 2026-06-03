@@ -77,7 +77,12 @@ class AppSidebar extends ConsumerWidget {
   Widget _langButton(
       BuildContext context, String code, String label, bool active) {
     return OutlinedButton(
-      onPressed: active ? null : () => context.setLocale(Locale(code)),
+      onPressed: active
+          ? null
+          : () {
+              Navigator.of(context).pop();
+              context.setLocale(Locale(code));
+            },
       style: OutlinedButton.styleFrom(
         backgroundColor: active ? AppColors.primary : Colors.transparent,
         foregroundColor: active ? AppColors.white : AppColors.primary,

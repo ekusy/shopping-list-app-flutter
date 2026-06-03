@@ -119,6 +119,7 @@ class _ShoppingListState extends ConsumerState<ShoppingList> {
     final boughtItems = widget.items.where((i) => i.isPurchased).toList();
 
     // タグ順でグルーピング（タグなし / 削除済みタグは末尾の「タグなし」セクション）。
+    final tagIdSet = {for (final t in tags) t.id};
     final sections = <_Section>[];
     for (final tag in tags) {
       final tagItems =
@@ -128,8 +129,7 @@ class _ShoppingListState extends ConsumerState<ShoppingList> {
       }
     }
     final noTagItems = activeItems
-        .where((i) =>
-            i.tagId == null || !tags.any((t) => t.id == i.tagId))
+        .where((i) => i.tagId == null || !tagIdSet.contains(i.tagId))
         .toList();
     if (noTagItems.isNotEmpty) {
       sections.add(_Section(null, 'tag.no_tag'.tr(), noTagItems));
@@ -266,6 +266,7 @@ class _ShoppingListState extends ConsumerState<ShoppingList> {
   }
 
   Widget _itemCard(Item item) => ItemCard(
+        key: ValueKey(item.id),
         item: item,
         currentUid: widget.currentUid,
         memberNames: widget.memberNames,
