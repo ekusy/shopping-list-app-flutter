@@ -182,15 +182,25 @@ PR #20 で初期バンドルサイズ削減のため導入済み。
 
 ## ブランチ・マージ規約
 
-### ブランチ運用
+ブランチモデルと CI/CD の全体方針は `docs/開発ガイド/Gitワークフロー.md` を参照（Issue #25）。
 
-- 何らかの変更を行う際は必ず **feature ブランチ**を作成してから作業する
-  - 命名例: `feature/add-item-sort`, `fix/auth-error-handling`, `chore/update-deps`
-- `main` ブランチへの直接コミット・プッシュは禁止
+- `main`（デプロイ用 / モバイルビルド起点）・`develop`（開発用 / Web 先行評価デプロイ起点）・
+  `feature/*`（実装用）の 3 ブランチモデルで運用する。
+- 何らかの変更を行う際は必ず **`develop` から作業ブランチ**を作成してから作業する
+  - 接頭辞は用途で使い分ける: `feature/`, `fix/`, `chore/`, `docs/`, `perf/`
+  - 命名例: `feature/add-item-sort`, `fix/24-first-login-list`, `chore/25-git-workflow`
+- `main` / `develop` への直接コミット・プッシュは禁止（ブランチ保護で強制）。
+- `main` から新規ブランチを作成しない（`develop` を唯一の派生元とする）。
+
+> **オーナーへの注意**: ブランチ保護は管理者を対象外（enforce admins 無効）に設定している。
+> これは緊急対応用の例外であり、オーナーも原則として保護ルール（PR 経由・`test` 必須）を遵守すること。
+> 保護をバイパスした直接 push は事故対応など真にやむを得ない場合に限る。
 
 ### マージリクエスト（Pull Request）
 
-- `main` へのマージは必ず **PR を作成**してから行う
+- 作業ブランチ → `develop` への PR を作成してマージする。リリース時は `develop` → `main` の PR を作成する。
+- `main` / `develop` へのマージは必ず **PR を作成**してから行う（直接マージ禁止）。
+- マージ条件: `test`（`flutter analyze` + `flutter test`）が成功していること。
 - PR には以下を明記する:
 
 ```markdown
