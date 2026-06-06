@@ -1,0 +1,36 @@
+name: Build Mobile (main)
+
+# main へのマージでモバイルビルドを実行する。
+# - Android: 現状は未署名のスモークビルド（APK をアーティファクト化）。
+#   リリース署名（keystore を Secrets 登録し AAB を生成）は別途整備（docs/ANDROID_DOCKER.md）。
+# - iOS: macOS ランナーが必要なため本ワークフローでは実行しない。CodeMagic で main 連動の
+#   ビルド/配布を設定予定（docs/開発ガイド/Gitワークフロー.md）。
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.0'
+          cache: true
+      - run: flutter pub get
+      # TODO(#25): リリース署名を導入し `flutter build appbundle --release`（AAB）へ移行する。
+      - run: flutter build apk --debug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: warn
+
+  # iOS は GitHub Actions では実行しない（macOS + CodeMagic 予定）。
+  # build-ios:
+  #   TODO(#25): CodeMagic 連携を設定後、ここに連携内容を追記する。

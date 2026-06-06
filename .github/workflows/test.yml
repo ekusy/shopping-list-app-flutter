@@ -1,0 +1,22 @@
+name: Test
+
+# マージ前ゲート: すべての PR と develop/main への push で静的解析とテストを実行する。
+# ブランチ保護で本ワークフローの `test` を必須チェックに指定すること（docs/開発ガイド/Gitワークフロー.md）。
+on:
+  pull_request:
+  push:
+    branches: [develop, main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.0'
+          cache: true
+      - run: flutter pub get
+      - run: dart format --output=none --set-exit-if-changed lib test
+      - run: flutter analyze
+      - run: flutter test

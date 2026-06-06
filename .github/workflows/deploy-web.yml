@@ -1,0 +1,24 @@
+name: Deploy Web (develop)
+
+# develop へのマージで Web 版を Firebase Hosting にデプロイする（先行評価用途）。
+on:
+  push:
+    branches: [develop]
+
+jobs:
+  deploy-web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.0'
+          cache: true
+      - run: flutter pub get
+      - run: flutter build web --release --pwa-strategy=offline-first
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: household-shopping-list-f7c12
+          channelId: live
