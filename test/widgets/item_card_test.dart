@@ -53,6 +53,40 @@ void main() {
     expect(deleted, isTrue);
   });
 
+  testWidgets('編集・削除ボタンは視認性の高い Material アイコンで表示する', (tester) async {
+    await pumpLocalized(
+      tester,
+      ItemCard(
+        item: _item(),
+        onSetVolunteer: (_) {},
+        onSetPurchased: (_) {},
+        onDelete: () {},
+        onEdit: () {},
+      ),
+    );
+
+    expect(find.byIcon(Icons.edit), findsOneWidget);
+    expect(find.byIcon(Icons.delete), findsOneWidget);
+  });
+
+  testWidgets('編集ボタンで onEdit を呼ぶ', (tester) async {
+    var edited = false;
+    await pumpLocalized(
+      tester,
+      ItemCard(
+        item: _item(),
+        onSetVolunteer: (_) {},
+        onSetPurchased: (_) {},
+        onDelete: () {},
+        onEdit: () => edited = true,
+      ),
+    );
+
+    await tester.tap(find.byIcon(Icons.edit));
+    await tester.pump();
+    expect(edited, isTrue);
+  });
+
   testWidgets('購入済みアイテムは「買うよ」ボタンを隠し、戻すと onSetPurchased(false) を呼ぶ', (
     tester,
   ) async {

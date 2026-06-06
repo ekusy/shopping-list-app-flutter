@@ -223,11 +223,17 @@ class ItemCard extends StatelessWidget {
                     if (onEdit != null)
                       _iconButton(
                         '✏️',
+                        materialIcon: Icons.edit,
+                        background: AppColors.categoryBadgeBg,
+                        foreground: AppColors.primary,
                         semanticLabel: 'item.edit_button'.tr(),
                         onTap: onEdit!,
                       ),
                     _iconButton(
                       icons.delete,
+                      materialIcon: Icons.delete,
+                      background: AppColors.deleteBg,
+                      foreground: AppColors.deleteText,
                       semanticLabel: 'common.delete'.tr(),
                       onTap: onDelete,
                     ),
@@ -289,12 +295,26 @@ class ItemCard extends StatelessWidget {
     ),
   );
 
+  /// アクションボタン（買うよ / 購入済 / 編集 / 削除）。
+  ///
+  /// [materialIcon] を渡すと絵文字 [label] の代わりに Material アイコンを描画する。
+  /// 視認性が要求される編集・削除では [materialIcon] と [background] / [foreground] で
+  /// 高コントラストの配色（編集=プライマリ、削除=削除色）を与える。
   Widget _iconButton(
     String label, {
     required VoidCallback onTap,
     required String semanticLabel,
     bool active = false,
+    IconData? materialIcon,
+    Color? background,
+    Color? foreground,
   }) {
+    final Color fg = active
+        ? AppColors.white
+        : (foreground ?? AppColors.textPrimary);
+    final Color bg = active
+        ? AppColors.infoAccent
+        : (background ?? AppColors.overlay);
     return Padding(
       padding: const EdgeInsets.only(left: AppSpacing.xs),
       child: Semantics(
@@ -304,20 +324,19 @@ class ItemCard extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(AppRadii.md),
           child: Container(
-            width: 32,
-            height: 32,
+            width: 40,
+            height: 40,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: active ? AppColors.infoAccent : const Color(0x0D000000),
+              color: bg,
               borderRadius: BorderRadius.circular(AppRadii.md),
             ),
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: AppFontSizes.md,
-                color: active ? AppColors.white : AppColors.textPrimary,
-              ),
-            ),
+            child: materialIcon != null
+                ? Icon(materialIcon, size: AppFontSizes.xxl, color: fg)
+                : Text(
+                    label,
+                    style: TextStyle(fontSize: AppFontSizes.lg, color: fg),
+                  ),
           ),
         ),
       ),
