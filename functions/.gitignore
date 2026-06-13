@@ -1,0 +1,9 @@
+node_modules/
+# tsc のビルド出力（functions/lib）のみを無視する。
+# 先頭の `/` でこの .gitignore の階層（functions/）に限定し、
+# ソースの src/lib/ を巻き込まないようにする。
+/lib/
+*.local
+.firebase/
+firebase-debug.log
+ui-debug.log

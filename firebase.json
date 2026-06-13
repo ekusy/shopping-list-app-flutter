@@ -1,1 +1,73 @@
-{"firestore":{"rules":"firestore.rules"},"hosting":{"public":"build/web","ignore":["firebase.json","**/.*","**/node_modules/**"],"rewrites":[{"source":"**","destination":"/index.html"}],"headers":[{"source":"**/*.@(js|css|wasm)","headers":[{"key":"Cache-Control","value":"public, max-age=31536000, immutable"}]},{"source":"**/*.@(png|jpg|jpeg|webp|avif|svg|gif|ico)","headers":[{"key":"Cache-Control","value":"public, max-age=31536000, immutable"}]},{"source":"**/*.@(woff|woff2|ttf|eot)","headers":[{"key":"Cache-Control","value":"public, max-age=31536000, immutable"}]},{"source":"/index.html","headers":[{"key":"Cache-Control","value":"no-cache"}]},{"source":"/flutter_service_worker.js","headers":[{"key":"Cache-Control","value":"no-cache"}]}]},"emulators":{"firestore":{"port":8080},"auth":{"port":9099},"ui":{"enabled":false}},"flutter":{"platforms":{"android":{"default":{"projectId":"household-shopping-list-f7c12","appId":"1:570396817942:android:eed6c7241c3f95f2075337","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"household-shopping-list-f7c12","configurations":{"android":"1:570396817942:android:eed6c7241c3f95f2075337","ios":"1:570396817942:ios:f570b65b66e0bb1d075337","web":"1:570396817942:web:a270ab1c582f5f6b075337"}}}}}}
+{
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "functions": {
+    "source": "functions",
+    "predeploy": [
+      "npm --prefix \"$RESOURCE_DIR\" run lint",
+      "npm --prefix \"$RESOURCE_DIR\" run build"
+    ]
+  },
+  "hosting": {
+    "public": "build/web",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [{ "source": "**", "destination": "/index.html" }],
+    "headers": [
+      {
+        "source": "**/*.@(js|css|wasm)",
+        "headers": [
+          { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        ]
+      },
+      {
+        "source": "**/*.@(png|jpg|jpeg|webp|avif|svg|gif|ico)",
+        "headers": [
+          { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        ]
+      },
+      {
+        "source": "**/*.@(woff|woff2|ttf|eot)",
+        "headers": [
+          { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        ]
+      },
+      {
+        "source": "/index.html",
+        "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+      },
+      {
+        "source": "/flutter_service_worker.js",
+        "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+      }
+    ]
+  },
+  "emulators": {
+    "functions": { "port": 5001 },
+    "firestore": { "port": 8080 },
+    "auth": { "port": 9099 },
+    "ui": { "enabled": false }
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "household-shopping-list-f7c12",
+          "appId": "1:570396817942:android:eed6c7241c3f95f2075337",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "household-shopping-list-f7c12",
+          "configurations": {
+            "android": "1:570396817942:android:eed6c7241c3f95f2075337",
+            "ios": "1:570396817942:ios:f570b65b66e0bb1d075337",
+            "web": "1:570396817942:web:a270ab1c582f5f6b075337"
+          }
+        }
+      }
+    }
+  }
+}

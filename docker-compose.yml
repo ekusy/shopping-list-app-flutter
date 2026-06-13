@@ -32,8 +32,23 @@ services:
       # ホスト側手順は docs/ANDROID_DOCKER.md を参照。
       - ADB_SERVER_SOCKET=tcp:host.docker.internal:5037
 
+  # Cloud Functions（Node/TypeScript）開発用サービス（Issue #37 Phase 0）。
+  # 既存 flutter イメージを肥大化させないため Node 専用に分離する（CLAUDE.md / #33 Q7）。
+  # 例: docker compose run --rm functions npm ci
+  functions:
+    image: node:22
+    working_dir: /app/functions
+    volumes:
+      - .:/app                                              # ソースをマウント（package-lock.json はホストに残す）
+      - functions_node_modules:/app/functions/node_modules  # OS 依存バイナリのホスト混入を回避
+    ports:
+      - "5001:5001"   # Firebase Functions Emulator
+    stdin_open: true
+    tty: true
+
 volumes:
   pub_cache:
   build_vol:
   dart_tool_vol:
   gradle_cache:
+  functions_node_modules:
