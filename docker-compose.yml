@@ -45,6 +45,11 @@ services:
       - "5001:5001"   # Firebase Functions Emulator
     stdin_open: true
     tty: true
+    environment:
+      # Firebase デプロイ/エミュレータ認証用トークン（.env から compose が注入）。
+      # functions のデプロイは npm（predeploy の lint/build）が要るためこの node サービスから実行する。
+      # 詳細は docs/DEPLOYMENT.md。
+      - FIREBASE_TOKEN=${FIREBASE_TOKEN:-}
 
 volumes:
   pub_cache:
