@@ -21,28 +21,41 @@ docker compose run --rm functions npm run lint
 docker compose run --rm functions npm test
 ```
 
-## 設計原則: trigger wrapper とロジックの分離
+## 設計原則: bootstrap / trigger wrapper / lib / data の分離
 
 将来 Dart Cloud Functions が GA（現状は HTTP/callable のみで Firestore トリガー・
-`onSchedule` がデプロイ不可）になった際の移植コストを抑えるため、最初からレイヤを分ける。
+`onSchedule` がデプロイ不可）になった際の移植コストを抑えるため、最初からレイヤを分ける（Issue #52）。
 
 ```
 src/
-├── index.ts        # trigger wrapper（薄く保つ）: HTTP/Firestore イベント・ログのみ。
-│                   #   ここだけが firebase-functions に依存する。
-└── lib/            # 純粋ロジック層: firebase-functions に依存しない。
-    ├── health.ts          #   → 単体テスト可能・将来 Dart へ移植可能
-    ├── health.test.ts
-    ├── history.ts         # 購買履歴イベント判定・サマリー集約の純粋ロジック
-    ├── history.test.ts
-    ├── name_key.ts         # 商品名正規化・nameKey 導出
-    └── name_key.test.ts
+├── bootstrap.ts    # setGlobalOptions + initializeApp（副作用のみ）。
+│                   #   index.ts が最初に import することで、トリガー定義モジュール
+│                   #   より前に必ず評価されることを保証する。
+├── index.ts        # トリガーの re-export のみ。先頭で `import "./bootstrap"`。
+│                   #   ロジック・I/O は持たない。
+├── lib/            # 純粋ロジック層: firebase-functions / firebase-admin に依存しない。
+│   ├── health.ts          #   → 単体テスト可能・将来 Dart へ移植可能
+│   ├── health.test.ts
+│   ├── history.ts         # 購買履歴イベント判定・サマリー集約の純粋ロジック
+│   ├── history.test.ts
+│   ├── name_key.ts         # 商品名正規化・nameKey 導出
+│   └── name_key.test.ts
+├── data/           # firebase-admin（Firestore）I/O 層。
+│   └── history_store.ts   # itemHistory / purchaseHistorySummaries の読み書き、
+│                           #   グループ存在確認、recursiveDelete
+└── triggers/       # 薄い trigger wrapper。HTTP/Firestore イベント・ログのみ。
+    ├── health.ts          # health
+    ├── items.ts           # onItemUpdated / onItemDeleted
+    └── groups.ts          # onGroupDeleted
 ```
 
-- **`src/lib/` は `firebase-functions` を import しない。** ビジネスロジックはここに置き、
-  trigger からは呼び出すだけにする。
-- 新しいトリガーを追加する際もこの分離を必ず守る（Firestore I/O はトリガー側、
-  判定・計算は `src/lib/` の純粋関数）。
+- **`src/lib/` は `firebase-functions` / `firebase-admin` を import しない。** 判定・計算ロジックはここに置く。
+- **`src/data/` は `firebase-admin` への依存をこの層に閉じる。** Firestore の読み書きはここに集約する。
+- **`src/triggers/` は薄く保つ**: フレームワーク固有の関心事（イベント形状・ログ）のみを扱い、
+  判定・計算は `src/lib/` を、I/O は `src/data/` を呼び出すだけにする。
+- 新しいトリガーを追加する際もこの 3 層分離を必ず守る。
+- `index.ts` のトリガー export 名は **デプロイ済み関数名と完全一致**させること（リネームは
+  delete + recreate を招くため避ける）。
 
 ## 現状（PR1: 足場 + PR2: 履歴捕捉コア）
 
