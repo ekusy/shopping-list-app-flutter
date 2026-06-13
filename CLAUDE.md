@@ -97,6 +97,33 @@ docker compose run --rm flutter firebase deploy --only firestore:rules
 docker compose run --rm flutter firebase emulators:start
 ```
 
+### Cloud Functions（Node / TypeScript）
+
+バックエンド（Issue #37 Phase 0〜）は `functions/`（TypeScript / firebase-functions v2 / Node 22）。
+ビルド・lint・テストは flutter イメージを肥大化させないため、専用の `functions` サービス
+（`node:22`）で実行する（#33 Q7 の決定）。
+
+```bash
+docker compose run --rm functions npm ci          # 依存インストール（package-lock.json 生成）
+docker compose run --rm functions npm run build   # tsc で lib/ へコンパイル
+docker compose run --rm functions npm run lint    # eslint
+docker compose run --rm functions npm test        # vitest
+```
+
+エミュレータ（Functions のみ）:
+
+```bash
+docker compose run --rm --service-ports functions npx firebase-tools emulators:start --only functions
+```
+
+デプロイは Firebase CLI 経由（`firebase.json` の `functions.predeploy` で lint → build を自動実行）:
+
+```bash
+docker compose run --rm flutter firebase deploy --only functions
+```
+
+ロジックと trigger wrapper の分離方針など詳細は `functions/README.md` を参照。
+
 ### Firebase Hosting キャッシュ制御
 
 `firebase.json` の `hosting.headers` で以下の方針を維持すること。
@@ -133,6 +160,7 @@ docker compose run --rm flutter bash
 | `build_vol` | `/app/build` | ビルド出力（ホスト FS を経由しない高速パス） |
 | `gradle_cache` | `/root/.gradle` | Gradle 依存・ラッパー DL（Android ビルド高速化） |
 | `dart_tool_vol` | `/app/.dart_tool` | package_config.json（ホスト絶対パス混入回避） |
+| `functions_node_modules` | `/app/functions/node_modules` | Functions の npm 依存（OS 依存バイナリのホスト混入回避） |
 
 ## アーキテクチャ概要
 
