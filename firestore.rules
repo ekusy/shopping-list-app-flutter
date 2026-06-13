@@ -52,6 +52,26 @@ service cloud.firestore {
                               .data.memberIds;
       }
 
+      // 購買履歴（生イベント）: Functions（Admin SDK）のみが書き込む。
+      // 読み取りはグループメンバーのみ（#37 Phase 0 PR2）。
+      match /itemHistory/{eventId} {
+        allow read: if request.auth != null
+                    && request.auth.uid in
+                       get(/databases/$(database)/documents/groups/$(groupId))
+                       .data.memberIds;
+        allow write: if false;
+      }
+
+      // 購買履歴サマリー（商品別）: Functions（Admin SDK）のみが書き込む。
+      // 読み取りはグループメンバーのみ（#37 Phase 0 PR2）。
+      match /purchaseHistorySummaries/{nameKey} {
+        allow read: if request.auth != null
+                    && request.auth.uid in
+                       get(/databases/$(database)/documents/groups/$(groupId))
+                       .data.memberIds;
+        allow write: if false;
+      }
+
       // リスト（#142 で廃止。既存データ互換のためルールは残置）:
       // グループメンバーのみ読み書き可
       match /lists/{listId} {
