@@ -271,6 +271,28 @@ export const onItemDeleted = onDocumentDeleted(
     const { groupId, itemId } = event.params;
     const deleted = event.data?.data();
 
+    // グループ解散中のガード（レース対策）:
+    // `onGroupDeleted` の recursiveDelete によって `items/{itemId}` が削除された
+    // 場合、このトリガーも（at-least-once で）発火する。その時点では親グループ
+    // 文書 `groups/{groupId}` は既に削除済みのため、ここでイベント記録を
+    // スキップする。スキップしない場合、recursiveDelete が既にスキャン済みの
+    // `itemHistory` / `purchaseHistorySummaries` に新たな `deleted` イベントや
+    // サマリーが書き戻され、TTL 対象外の summaries が永久に孤児化してしまう。
+    //
+    // 通常の単品削除・購入済み一括削除・タグ連動削除では親グループ文書が存在する
+    // ため、この分岐には入らず従来どおり記録される。
+    const groupSnap = await getFirestore()
+      .collection("groups")
+      .doc(groupId)
+      .get();
+    if (!groupSnap.exists) {
+      logger.info("skip deleted event: group is being disbanded", {
+        groupId,
+        itemId,
+      });
+      return;
+    }
+
     const item = toItemSnapshotFields(deleted);
     const nameKey = nameKeyOf(item.name);
     const occurredAtMs = event.time ? Date.parse(event.time) : Date.now();
@@ -287,5 +309,48 @@ export const onItemDeleted = onDocumentDeleted(
       deletedEvent,
       applyDeletionToSummary,
     );
+  },
+);
+
+/**
+ * グループ解散時のサブコレクション再帰削除。
+ *
+ * `disbandGroup`（`lib/data/repositories/firestore_group_repository.dart`）は
+ * グループ文書本体のみを削除し、`items` / `tags` / `itemHistory` /
+ * `purchaseHistorySummaries` / 旧 `lists`（および各 nested サブコレクション）は
+ * 孤児化する。特に `purchaseHistorySummaries` は TTL 対象外のため永久に残存する。
+ *
+ * `recursiveDelete` はドキュメント配下のサブコレクションを自動列挙して削除する
+ * ため、コレクション名をハードコードする必要がない（将来サブコレクションが
+ * 追加されても追従する）。
+ *
+ * このトリガーが発火する時点でグループ文書自体は既に削除済みのため、
+ * `recursiveDelete` 呼び出し自体は no-op（対象パスにドキュメント本体は存在しない）
+ * だが、配下のサブコレクションは親文書の存在に関わらず独立して存在するため、
+ * それらは削除対象になる。
+ *
+ * 大きめのグループ（アイテム数・履歴件数が多い）に備え、デフォルトより長い
+ * `timeoutSeconds` / 大きい `memory` を指定する。
+ */
+export const onGroupDeleted = onDocumentDeleted(
+  {
+    document: "groups/{groupId}",
+    timeoutSeconds: 300,
+    memory: "512MiB",
+  },
+  async (event) => {
+    const { groupId } = event.params;
+    const db = getFirestore();
+
+    try {
+      await db.recursiveDelete(db.collection("groups").doc(groupId));
+      logger.info("recursively deleted group subcollections", { groupId });
+    } catch (error) {
+      logger.error("failed to recursively delete group subcollections", {
+        groupId,
+        error,
+      });
+      throw error;
+    }
   },
 );

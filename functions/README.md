@@ -55,11 +55,20 @@ src/
 - `onItemDeleted`（`onDocumentDeleted('groups/{groupId}/items/{itemId}')`）—
   アイテム削除時に削除時点のスナップショットから `deleted` イベントを記録。
   `statusAtDeletion === 'active'` の場合のみ `deletedWithoutPurchaseCount` を更新。
+  **グループ解散ガード**: 記録前に親グループ文書 `groups/{groupId}` の存在を確認し、
+  存在しない場合（グループ解散による `onGroupDeleted` の recursiveDelete 経由の削除）
+  は記録をスキップする（PR3）。
+- `onGroupDeleted`（`onDocumentDeleted('groups/{groupId}', { timeoutSeconds: 300,
+  memory: '512MiB' })`）— グループ解散時に `recursiveDelete` でグループ配下の
+  全サブコレクション（`items` / `tags` / `itemHistory` / `purchaseHistorySummaries` /
+  旧 `lists` とその nested サブコレクションを含む）を再帰削除（PR3）。
 - スキーマ・設計の詳細は `docs/ドラフト/AI提案機能/01-履歴データ設計.md` を参照。
 
 ## 今後（同 Issue の後続 PR）
 
-- PR3: `onDocumentDeleted('groups/{groupId}')` によるサブコレクション再帰削除
-  （`itemHistory` / `purchaseHistorySummaries` を含む）。
-- 手動手順: Firestore ネイティブ TTL ポリシー（`itemHistory.expiresAt`、180日）設定。
-- 週次 AI 提案パイプライン（`purchaseHistorySummaries` を入力に Gemini を活用）。
+- PR3 完了。残りは以下のみ:
+  - 手動手順: Firestore ネイティブ TTL ポリシー（`itemHistory.expiresAt`、180日）設定。
+  - 週次 AI 提案パイプライン（`purchaseHistorySummaries` を入力に Gemini を活用）。
+  - emulator 統合テスト（`onGroupDeleted` の recursiveDelete・`onItemDeleted` の
+    グループ解散ガードはエミュレータでの結合確認が望ましいが、本 PR では未実施。
+    純粋ロジックの vitest 単体テストのみで担保）。
