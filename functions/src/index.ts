@@ -8,11 +8,12 @@
  *
  * This file otherwise only re-exports trigger functions. Export names MUST
  * match the deployed function names exactly (`health`, `onItemUpdated`,
- * `onItemDeleted`, `onGroupDeleted`) — renaming an export causes Firebase to
- * delete and recreate the function on deploy.
+ * `onItemDeleted`, `onGroupDeleted`, `weeklySuggestions`) — renaming an
+ * export causes Firebase to delete and recreate the function on deploy.
  */
 import "./bootstrap";
 
 export { health } from "./triggers/health";
 export { onItemUpdated, onItemDeleted } from "./triggers/items";
 export { onGroupDeleted } from "./triggers/groups";
+export { weeklySuggestions } from "./triggers/suggestions";
