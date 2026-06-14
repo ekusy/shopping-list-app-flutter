@@ -20,6 +20,10 @@ class Group {
   final DateTime? createdAt;
 
   /// 料金プラン（`'free'` / `'paid'`。未設定時は free 相当）。
+  ///
+  /// クライアントは読み取りのみ。書き込みは Functions / RevenueCat Webhook
+  /// （Admin SDK）に限定され、`firestore.rules` でクライアントからの
+  /// `plan` / `planExpiresAt` の変更を禁止している（#39 マネタイズ M0）。
   final String? plan;
 
   /// 指定 uid がこのグループのオーナーかどうか。
