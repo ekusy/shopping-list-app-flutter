@@ -2,13 +2,29 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // plan / planExpiresAt フィールドの書き込み保護（#39 マネタイズ M0）。
+    //
+    // この2フィールドはサーバー側（RevenueCat Webhook / Functions の Admin SDK）
+    // のみが書き込む正本であり、クライアントからの新規設定・変更を禁止する。
+    // Admin SDK は Rules をバイパスするため、Functions からの書き込みには影響しない。
+    //
+    // - create（resource == null）: 両フィールドが未設定（null）であることを要求。
+    // - update: 既存値からの変更がないことを要求。
+    function planFieldsUnchanged() {
+      let existingPlan = resource == null ? null : resource.data.get('plan', null);
+      let existingExp  = resource == null ? null : resource.data.get('planExpiresAt', null);
+      return request.resource.data.get('plan', null) == existingPlan
+          && request.resource.data.get('planExpiresAt', null) == existingExp;
+    }
+
     // ユーザードキュメント:
-    //  - 書き込み: 本人のみ
+    //  - 書き込み: 本人のみ（plan / planExpiresAt は変更不可。#39）
     //  - 読み取り: 本人、または対象ユーザーと同一グループに属するメンバー
     //    （メンバーの表示名・アバターを互いに表示するために必要。#22）
     match /users/{uid} {
       allow write: if request.auth != null
-                   && request.auth.uid == uid;
+                   && request.auth.uid == uid
+                   && planFieldsUnchanged();
 
       allow read: if request.auth != null
                   && (
@@ -28,13 +44,15 @@ service cloud.firestore {
 
       // 新規作成: 自分が ownerId かつ memberIds に含まれる場合
       // 更新: 現在のメンバーによる変更のみ許可
+      // plan / planExpiresAt は変更不可（#39）
       allow write: if request.auth != null
                    && (
                      (request.resource.data.ownerId == request.auth.uid
                       && request.resource.data.memberIds.hasAll([request.auth.uid]))
                      ||
                      request.auth.uid in resource.data.memberIds
-                   );
+                   )
+                   && planFieldsUnchanged();
 
       // アイテム（フラットパス #142〜）: グループメンバーのみ読み書き可
       match /items/{itemId} {
