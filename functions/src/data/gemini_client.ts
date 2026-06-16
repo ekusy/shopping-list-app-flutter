@@ -16,16 +16,13 @@ import { RESPONSE_SCHEMA, type RawSuggestionsResponse } from "../lib/suggestions
 /**
  * Gemini model ID used for weekly suggestion generation.
  *
- * IMPORTANT: This is a SINGLE constant so the model can be bumped in one
- * place. Gemini 2.0 Flash/Flash-Lite were retired 2026-06-01, and Gemini 2.5
- * Pro/Flash/Flash-Lite are scheduled for retirement 2026-10-16 — this MUST be
- * a Gemini 3.x Flash-Lite (or newer low-cost Flash-tier) model.
- *
- * **Before deploying, verify the exact published model ID and pricing** in
- * the Vertex AI model garden / release notes, as the ID below may not yet be
- * the final GA identifier at implementation time.
+ * Single constant so the model can be bumped in one place. Confirmed GA ID
+ * (#56): the latest low-cost Flash-tier model (Gemini 2.0 Flash retired
+ * 2026-06-01, the 2.5 series retires 2026-10-16). `asia-northeast1`
+ * availability / pricing were verified during #56. If a future model move
+ * makes it unavailable in this region, switch `getLocation()` to `"global"`.
  */
-export const MODEL_ID = "gemini-3-flash-lite";
+export const MODEL_ID = "gemini-3.1-flash-lite";
 
 const GENERATION_TEMPERATURE = 0.3;
 const MAX_OUTPUT_TOKENS = 1024;
