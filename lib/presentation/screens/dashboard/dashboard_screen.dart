@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../../../domain/entities/item.dart';
@@ -11,6 +12,7 @@ import '../../providers/group_providers.dart';
 import '../../providers/item_providers.dart';
 import '../../providers/network_providers.dart';
 import '../../providers/repository_providers.dart';
+import '../../providers/suggestion_providers.dart';
 import '../../widgets/add_item_form.dart';
 import '../../widgets/app_feedback.dart';
 import '../../widgets/app_sidebar.dart';
@@ -359,6 +361,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final uid = ref.watch(currentUserProvider.select((u) => u?.uid));
     final isOnline = ref.watch(isOnlineProvider.select((s) => s.value ?? true));
     final pendingCount = ref.watch(pendingItemCountProvider);
+    final hasUnreadSuggestion =
+        ref.watch(hasUnreadSuggestionProvider).value ?? false;
 
     return Scaffold(
       key: _scaffoldKey,
@@ -382,7 +386,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ),
                 ),
               ),
-            _buildHeader(groupName ?? 'app.title'.tr(), pendingCount),
+            _buildHeader(
+              groupName ?? 'app.title'.tr(),
+              pendingCount,
+              hasUnreadSuggestion,
+            ),
             Expanded(
               child: Center(
                 child: ConstrainedBox(
@@ -440,7 +448,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  Widget _buildHeader(String title, int pendingCount) {
+  Widget _buildHeader(String title, int pendingCount, bool hasUnread) {
     return Container(
       color: AppColors.white,
       padding: const EdgeInsets.symmetric(
@@ -503,6 +511,30 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   'tag.manage'.tr(),
                   style: const TextStyle(fontSize: AppFontSizes.xs),
                 ),
+              ),
+              // AI 提案ボタン（未読バッジ付き）
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.auto_awesome),
+                    tooltip: 'suggestions.title'.tr(),
+                    onPressed: () => context.push('/suggestions'),
+                  ),
+                  if (hasUnread)
+                    Positioned(
+                      top: 6,
+                      right: 6,
+                      child: Container(
+                        width: 8,
+                        height: 8,
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                ],
               ),
               IconButton(
                 icon: const Icon(Icons.menu),

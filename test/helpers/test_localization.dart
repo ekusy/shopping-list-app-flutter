@@ -36,12 +36,20 @@ Future<void> setUpTestLocalization() async {
 /// [child] を `easy_localization` + [MaterialApp] でラップして描画する。
 ///
 /// 同期ローダーを使うため、同一ファイル内の複数テストでも安定して描画される。
-Future<void> pumpLocalized(WidgetTester tester, Widget child) async {
+///
+/// [locale] を渡すとその言語に固定する（既定はテスト端末ロケール。テスト端末は
+/// 通常 `en` のため、日本語の文言を検証する場合は `const Locale('ja')` を渡す）。
+Future<void> pumpLocalized(
+  WidgetTester tester,
+  Widget child, {
+  Locale? locale,
+}) async {
   await tester.pumpWidget(
     EasyLocalization(
       supportedLocales: const [Locale('ja'), Locale('en')],
       path: 'assets/translations',
       fallbackLocale: const Locale('ja'),
+      startLocale: locale,
       assetLoader: const _SyncTranslationLoader(),
       child: Builder(
         builder: (context) => MaterialApp(
