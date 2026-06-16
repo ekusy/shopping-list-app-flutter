@@ -33,20 +33,26 @@ src/
 │                   #   より前に必ず評価されることを保証する。
 ├── index.ts        # トリガーの re-export のみ。先頭で `import "./bootstrap"`。
 │                   #   ロジック・I/O は持たない。
-├── lib/            # 純粋ロジック層: firebase-functions / firebase-admin に依存しない。
+├── lib/            # 純粋ロジック層: firebase-functions / firebase-admin / @google/genai に依存しない。
 │   ├── health.ts          #   → 単体テスト可能・将来 Dart へ移植可能
 │   ├── health.test.ts
 │   ├── history.ts         # 購買履歴イベント判定・サマリー集約の純粋ロジック
 │   ├── history.test.ts
 │   ├── name_key.ts         # 商品名正規化・nameKey 導出
-│   └── name_key.test.ts
+│   ├── name_key.test.ts
+│   ├── suggestions.ts      # 週次AI提案: weekId算出・skip判定・入力圧縮・
+│   │                        #   プロンプト組立・レスポンス検証/後処理
+│   └── suggestions.test.ts
 ├── data/           # firebase-admin（Firestore）I/O 層。
-│   └── history_store.ts   # itemHistory / purchaseHistorySummaries の読み書き、
-│                           #   グループ存在確認、recursiveDelete
-└── triggers/       # 薄い trigger wrapper。HTTP/Firestore イベント・ログのみ。
+│   ├── history_store.ts   # itemHistory / purchaseHistorySummaries の読み書き、
+│   │                       #   グループ存在確認、recursiveDelete
+│   ├── suggestions_store.ts # suggestions 入出力・system/config キルスイッチ読み取り
+│   └── gemini_client.ts   # @google/genai（Vertex backend）呼び出し（I/O層に隔離）
+└── triggers/       # 薄い trigger wrapper。HTTP/Firestore/Scheduler イベント・ログのみ。
     ├── health.ts          # health
     ├── items.ts           # onItemUpdated / onItemDeleted
-    └── groups.ts          # onGroupDeleted
+    ├── groups.ts          # onGroupDeleted
+    └── suggestions.ts     # weeklySuggestions（onSchedule）
 ```
 
 - **`src/lib/` は `firebase-functions` / `firebase-admin` を import しない。** 判定・計算ロジックはここに置く。
@@ -75,13 +81,34 @@ src/
   memory: '512MiB' })`）— グループ解散時に `recursiveDelete` でグループ配下の
   全サブコレクション（`items` / `tags` / `itemHistory` / `purchaseHistorySummaries` /
   旧 `lists` とその nested サブコレクションを含む）を再帰削除（PR3）。
-- スキーマ・設計の詳細は `docs/ドラフト/AI提案機能/01-履歴データ設計.md` を参照。
+- `weeklySuggestions`（`onSchedule('every saturday 08:00', { timeZone: 'Asia/Tokyo',
+  timeoutSeconds: 540, memory: '512MiB' })`）— グループごとにアクティブアイテム /
+  直近8週間の `itemHistory` / `purchaseHistorySummaries` 上位件を集計し、Vertex AI
+  Gemini（`@google/genai`, structured output）で「購入忘れの提案」「次期購入候補」を
+  生成して `groups/{groupId}/suggestions/{weekId}` に保存する（Issue #40 Phase 1）。
+  `system/config.suggestionsEnabled` をキルスイッチとして確認し、`false` の場合は
+  Gemini を呼ばず即終了する（未設定時は既定で有効）。
+- スキーマ・設計の詳細は `docs/ドラフト/AI提案機能/01-履歴データ設計.md` /
+  `docs/ドラフト/AI提案機能/02-週次提案パイプライン設計.md` を参照。
 
 ## 今後（同 Issue の後続 PR）
 
 - PR3 完了。残りは以下のみ:
-  - 手動手順: Firestore ネイティブ TTL ポリシー（`itemHistory.expiresAt`、180日）設定。
-  - 週次 AI 提案パイプライン（`purchaseHistorySummaries` を入力に Gemini を活用）。
+  - 手動手順: Firestore ネイティブ TTL ポリシー（`itemHistory.expiresAt`、180日 /
+    `suggestions.expiresAt`、90日）設定。
   - emulator 統合テスト（`onGroupDeleted` の recursiveDelete・`onItemDeleted` の
     グループ解散ガードはエミュレータでの結合確認が望ましいが、本 PR では未実施。
     純粋ロジックの vitest 単体テストのみで担保）。
+
+### #40 Phase 1（週次AI提案）の残作業
+
+- デプロイ前提: Functions の SA に `roles/aiplatform.user` を付与、Vertex AI API を
+  有効化、`@google/genai` の `npm install`（package-lock 再生成）。
+- `data/gemini_client.ts` の `MODEL_ID` はデプロイ前に正確な公開モデル ID・料金を
+  再確認すること（Gemini 3.x Flash-Lite 系を想定。2.0 系は廃止済、2.5 系は
+  2026-10 廃止予定）。
+- `suggestions` コレクショングループに対する Firestore TTL ポリシー（90日）の
+  手動設定。
+- Gemini 呼び出しのモック統合テスト・emulator 確認は未実施（`gemini_client.ts`
+  はモック差し替えを前提に I/O 層として分離済み）。
+- Phase 2: 提案の表示 UI・FCM 通知（本 PR の対象外）。
