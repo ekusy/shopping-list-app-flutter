@@ -124,6 +124,19 @@ docker compose run --rm flutter firebase deploy --only functions
 
 ロジックと trigger wrapper の分離方針など詳細は `functions/README.md` を参照。
 
+### Firestore インデックス / TTL
+
+複合インデックスと **TTL ポリシーは `firestore.indexes.json` で一元管理**する。
+
+- 複合インデックス: `indexes` に定義。
+- **TTL**: `fieldOverrides` に `{ "collectionGroup": "...", "fieldPath": "expiresAt", "ttl": true, "indexes": [] }`
+  で定義（現状 `itemHistory` / `suggestions` の `expiresAt`）。`"indexes": []` は不要な単一フィールド
+  インデックスを張らない指定。
+- 反映: `docker compose run --rm functions npx firebase-tools deploy --only firestore:indexes`。
+- **重要**: TTL を gcloud / コンソールで個別設定しないこと。`firestore.indexes.json` に記載の無い
+  TTL は `firebase deploy --only firestore:indexes`（`--force`）時に **field override ごと削除される**
+  （#56 で実害発生）。TTL は必ずこのファイルで管理する。
+
 ### Firebase Hosting キャッシュ制御
 
 `firebase.json` の `hosting.headers` で以下の方針を維持すること。
