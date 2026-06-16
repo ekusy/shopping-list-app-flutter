@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../domain/entities/group.dart';
 import '../../domain/entities/item.dart';
+import '../../domain/entities/suggestion.dart';
 import '../../domain/entities/tag.dart';
 import '../../domain/entities/user_doc.dart';
 
@@ -69,5 +70,45 @@ Item itemFromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
     buyerId: data['buyerId'] as String?,
     tagId: data['tagId'] as String?,
     pendingWrite: doc.metadata.hasPendingWrites,
+  );
+}
+
+/// `groups/{groupId}/suggestions/{weekId}` ドキュメント → [Suggestion]。
+///
+/// #40 が書き込むフィールド名と完全一致させる（`generatedAt` / `status` /
+/// `forgottenItems` / `recommendedItems`）。
+/// - `forgottenItems[].confidence` は [SuggestionConfidence.fromCode] で解決。
+/// - `status` は [SuggestionStatus.fromCode] で解決。
+Suggestion suggestionFromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
+  final data = doc.data() ?? <String, dynamic>{};
+
+  final rawForgotten = (data['forgottenItems'] as List<dynamic>?) ?? const [];
+  final forgottenItems = rawForgotten.map((e) {
+    final m = e as Map<String, dynamic>;
+    return ForgottenItem(
+      name: (m['name'] as String?) ?? '',
+      reason: (m['reason'] as String?) ?? '',
+      confidence: SuggestionConfidence.fromCode(m['confidence'] as String?),
+    );
+  }).toList();
+
+  final rawRecommended =
+      (data['recommendedItems'] as List<dynamic>?) ?? const [];
+  final recommendedItems = rawRecommended.map((e) {
+    final m = e as Map<String, dynamic>;
+    return RecommendedItem(
+      name: (m['name'] as String?) ?? '',
+      reason: (m['reason'] as String?) ?? '',
+    );
+  }).toList();
+
+  return Suggestion(
+    id: doc.id,
+    generatedAt:
+        toDateTime(data['generatedAt']) ??
+        DateTime.fromMillisecondsSinceEpoch(0),
+    status: SuggestionStatus.fromCode(data['status'] as String?),
+    forgottenItems: forgottenItems,
+    recommendedItems: recommendedItems,
   );
 }

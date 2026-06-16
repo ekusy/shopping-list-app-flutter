@@ -226,6 +226,23 @@
       "delete_failed": "退会処理に失敗しました"
     }
   },
+  "suggestions": {
+    "title": "AI 提案",
+    "section": {
+      "forgotten": "購入忘れかも",
+      "recommended": "次の買い物におすすめ"
+    },
+    "add_to_list": "リストに追加",
+    "empty": {
+      "no_history": "履歴が蓄積されると提案が表示されます",
+      "status_empty": "今週は提案がありませんでした",
+      "no_items": "提案アイテムがありません"
+    },
+    "footer": {
+      "generated_at": "生成日時: {date}",
+      "ai_note": "AI による提案です"
+    }
+  },
   "auth": {
     "login": "ログイン",
     "signup": "サインアップ",
