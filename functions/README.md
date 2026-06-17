@@ -64,7 +64,7 @@ src/
 - `index.ts` のトリガー export 名は **デプロイ済み関数名と完全一致**させること（リネームは
   delete + recreate を招くため避ける）。
 
-## 現状（PR1: 足場 + PR2: 履歴捕捉コア）
+## 現状（デプロイ済みの関数）
 
 - `health`（`onRequest`）— ツールチェーン疎通確認用のヘルスチェック。
 - `onItemUpdated`（`onDocumentUpdated('groups/{groupId}/items/{itemId}')`）—
@@ -94,24 +94,24 @@ src/
 - スキーマ・設計の詳細は `docs/ドラフト/AI提案機能/01-履歴データ設計.md` /
   `docs/ドラフト/AI提案機能/02-週次提案パイプライン設計.md` を参照。
 
-## 今後（同 Issue の後続 PR）
+## デプロイ状況・残作業
 
-- PR3 完了。残りは以下のみ:
-  - 手動手順: Firestore ネイティブ TTL ポリシー（`itemHistory.expiresAt`、180日 /
-    `suggestions.expiresAt`、90日）設定。
-  - emulator 統合テスト（`onGroupDeleted` の recursiveDelete・`onItemDeleted` の
-    グループ解散ガードはエミュレータでの結合確認が望ましいが、本 PR では未実施。
-    純粋ロジックの vitest 単体テストのみで担保）。
+#37 Phase 0 / #40 Phase 1 / #38 はデプロイ済み（本番 `asia-northeast1`）。完了した事項:
 
-### #40 Phase 1（週次AI提案）の残作業
+- **TTL は `firestore.indexes.json` で一元管理**（#57）。`itemHistory.expiresAt` /
+  `suggestions.expiresAt` の `ttl: true` を `fieldOverrides` に定義しデプロイ済み
+  （retention 日数は Functions が書き込む `expiresAt` の値で決まる: 履歴 180 日 / 提案 90 日）。
+  **gcloud / コンソールでの手動 TTL 設定は禁止**（field override 削除事故の原因。CLAUDE.md 参照）。
+- #40 デプロイ前提（Functions SA への `roles/aiplatform.user` 付与・Vertex AI API 有効化・
+  `@google/genai` 導入）は対応済み。
+- 提案表示 UI（#41 `/suggestions`）実装済み。
+- #38 商品画像の Storage クリーンアップトリガ（`onItemDeleted` / `onGroupDeleted`）デプロイ済み。
 
-- デプロイ前提: Functions の SA に `roles/aiplatform.user` を付与、Vertex AI API を
-  有効化、`@google/genai` の `npm install`（package-lock 再生成）。
-- `data/gemini_client.ts` の `MODEL_ID` はデプロイ前に正確な公開モデル ID・料金を
-  再確認すること（Gemini 3.x Flash-Lite 系を想定。2.0 系は廃止済、2.5 系は
-  2026-10 廃止予定）。
-- `suggestions` コレクショングループに対する Firestore TTL ポリシー（90日）の
-  手動設定。
-- Gemini 呼び出しのモック統合テスト・emulator 確認は未実施（`gemini_client.ts`
-  はモック差し替えを前提に I/O 層として分離済み）。
-- Phase 2: 提案の表示 UI・FCM 通知（本 PR の対象外）。
+残作業:
+
+- emulator 統合テスト（`onGroupDeleted` の recursiveDelete・`onItemDeleted` の
+  グループ解散ガード・Gemini 呼び出しのモック統合）は未実施。純粋ロジックの vitest
+  単体テストのみで担保している。
+- `data/gemini_client.ts` の `MODEL_ID` は公開モデル ID・料金の変動に注意
+  （Gemini 3.x Flash-Lite 系。2.5 系は 2026-10 廃止予定）。
+- Phase 2: FCM 通知（未実装）。
