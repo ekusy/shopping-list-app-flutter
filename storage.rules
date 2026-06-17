@@ -19,13 +19,17 @@ service firebase.storage {
     // 商品画像: groups/{groupId}/items/{itemId}.jpg
     // グループメンバーのみ読み書き可。メンバーシップは Firestore クロスサービスルールで判定。
     //
+    // 最終セグメントは `{itemId}.jpg` のようにワイルドカード＋リテラル拡張子を
+    //   1 セグメントへ混在できないため、ファイル名全体を {fileName} で受ける。
+    //   メンバーシップ判定には groupId のみ使用するため挙動は同一。
+    //
     // 注意: クロスサービスルール（firestore.get / firestore.exists）は
     //   Firebase Storage Rules v2 でサポートされているが、プロジェクトの
     //   Firestore リージョン設定によっては利用できない場合がある。
     //   動作確認は `firebase deploy --only storage` 後にエミュレータで行うこと。
     //   使用不可の場合はカスタムクレームによるメンバーシップ管理への移行を検討する。
     // -----------------------------------------------------------------------
-    match /groups/{groupId}/items/{itemId}.jpg {
+    match /groups/{groupId}/items/{fileName} {
       allow read: if request.auth != null
                   && request.auth.uid in
                      firestore.get(
