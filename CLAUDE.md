@@ -122,11 +122,18 @@ docker compose run --rm functions npm test        # vitest
 docker compose run --rm --service-ports functions npx firebase-tools emulators:start --only functions
 ```
 
-デプロイは Firebase CLI 経由（`firebase.json` の `functions.predeploy` で lint → build を自動実行）:
+デプロイは Firebase CLI 経由（`firebase.json` の `functions.predeploy` で lint → build を自動実行）。
+**flutter サービスからはデプロイしないこと**。`functions/node_modules` は `functions_node_modules`
+ボリュームにのみ存在し flutter コンテナにマウントされず、かつ flutter イメージの Node/npm が古いため、
+predeploy の lint が `/bin/sh: 0: Illegal option --` で失敗する。**`functions` サービス（node:22）から
+実行する**。`firebase.json` はリポジトリルート（`/app`）にあるため `cd /app` してから実行する:
 
 ```bash
-docker compose run --rm flutter firebase deploy --only functions
+docker compose run --rm functions sh -c "cd /app && npx --yes firebase-tools deploy --only functions --non-interactive"
 ```
+
+> Storage Rules / Hosting / Firestore rules・indexes は flutter サービスの `firebase deploy` で可
+> （例: `firebase deploy --only storage`）。Functions のみ上記の `functions` サービス経由が必須。
 
 ロジックと trigger wrapper の分離方針など詳細は `functions/README.md` を参照。
 
