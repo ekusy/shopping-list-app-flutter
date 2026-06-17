@@ -1,14 +1,46 @@
 # 03. 商品画像の Firestore → Storage 移行（ドラフト）
 
+> **実装済み（Issue #38）**: このドキュメントは設計ドラフトとして残置するが、
+> 実装は完了している。以下に実装メモを追記する。
+
 アイテム写真の保存先を「Firestore ドキュメント内の Base64 データ URI」から
 Firebase Storage に移行する。
 
+## 実装メモ（Issue #38 完了分）
+
+### 採用仕様
+- **リサイズ**: 長辺 **768px** / JPEG **q75** / 常時再エンコード（`ImageTier.item` に反映）
+- **Cache-Control**: `public, max-age=31536000`（`putData` の `SettableMetadata` で付与。アバターにも適用）
+- **ディスクキャッシュ**: `cached_network_image` パッケージを追加。`imageProviderFromUrl` の https 分岐を `CachedNetworkImageProvider` に変更
+- **削除クリーンアップ**: `onItemDeleted` トリガーに Storage best-effort 削除を追加（#37 トリガーに相乗り）。`onGroupDeleted` は `deleteGroupImages` で Storage 一括削除
+- **2 段階追加フロー**: `addItem`（imageUrl 空）→ ID 確定 → `uploadItemImage` → `updateItemDetails` で imageUrl 更新
+- **移行期互換**: `imageProviderFromUrl` の dataURI 分岐は残置（既存 Base64 データの表示が壊れない）
+
+### 新設ファイル
+- `storage.rules` — Storage Security Rules（グループメンバー判定 + サイズ/ContentType 制約）
+- `functions/src/data/storage_store.ts` — Storage I/O 層（`deleteItemImage` / `deleteGroupImages`）
+
+### 変更ファイル（Dart）
+- `lib/core/constants/image_policy.dart` — item tier: maxWidth/maxHeight 768、compress 75
+- `lib/presentation/utils/image_helper.dart` — resizeBytes 常時エンコード化、imageProviderFromUrl → CachedNetworkImageProvider
+- `lib/domain/repositories/storage_repository.dart` — `uploadItemImage` / `deleteItemImage` 追加
+- `lib/data/repositories/firebase_storage_repository.dart` — 上記実装 + avatar に cacheControl 追加
+- `lib/presentation/widgets/add_item_form.dart` — Uint8List 保持 + onAdd シグネチャ変更
+- `lib/presentation/widgets/item_edit_modal.dart` — onSave シグネチャ変更（imageBytes 追加）
+- `lib/presentation/screens/dashboard/dashboard_screen.dart` — 2 段階追加フロー実装
+
+### 変更ファイル（Functions）
+- `functions/src/triggers/items.ts` — `onItemDeleted` に Storage 削除追加
+- `functions/src/triggers/groups.ts` — `onGroupDeleted` に `deleteGroupImages` 追加
+
+---
+
 ## 1. 現状と問題
 
-現在の実装（`lib/presentation/widgets/add_item_form.dart` / `item_edit_modal.dart`）:
+旧実装（`lib/presentation/widgets/add_item_form.dart` / `item_edit_modal.dart`）:
 
 - 写真は `ImageHelper.toDataUri(bytes)` で **Base64 データ URI 化され、
-  アイテムドキュメントの `imageUrl` フィールドに直接保存**されている。
+  アイテムドキュメントの `imageUrl` フィールドに直接保存**されていた。
 - Storage は既に導入済みだが用途は**アバターのみ**
   （`FirebaseStorageRepository.uploadAvatar` → `avatars/{uid}`）。
 
@@ -97,6 +129,6 @@ match /groups/{groupId}/items/{itemId}.jpg {
 |---|---|---|
 | 1 | 実施タイミング | **よく買う物リスト・履歴より先**。データリセットが許される開発フェーズのうちに |
 | 2 | 既存データ | 開発フェーズ中ならリセット（移行バッチなし） |
-| 3 | リサイズ仕様 | 長辺 1024px / JPEG 品質 80 / 上限 1MiB（Rules でも強制） |
-| 4 | サムネイル生成 | 初期は不要（1024px をそのまま表示）。一覧のパフォーマンス問題が出たら Extensions の Resize Images で `_200x200` 生成を検討 |
-| 5 | `storage.rules` の整備 | 本移行と同時に必須（アバター含めて現状を確認し、リポジトリ管理 + `firebase deploy --only storage` をフローに追加） |
+| 3 | リサイズ仕様 | 長辺 **768px** / JPEG 品質 **75** / 上限 1MiB（Rules でも強制）→ **実装済み** |
+| 4 | サムネイル生成 | 初期は不要（768px をそのまま表示）。一覧のパフォーマンス問題が出たら Extensions の Resize Images で `_200x200` 生成を検討 |
+| 5 | `storage.rules` の整備 | 本移行と同時に必須 → **実装済み**（`storage.rules` 新設・`firebase.json` に追記） |

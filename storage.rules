@@ -1,0 +1,44 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // -----------------------------------------------------------------------
+    // アバター画像: avatars/{uid}
+    // 本人のみ書き込み可。認証済みユーザーは読み取り可（グループメンバーのアバター表示のため）。
+    // -----------------------------------------------------------------------
+    match /avatars/{uid} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+                   && request.auth.uid == uid
+                   && request.resource.size < 1 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+    }
+
+    // -----------------------------------------------------------------------
+    // 商品画像: groups/{groupId}/items/{itemId}.jpg
+    // グループメンバーのみ読み書き可。メンバーシップは Firestore クロスサービスルールで判定。
+    //
+    // 注意: クロスサービスルール（firestore.get / firestore.exists）は
+    //   Firebase Storage Rules v2 でサポートされているが、プロジェクトの
+    //   Firestore リージョン設定によっては利用できない場合がある。
+    //   動作確認は `firebase deploy --only storage` 後にエミュレータで行うこと。
+    //   使用不可の場合はカスタムクレームによるメンバーシップ管理への移行を検討する。
+    // -----------------------------------------------------------------------
+    match /groups/{groupId}/items/{itemId}.jpg {
+      allow read: if request.auth != null
+                  && request.auth.uid in
+                     firestore.get(
+                       /databases/(default)/documents/groups/$(groupId)
+                     ).data.memberIds;
+
+      allow write: if request.auth != null
+                   && request.auth.uid in
+                      firestore.get(
+                        /databases/(default)/documents/groups/$(groupId)
+                      ).data.memberIds
+                   && request.resource.size < 1 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+    }
+  }
+}

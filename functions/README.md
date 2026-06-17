@@ -43,9 +43,10 @@ src/
 │   ├── suggestions.ts      # 週次AI提案: weekId算出・skip判定・入力圧縮・
 │   │                        #   プロンプト組立・レスポンス検証/後処理
 │   └── suggestions.test.ts
-├── data/           # firebase-admin（Firestore）I/O 層。
+├── data/           # firebase-admin（Firestore / Storage）I/O 層。
 │   ├── history_store.ts   # itemHistory / purchaseHistorySummaries の読み書き、
 │   │                       #   グループ存在確認、recursiveDelete
+│   ├── storage_store.ts   # Storage I/O: deleteItemImage / deleteGroupImages（#38）
 │   ├── suggestions_store.ts # suggestions 入出力・system/config キルスイッチ読み取り
 │   └── gemini_client.ts   # @google/genai（Vertex backend）呼び出し（I/O層に隔離）
 └── triggers/       # 薄い trigger wrapper。HTTP/Firestore/Scheduler イベント・ログのみ。
@@ -77,6 +78,8 @@ src/
   **グループ解散ガード**: 記録前に親グループ文書 `groups/{groupId}` の存在を確認し、
   存在しない場合（グループ解散による `onGroupDeleted` の recursiveDelete 経由の削除）
   は記録をスキップする（PR3）。
+  **Storage クリーンアップ（#38）**: 履歴記録とは独立に、Storage のアイテム画像を
+  best-effort で削除する（`storage_store.deleteItemImage`）。
 - `onGroupDeleted`（`onDocumentDeleted('groups/{groupId}', { timeoutSeconds: 300,
   memory: '512MiB' })`）— グループ解散時に `recursiveDelete` でグループ配下の
   全サブコレクション（`items` / `tags` / `itemHistory` / `purchaseHistorySummaries` /

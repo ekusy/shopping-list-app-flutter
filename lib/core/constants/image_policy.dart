@@ -34,9 +34,9 @@ const Map<ImageTier, ImageSizePolicy> imageSizePolicies = {
     compress: 70,
   ),
   ImageTier.item: ImageSizePolicy(
-    maxWidth: 1024,
-    maxHeight: 1024,
-    maxBytes: 1024 * 1024, // 1MB
-    compress: 70,
+    maxWidth: 768,
+    maxHeight: 768,
+    maxBytes: 1024 * 1024, // 1MB（Rules でも強制）
+    compress: 75,
   ),
 };

@@ -1,5 +1,5 @@
 /**
- * グループ解散時のサブコレクション再帰削除。
+ * グループ解散時のサブコレクション再帰削除 + Storage 孤児画像クリーンアップ。
  *
  * `disbandGroup`（`lib/data/repositories/firestore_group_repository.dart`）は
  * グループ文書本体のみを削除し、`items` / `tags` / `itemHistory` /
@@ -21,6 +21,7 @@
 import { onDocumentDeleted } from "firebase-functions/v2/firestore";
 import { logger } from "firebase-functions";
 import { recursiveDeleteGroup } from "../data/history_store";
+import { deleteGroupImages } from "../data/storage_store";
 
 export const onGroupDeleted = onDocumentDeleted(
   {
@@ -31,6 +32,7 @@ export const onGroupDeleted = onDocumentDeleted(
   async (event) => {
     const { groupId } = event.params;
 
+    // Firestore サブコレクションの再帰削除
     try {
       await recursiveDeleteGroup(groupId);
       logger.info("recursively deleted group subcollections", { groupId });
@@ -40,6 +42,18 @@ export const onGroupDeleted = onDocumentDeleted(
         error,
       });
       throw error;
+    }
+
+    // Storage 孤児画像の一括削除（best-effort: Firestore 削除の成否に関わらず実行）
+    try {
+      await deleteGroupImages(groupId);
+      logger.info("deleted group images from Storage", { groupId });
+    } catch (error) {
+      logger.warn("failed to delete group images from Storage (best-effort)", {
+        groupId,
+        error,
+      });
+      // best-effort: Storage 削除の失敗はトリガー全体をリトライさせない
     }
   },
 );
