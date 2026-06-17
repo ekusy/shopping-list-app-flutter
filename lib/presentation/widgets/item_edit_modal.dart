@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,6 +13,9 @@ import '../providers/group_providers.dart';
 import '../utils/image_helper.dart';
 
 /// アイテム編集モーダル（名前・タグ・メモ・写真）をボトムシートで表示する。
+///
+/// [onSave] コールバックの [imageBytes] が非 null の場合、呼び出し元が Storage へ
+/// アップロードして `imageUrl` を更新する。[imageUrl] は既存の URL または削除時は空文字。
 Future<void> showItemEditModal(
   BuildContext context, {
   required Item item,
@@ -19,6 +24,7 @@ Future<void> showItemEditModal(
     String? tagId,
     String note,
     String imageUrl,
+    Uint8List? imageBytes,
   )
   onSave,
 }) {
@@ -45,6 +51,7 @@ class _ItemEditContent extends ConsumerStatefulWidget {
     String? tagId,
     String note,
     String imageUrl,
+    Uint8List? imageBytes,
   )
   onSave;
 
@@ -56,7 +63,14 @@ class _ItemEditContentState extends ConsumerState<_ItemEditContent> {
   late final TextEditingController _name;
   late final TextEditingController _note;
   late String _tagId;
+
+  /// 既存の imageUrl（https URL または移行期の dataURI）。
+  /// 新規選択後は新しい URL に置き換えられる。削除操作で空文字になる。
   late String _imageUrl;
+
+  /// 新たに選択した画像バイト列。非 null のとき呼び出し元が Storage アップロードを行う。
+  Uint8List? _newImageBytes;
+
   bool _saving = false;
 
   @override
@@ -78,8 +92,19 @@ class _ItemEditContentState extends ConsumerState<_ItemEditContent> {
   Future<void> _pickImage() async {
     final bytes = await ImageHelper(ImagePicker()).pickResized(ImageTier.item);
     if (bytes != null) {
-      setState(() => _imageUrl = ImageHelper.toDataUri(bytes));
+      setState(() {
+        _newImageBytes = bytes;
+        // プレビュー用に _imageUrl を一時的にクリアして _newImageBytes を優先表示する
+        _imageUrl = '';
+      });
     }
+  }
+
+  void _removeImage() {
+    setState(() {
+      _newImageBytes = null;
+      _imageUrl = '';
+    });
   }
 
   Future<void> _save() async {
@@ -89,6 +114,7 @@ class _ItemEditContentState extends ConsumerState<_ItemEditContent> {
       _tagId.isEmpty ? null : _tagId,
       _note.text,
       _imageUrl,
+      _newImageBytes,
     );
     if (mounted) setState(() => _saving = false);
   }
@@ -96,7 +122,11 @@ class _ItemEditContentState extends ConsumerState<_ItemEditContent> {
   @override
   Widget build(BuildContext context) {
     final tags = ref.watch(tagsProvider).value ?? const [];
-    final preview = imageProviderFromUrl(_imageUrl);
+
+    // プレビュー優先順位: 新規選択バイト列 > 既存 URL > なし
+    final ImageProvider? preview = _newImageBytes != null
+        ? MemoryImage(_newImageBytes!)
+        : imageProviderFromUrl(_imageUrl);
 
     return Padding(
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -171,7 +201,7 @@ class _ItemEditContentState extends ConsumerState<_ItemEditContent> {
                             color: Colors.white,
                           ),
                         ),
-                        onPressed: () => setState(() => _imageUrl = ''),
+                        onPressed: _removeImage,
                       ),
                     ),
                   ],

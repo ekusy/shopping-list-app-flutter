@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -79,21 +81,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     }
   }
 
-  Future<void> _addItem(Item draft) async {
+  /// アイテム追加の 2 段階フロー:
+  ///   1. `addItem`（imageUrl 空）→ Firestore ドキュメント ID を確定
+  ///   2. 画像バイト列があれば Storage アップロード → `updateItemDetails` で imageUrl を更新
+  ///
+  /// ステップ 2 の失敗はトーストエラーで通知するが、アイテム本体は削除しない（画像なしで残す）。
+  Future<void> _addItem(Item draft, Uint8List? imageBytes) async {
     final groupId = _groupId;
     if (groupId == null) return;
+    String itemId;
     try {
-      await ref
+      itemId = await ref
           .read(itemRepositoryProvider)
           .addItem(groupId, draft.copyWith(addedBy: _uid), _nextOrder());
-      if (mounted) {
-        Navigator.of(context).pop(); // フォームのボトムシートを閉じる
-        AppFeedback.showToast(
-          context,
-          'app.success.add'.tr(),
-          type: ToastType.success,
-        );
-      }
     } catch (_) {
       if (mounted) {
         AppFeedback.showToast(
@@ -102,6 +102,40 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           type: ToastType.error,
         );
       }
+      return;
+    }
+
+    // ステップ 2: Storage アップロード + imageUrl 更新（best-effort）
+    var imageStepFailed = false;
+    if (imageBytes != null) {
+      try {
+        final url = await ref
+            .read(storageRepositoryProvider)
+            .uploadItemImage(groupId, itemId, imageBytes);
+        await ref
+            .read(itemRepositoryProvider)
+            .updateItemDetails(
+              groupId,
+              itemId,
+              name: draft.name,
+              tagId: draft.tagId,
+              note: draft.note,
+              imageUrl: url,
+            );
+      } catch (_) {
+        // アイテム本体は残す（画像なしで続行）。失敗は下でエラートーストのみ表示し、
+        // 成功トーストとの競合を避ける。
+        imageStepFailed = true;
+      }
+    }
+
+    if (mounted) {
+      Navigator.of(context).pop(); // フォームのボトムシートを閉じる
+      AppFeedback.showToast(
+        context,
+        imageStepFailed ? 'app.error.update'.tr() : 'app.success.add'.tr(),
+        type: imageStepFailed ? ToastType.error : ToastType.success,
+      );
     }
   }
 
@@ -160,9 +194,29 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     showItemEditModal(
       context,
       item: target,
-      onSave: (name, tagId, note, imageUrl) async {
+      onSave: (name, tagId, note, imageUrl, imageBytes) async {
         final groupId = _groupId;
         if (groupId == null) return;
+
+        // 新規画像が選択された場合は Storage アップロードを先に行い URL を取得する
+        String resolvedImageUrl = imageUrl;
+        if (imageBytes != null) {
+          try {
+            resolvedImageUrl = await ref
+                .read(storageRepositoryProvider)
+                .uploadItemImage(groupId, id, imageBytes);
+          } catch (_) {
+            if (mounted) {
+              AppFeedback.showToast(
+                context,
+                'app.error.update'.tr(),
+                type: ToastType.error,
+              );
+            }
+            return;
+          }
+        }
+
         try {
           await ref
               .read(itemRepositoryProvider)
@@ -172,8 +226,23 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 name: name,
                 tagId: tagId,
                 note: note,
-                imageUrl: imageUrl,
+                imageUrl: resolvedImageUrl,
               );
+          // 画像が削除された場合（新規バイト列なし・URL 空）、元アイテムに画像が
+          // あったなら Storage の孤児ファイルを best-effort で削除する。
+          // deleteItemImage は object-not-found を無視するため、dataURI 由来で
+          // Storage 実体が無いケースでも安全。
+          if (imageBytes == null &&
+              resolvedImageUrl.isEmpty &&
+              target.imageUrl.isNotEmpty) {
+            try {
+              await ref
+                  .read(storageRepositoryProvider)
+                  .deleteItemImage(groupId, id);
+            } catch (_) {
+              // best-effort: Storage 削除失敗は update 成功を妨げない
+            }
+          }
           if (mounted) {
             Navigator.of(context).pop();
             AppFeedback.showToast(

@@ -32,6 +32,7 @@ import {
   recordEventAndUpdateSummary,
   toItemSnapshotFields,
 } from "../data/history_store";
+import { deleteItemImage } from "../data/storage_store";
 
 /**
  * `purchased` イベントの記録: `status` が `active` -> `purchased` に遷移した
@@ -88,9 +89,15 @@ export const onItemUpdated = onDocumentUpdated(
 );
 
 /**
- * `deleted` イベントの記録: アイテムドキュメント削除時に削除時点の全フィールドの
- * スナップショットから `deleted` イベントを記録し、`statusAtDeletion === 'active'`
- * の場合のみサマリーの `deletedWithoutPurchaseCount` を更新する。
+ * `deleted` イベントの記録 + Storage 孤児画像クリーンアップ。
+ *
+ * アイテムドキュメント削除時に:
+ *   1. 削除時点のスナップショットから `deleted` イベントを記録する。
+ *   2. Storage のアイテム画像を best-effort で削除する（画像なしアイテムは no-op）。
+ *
+ * グループ解散中（`onGroupDeleted` の recursiveDelete に起因する at-least-once 発火）の
+ * 場合は履歴記録をスキップするが、Storage 削除は独立して実行する。
+ * グループ画像は `onGroupDeleted` 側で `deleteGroupImages` によって一括削除される。
  *
  * Spec: docs/ドラフト/AI提案機能/01-履歴データ設計.md §1.2, §2
  */
@@ -99,6 +106,19 @@ export const onItemDeleted = onDocumentDeleted(
   async (event) => {
     const { groupId, itemId } = event.params;
     const deleted = event.data?.data();
+
+    // Storage の孤児画像クリーンアップ（best-effort: グループ解散ガードとは独立）
+    // `deleteItemImage` 内部で not-found を無視するため、画像なしアイテムも安全。
+    try {
+      await deleteItemImage(groupId, itemId);
+    } catch (error) {
+      // best-effort: 失敗しても履歴記録は続ける
+      logger.warn("failed to delete item image in onItemDeleted", {
+        groupId,
+        itemId,
+        error,
+      });
+    }
 
     // グループ解散中のガード（レース対策）:
     // `onGroupDeleted` の recursiveDelete によって `items/{itemId}` が削除された

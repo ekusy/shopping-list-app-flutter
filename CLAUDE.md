@@ -94,8 +94,14 @@ flutter build ipa --release        # App Store 提出用 .ipa
 ```bash
 docker compose run --rm flutter firebase deploy --only hosting
 docker compose run --rm flutter firebase deploy --only firestore:rules
+docker compose run --rm flutter firebase deploy --only storage          # storage.rules のデプロイ（#38）
 docker compose run --rm flutter firebase emulators:start
 ```
+
+> **`storage.rules`（#38）**: リポジトリ管理の Storage Security Rules。
+> 商品画像（`groups/{groupId}/items/{itemId}.jpg`）はグループメンバーのみ読み書き可。
+> アバター（`avatars/{uid}`）は本人のみ書き込み可。
+> 変更時は `firebase deploy --only storage` で反映すること。
 
 ### Cloud Functions（Node / TypeScript）
 

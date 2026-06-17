@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
 import 'package:shopping_list_app/core/constants/image_policy.dart';
@@ -19,17 +20,17 @@ Uint8List _makeGradientJpeg(int width, int height) {
 
 void main() {
   group('ImageHelper.resizeBytes', () {
-    test('ポリシー上限以下のバイト列はそのまま返す', () {
-      final small = Uint8List(100);
-      final result = ImageHelper.resizeBytes(small, ImageTier.avatar);
-      expect(result, same(small));
+    test('デコード不可バイト列は原本をそのまま返す', () {
+      // img.decodeImage が null を返す（有効な画像フォーマットでない）バイト列
+      final invalid = Uint8List(100); // ゼロ列は画像として解釈不能
+      final result = ImageHelper.resizeBytes(invalid, ImageTier.avatar);
+      expect(result, same(invalid));
     });
 
-    test('上限を超えるアバター画像は幅 400px 以内にリサイズして JPEG で返す', () {
-      // 1200x1200 グラデーション JPEG は 512KB (avatar 上限) を超える
+    test('アバター画像は幅 400px 以内にリサイズして JPEG で返す', () {
+      // 1200x1200 グラデーション JPEG → avatar 上限 400px 以内
       final bigJpeg = _makeGradientJpeg(1200, 1200);
       final policy = imageSizePolicies[ImageTier.avatar]!;
-      expect(bigJpeg.length, greaterThan(policy.maxBytes));
 
       final result = ImageHelper.resizeBytes(bigJpeg, ImageTier.avatar);
 
@@ -38,17 +39,42 @@ void main() {
       expect(decoded!.width, lessThanOrEqualTo(policy.maxWidth));
     });
 
-    test('上限を超えるアイテム画像は幅 1024px 以内にリサイズして JPEG で返す', () {
-      // 2000x2000 グラデーション JPEG は 1MB (item 上限) を超える
+    test('アイテム画像は常に 768px 以内にリサイズして JPEG で返す', () {
+      // 2000x2000 グラデーション JPEG → item 上限 768px 以内
       final bigJpeg = _makeGradientJpeg(2000, 2000);
       final policy = imageSizePolicies[ImageTier.item]!;
-      expect(bigJpeg.length, greaterThan(policy.maxBytes));
 
       final result = ImageHelper.resizeBytes(bigJpeg, ImageTier.item);
 
       final decoded = img.decodeJpg(result);
       expect(decoded, isNotNull);
       expect(decoded!.width, lessThanOrEqualTo(policy.maxWidth));
+    });
+
+    test('縦長アイテム画像は幅・高さとも 768px 以内に収まる', () {
+      // 幅は上限以下だが高さが上限超過の縦長画像。長辺(高さ)基準で縮小され、
+      // 高さ・幅とも 768 以内に収まること（Storage Rules 1MiB 制限の超過回避）。
+      final tallJpeg = _makeGradientJpeg(600, 2400);
+      final policy = imageSizePolicies[ImageTier.item]!;
+
+      final result = ImageHelper.resizeBytes(tallJpeg, ImageTier.item);
+
+      final decoded = img.decodeJpg(result);
+      expect(decoded, isNotNull);
+      expect(decoded!.width, lessThanOrEqualTo(policy.maxWidth));
+      expect(decoded.height, lessThanOrEqualTo(policy.maxHeight));
+    });
+
+    test('ポリシー上限以下のアイテム画像も常に再エンコードされる', () {
+      // 300x300 は 768 以下だが、常時エンコードにより再エンコードされた JPEG が返る
+      final smallJpeg = _makeGradientJpeg(300, 300);
+      final policy = imageSizePolicies[ImageTier.item]!;
+      final result = ImageHelper.resizeBytes(smallJpeg, ImageTier.item);
+      final decoded = img.decodeJpg(result);
+      expect(decoded, isNotNull);
+      expect(decoded!.width, lessThanOrEqualTo(policy.maxWidth));
+      // 再エンコード後は元バイト列と同一オブジェクトではない
+      expect(result, isNot(same(smallJpeg)));
     });
   });
 
@@ -70,8 +96,9 @@ void main() {
       expect(imageProviderFromUrl(uri), isNotNull);
     });
 
-    test('https:// URL は NetworkImage を返す', () {
-      expect(imageProviderFromUrl('https://example.com/img.jpg'), isNotNull);
+    test('https:// URL は CachedNetworkImageProvider を返す', () {
+      final provider = imageProviderFromUrl('https://example.com/img.jpg');
+      expect(provider, isA<CachedNetworkImageProvider>());
     });
   });
 }

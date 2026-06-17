@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,12 +12,20 @@ import '../../domain/entities/item.dart';
 import '../providers/group_providers.dart';
 import '../utils/image_helper.dart';
 
-/// 商品追加フォーム（名前・タグ・メモ・写真）。写真は Base64 データ URI として保存する。
+/// 商品追加フォーム（名前・タグ・メモ・写真）。
+///
+/// 写真は [Uint8List] のままフォーム内で保持し、[onAdd] に draft と一緒に渡す。
+/// `imageUrl` はフォームの時点では空で、呼び出し元が Storage アップロード後に更新する。
 class AddItemForm extends ConsumerStatefulWidget {
   const AddItemForm({super.key, required this.onAdd});
 
-  /// 追加するアイテム（id は無視、addedBy/order は呼び出し元が補完）。
-  final Future<void> Function(Item draft) onAdd;
+  /// 追加するアイテムのドラフトと選択した画像バイト列を受け取るコールバック。
+  ///
+  /// - [draft].imageUrl は空（`''`）で渡される。
+  /// - [imageBytes] が非 null の場合、呼び出し元が Storage へアップロードし
+  ///   `imageUrl` を更新する（2 段階保存フロー）。
+  /// - id は無視、addedBy/order は呼び出し元が補完。
+  final Future<void> Function(Item draft, Uint8List? imageBytes) onAdd;
 
   @override
   ConsumerState<AddItemForm> createState() => _AddItemFormState();
@@ -25,7 +35,7 @@ class _AddItemFormState extends ConsumerState<AddItemForm> {
   final _name = TextEditingController();
   final _note = TextEditingController();
   String _tagId = '';
-  String _imageDataUri = '';
+  Uint8List? _imageBytes;
   bool _uploading = false;
 
   @override
@@ -38,7 +48,7 @@ class _AddItemFormState extends ConsumerState<AddItemForm> {
   Future<void> _pickImage() async {
     final bytes = await ImageHelper(ImagePicker()).pickResized(ImageTier.item);
     if (bytes != null) {
-      setState(() => _imageDataUri = ImageHelper.toDataUri(bytes));
+      setState(() => _imageBytes = bytes);
     }
   }
 
@@ -50,19 +60,20 @@ class _AddItemFormState extends ConsumerState<AddItemForm> {
       name: _name.text.trim(),
       category: '',
       note: _note.text,
-      imageUrl: _imageDataUri,
+      imageUrl: '', // 呼び出し元が Storage upload 後に updateItemDetails で設定する
       status: ItemStatus.active,
       buyingBy: null,
       tagId: _tagId.isEmpty ? null : _tagId,
     );
-    await widget.onAdd(draft);
+    await widget.onAdd(draft, _imageBytes);
     if (mounted) setState(() => _uploading = false);
   }
 
   @override
   Widget build(BuildContext context) {
     final tags = ref.watch(tagsProvider).value ?? const [];
-    final preview = imageProviderFromUrl(_imageDataUri);
+    // 選択した画像のプレビュー: Uint8List から直接 MemoryImage を生成する
+    final preview = _imageBytes != null ? MemoryImage(_imageBytes!) : null;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -118,7 +129,7 @@ class _AddItemFormState extends ConsumerState<AddItemForm> {
                       backgroundColor: AppColors.errorAccent,
                       child: Icon(Icons.close, size: 16, color: Colors.white),
                     ),
-                    onPressed: () => setState(() => _imageDataUri = ''),
+                    onPressed: () => setState(() => _imageBytes = null),
                   ),
                 ),
               ],
