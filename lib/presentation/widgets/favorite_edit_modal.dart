@@ -7,28 +7,28 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../core/constants/image_policy.dart';
 import '../../core/constants/validation_limits.dart';
-import '../../core/errors/app_error.dart';
 import '../../core/theme/app_theme.dart';
-import '../../domain/entities/item.dart';
-import '../providers/favorite_providers.dart';
+import '../../domain/entities/favorite_item.dart';
 import '../providers/group_providers.dart';
 import '../utils/image_helper.dart';
-import 'app_feedback.dart';
 
-/// アイテム編集モーダル（名前・タグ・メモ・写真）をボトムシートで表示する。
+/// よく買う物テンプレートの新規追加 / 編集モーダルを表示する。
 ///
-/// [onSave] コールバックの [imageBytes] が非 null の場合、呼び出し元が Storage へ
-/// アップロードして `imageUrl` を更新する。[imageUrl] は既存の URL または削除時は空文字。
-Future<void> showItemEditModal(
+/// [favorite] が null の場合は新規追加、非 null の場合は既存テンプレートの編集。
+/// [onSave] コールバックに name / tagId / note / imageUrl / imageBytes を渡す。
+/// [imageBytes] が非 null の場合、呼び出し元が Storage へアップロードして
+/// `imageUrl` を更新する（アイテムと同じ 2 段保存フロー）。[imageUrl] は既存の URL
+/// または削除時は空文字。
+Future<void> showFavoriteEditModal(
   BuildContext context, {
-  required Item item,
-  required Future<void> Function(
-    String name,
+  FavoriteItem? favorite,
+  required Future<void> Function({
+    required String name,
     String? tagId,
-    String note,
-    String imageUrl,
+    required String note,
+    required String imageUrl,
     Uint8List? imageBytes,
-  )
+  })
   onSave,
 }) {
   return showModalBottomSheet<void>(
@@ -40,29 +40,30 @@ Future<void> showItemEditModal(
     ),
     builder: (ctx) => Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
-      child: _ItemEditContent(item: item, onSave: onSave),
+      child: _FavoriteEditContent(favorite: favorite, onSave: onSave),
     ),
   );
 }
 
-class _ItemEditContent extends ConsumerStatefulWidget {
-  const _ItemEditContent({required this.item, required this.onSave});
+class _FavoriteEditContent extends ConsumerStatefulWidget {
+  const _FavoriteEditContent({required this.favorite, required this.onSave});
 
-  final Item item;
-  final Future<void> Function(
-    String name,
+  final FavoriteItem? favorite;
+  final Future<void> Function({
+    required String name,
     String? tagId,
-    String note,
-    String imageUrl,
+    required String note,
+    required String imageUrl,
     Uint8List? imageBytes,
-  )
+  })
   onSave;
 
   @override
-  ConsumerState<_ItemEditContent> createState() => _ItemEditContentState();
+  ConsumerState<_FavoriteEditContent> createState() =>
+      _FavoriteEditContentState();
 }
 
-class _ItemEditContentState extends ConsumerState<_ItemEditContent> {
+class _FavoriteEditContentState extends ConsumerState<_FavoriteEditContent> {
   late final TextEditingController _name;
   late final TextEditingController _note;
   late String _tagId;
@@ -76,13 +77,15 @@ class _ItemEditContentState extends ConsumerState<_ItemEditContent> {
 
   bool _saving = false;
 
+  bool get _isNew => widget.favorite == null;
+
   @override
   void initState() {
     super.initState();
-    _name = TextEditingController(text: widget.item.name);
-    _note = TextEditingController(text: widget.item.note);
-    _tagId = widget.item.tagId ?? '';
-    _imageUrl = widget.item.imageUrl;
+    _name = TextEditingController(text: widget.favorite?.name ?? '');
+    _note = TextEditingController(text: widget.favorite?.note ?? '');
+    _tagId = widget.favorite?.tagId ?? '';
+    _imageUrl = widget.favorite?.imageUrl ?? '';
   }
 
   @override
@@ -111,13 +114,14 @@ class _ItemEditContentState extends ConsumerState<_ItemEditContent> {
   }
 
   Future<void> _save() async {
+    if (_name.text.trim().isEmpty) return;
     setState(() => _saving = true);
     await widget.onSave(
-      _name.text,
-      _tagId.isEmpty ? null : _tagId,
-      _note.text,
-      _imageUrl,
-      _newImageBytes,
+      name: _name.text.trim(),
+      tagId: _tagId.isEmpty ? null : _tagId,
+      note: _note.text,
+      imageUrl: _imageUrl,
+      imageBytes: _newImageBytes,
     );
     if (mounted) setState(() => _saving = false);
   }
@@ -141,7 +145,7 @@ class _ItemEditContentState extends ConsumerState<_ItemEditContent> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'item.edit_title'.tr(),
+                _isNew ? 'favorites.add'.tr() : 'favorites.edit_title'.tr(),
                 style: const TextStyle(
                   fontSize: AppFontSizes.lg,
                   fontWeight: FontWeight.w700,
@@ -156,12 +160,14 @@ class _ItemEditContentState extends ConsumerState<_ItemEditContent> {
           ),
           const SizedBox(height: AppSpacing.sm),
           TextField(
+            key: const Key('favorite_name_field'),
             controller: _name,
             maxLength: ValidationLimits.itemName,
             decoration: InputDecoration(hintText: 'item.name_placeholder'.tr()),
           ),
           const SizedBox(height: AppSpacing.sm),
           DropdownButtonFormField<String>(
+            key: const Key('favorite_tag_dropdown'),
             initialValue: _tagId,
             decoration: const InputDecoration(isDense: true),
             items: [
@@ -175,6 +181,7 @@ class _ItemEditContentState extends ConsumerState<_ItemEditContent> {
           Row(
             children: [
               OutlinedButton(
+                key: const Key('favorite_photo_button'),
                 onPressed: _pickImage,
                 child: Text('form.photo_button'.tr()),
               ),
@@ -195,6 +202,7 @@ class _ItemEditContentState extends ConsumerState<_ItemEditContent> {
                       top: -8,
                       right: -8,
                       child: IconButton(
+                        key: const Key('favorite_remove_image_button'),
                         icon: const CircleAvatar(
                           radius: 10,
                           backgroundColor: AppColors.errorAccent,
@@ -213,6 +221,7 @@ class _ItemEditContentState extends ConsumerState<_ItemEditContent> {
           ),
           const SizedBox(height: AppSpacing.sm),
           TextField(
+            key: const Key('favorite_note_field'),
             controller: _note,
             maxLength: ValidationLimits.itemNote,
             minLines: 2,
@@ -221,55 +230,14 @@ class _ItemEditContentState extends ConsumerState<_ItemEditContent> {
           ),
           const SizedBox(height: AppSpacing.sm),
           FilledButton(
+            key: const Key('favorite_save_button'),
             onPressed: _saving ? null : _save,
             child: Text(
               _saving ? 'item.edit_saving'.tr() : 'item.edit_save'.tr(),
             ),
           ),
-          const SizedBox(height: AppSpacing.xs),
-          OutlinedButton.icon(
-            key: const Key('promote_to_favorites_button'),
-            icon: const Icon(Icons.bookmark_add_outlined),
-            label: Text('favorites.promote'.tr()),
-            onPressed: _saving ? null : _promoteToFavorite,
-          ),
         ],
       ),
     );
-  }
-
-  /// アイテムをよく買う物テンプレートに昇格する。
-  Future<void> _promoteToFavorite() async {
-    try {
-      await ref.read(favoriteControllerProvider).addFromItem(widget.item);
-      if (!mounted) return;
-      AppFeedback.showToast(
-        context,
-        'favorites.promoted'.tr(),
-        type: ToastType.success,
-      );
-    } on AppError catch (e) {
-      if (!mounted) return;
-      if (e.code == AppErrorCode.dataFavoriteLimitExceeded) {
-        AppFeedback.showToast(
-          context,
-          'favorites.error.limit_exceeded'.tr(),
-          type: ToastType.error,
-        );
-      } else {
-        AppFeedback.showToast(
-          context,
-          'app.error.add'.tr(),
-          type: ToastType.error,
-        );
-      }
-    } catch (_) {
-      if (!mounted) return;
-      AppFeedback.showToast(
-        context,
-        'app.error.add'.tr(),
-        type: ToastType.error,
-      );
-    }
   }
 }

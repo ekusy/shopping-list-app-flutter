@@ -39,27 +39,38 @@ Future<void> setUpTestLocalization() async {
 ///
 /// [locale] を渡すとその言語に固定する（既定はテスト端末ロケール。テスト端末は
 /// 通常 `en` のため、日本語の文言を検証する場合は `const Locale('ja')` を渡す）。
+///
+/// [wrapper] を渡すと、[MaterialApp] を含むツリー全体をさらにラップできる。
+/// `showModalBottomSheet` 等が root Navigator のオーバーレイ（MaterialApp 直下）に
+/// 描画されても `ProviderScope` 祖先を見つけられるよう、本番（main.dart）と同じ
+/// 「ProviderScope が MaterialApp を包む」構造にしたいモーダル系テストで使う。
+/// 例: `wrapper: (app) => ProviderScope(overrides: [...], child: app)`。
+/// （`Override` 型はインラインのリスト literal の型推論で解決させるため、本ヘルパーは
+/// 型名に依存しない `wrapper` 方式を採る。）
 Future<void> pumpLocalized(
   WidgetTester tester,
   Widget child, {
   Locale? locale,
+  Widget Function(Widget app)? wrapper,
 }) async {
-  await tester.pumpWidget(
-    EasyLocalization(
-      supportedLocales: const [Locale('ja'), Locale('en')],
-      path: 'assets/translations',
-      fallbackLocale: const Locale('ja'),
-      startLocale: locale,
-      assetLoader: const _SyncTranslationLoader(),
-      child: Builder(
-        builder: (context) => MaterialApp(
-          localizationsDelegates: context.localizationDelegates,
-          supportedLocales: context.supportedLocales,
-          locale: context.locale,
-          home: Scaffold(body: child),
-        ),
+  Widget app = EasyLocalization(
+    supportedLocales: const [Locale('ja'), Locale('en')],
+    path: 'assets/translations',
+    fallbackLocale: const Locale('ja'),
+    startLocale: locale,
+    assetLoader: const _SyncTranslationLoader(),
+    child: Builder(
+      builder: (context) => MaterialApp(
+        localizationsDelegates: context.localizationDelegates,
+        supportedLocales: context.supportedLocales,
+        locale: context.locale,
+        home: Scaffold(body: child),
       ),
     ),
   );
+  if (wrapper != null) {
+    app = wrapper(app);
+  }
+  await tester.pumpWidget(app);
   await tester.pumpAndSettle();
 }

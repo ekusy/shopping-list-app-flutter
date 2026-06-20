@@ -62,4 +62,39 @@ class FirebaseStorageRepository implements StorageRepository {
       throw toAppError(e);
     }
   }
+
+  @override
+  Future<String> uploadFavoriteImage(
+    String groupId,
+    String favoriteId,
+    Uint8List bytes,
+  ) async {
+    try {
+      final ref = _storage.ref('groups/$groupId/favoriteItems/$favoriteId.jpg');
+      await ref.putData(
+        bytes,
+        SettableMetadata(
+          contentType: 'image/jpeg',
+          cacheControl: 'public, max-age=31536000',
+        ),
+      );
+      return await ref.getDownloadURL();
+    } catch (e) {
+      throw toAppError(e);
+    }
+  }
+
+  @override
+  Future<void> deleteFavoriteImage(String groupId, String favoriteId) async {
+    try {
+      final ref = _storage.ref('groups/$groupId/favoriteItems/$favoriteId.jpg');
+      await ref.delete();
+    } on FirebaseException catch (e) {
+      // ファイルが存在しない場合は best-effort で無視する
+      if (e.code == 'object-not-found') return;
+      throw toAppError(e);
+    } catch (e) {
+      throw toAppError(e);
+    }
+  }
 }

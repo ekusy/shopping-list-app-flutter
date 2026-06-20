@@ -18,6 +18,7 @@ import '../screens/group/group_join_screen.dart' deferred as group_join;
 import '../screens/group/group_settings_screen.dart' deferred as group_settings;
 import '../screens/profile/profile_screen.dart' deferred as profile;
 import '../screens/suggestions/suggestions_screen.dart' deferred as suggestions;
+import '../screens/favorites/favorites_screen.dart' deferred as favorites;
 
 /// 認証・グループ状態の変化を go_router に伝えるためのリスナー兼リダイレクト判定。
 ///
@@ -158,6 +159,18 @@ final routerProvider = Provider<GoRouter>((ref) {
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
               return suggestions.SuggestionsScreen();
+            }
+            return const _DeferredLoadingPlaceholder();
+          },
+        ),
+      ),
+      GoRoute(
+        path: '/favorites',
+        builder: (_, _) => FutureBuilder(
+          future: favorites.loadLibrary(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              return favorites.FavoritesScreen();
             }
             return const _DeferredLoadingPlaceholder();
           },

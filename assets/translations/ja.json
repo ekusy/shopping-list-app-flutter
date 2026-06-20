@@ -243,6 +243,22 @@
       "ai_note": "AI による提案です"
     }
   },
+  "favorites": {
+    "title": "よく買う物",
+    "add": "テンプレートを追加",
+    "edit_title": "テンプレートを編集",
+    "empty": "よく買う物テンプレートがありません",
+    "add_to_list": "リストに追加 ({count})",
+    "select_all": "すべて選択",
+    "added_count": "{count}件をリストに追加しました",
+    "skipped_count": "{count}件はすでにリストにあるためスキップしました",
+    "promote": "よく買う物に追加",
+    "promoted": "よく買う物に追加しました",
+    "delete_confirm": "このテンプレートを削除しますか？",
+    "error": {
+      "limit_exceeded": "よく買う物テンプレートの上限に達しました"
+    }
+  },
   "auth": {
     "login": "ログイン",
     "signup": "サインアップ",

@@ -581,6 +581,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   style: const TextStyle(fontSize: AppFontSizes.xs),
                 ),
               ),
+              // よく買う物ボタン
+              IconButton(
+                icon: const Icon(Icons.bookmark_outline),
+                tooltip: 'favorites.title'.tr(),
+                onPressed: () => context.push('/favorites'),
+              ),
               // AI 提案ボタン（未読バッジ付き）
               Stack(
                 clipBehavior: Clip.none,
