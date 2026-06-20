@@ -20,6 +20,7 @@ enum AppErrorCode {
   dataUnavailable('data/unavailable'),
   dataResourceExhausted('data/resource-exhausted'),
   dataTagLimitExceeded('data/tag-limit-exceeded'),
+  dataFavoriteLimitExceeded('data/favorite-limit-exceeded'),
   dataUnknown('data/unknown'),
 
   // --- グループ管理レイヤー (GroupErrorCode) ---

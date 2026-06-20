@@ -26,4 +26,14 @@ class PlanLimits {
   /// @returns タグ上限件数
   static int tagLimitFor(String? plan) =>
       plan == planPaid ? paidTagLimit : freeTagLimit;
+
+  /// 無料プランのよく買う物テンプレート上限。
+  static const int freeFavoriteLimit = 10;
+
+  /// プラン文字列（未設定時は free 扱い）からよく買う物テンプレートの上限を返す。
+  ///
+  /// @param plan グループの料金プラン（`'free'` / `'paid'` / null）
+  /// @returns テンプレート上限件数。`null` は無制限を意味する（有料プランのみ）。
+  static int? favoriteLimitFor(String? plan) =>
+      plan == planPaid ? null : freeFavoriteLimit;
 }

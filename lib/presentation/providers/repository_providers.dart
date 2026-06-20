@@ -5,12 +5,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/repositories/firebase_auth_repository.dart';
 import '../../data/repositories/firebase_storage_repository.dart';
+import '../../data/repositories/firestore_favorite_item_repository.dart';
 import '../../data/repositories/firestore_group_repository.dart';
 import '../../data/repositories/firestore_item_repository.dart';
 import '../../data/repositories/firestore_suggestion_repository.dart';
 import '../../data/repositories/firestore_tag_repository.dart';
 import '../../data/repositories/firestore_user_repository.dart';
 import '../../domain/repositories/auth_repository.dart';
+import '../../domain/repositories/favorite_item_repository.dart';
 import '../../domain/repositories/group_repository.dart';
 import '../../domain/repositories/item_repository.dart';
 import '../../domain/repositories/storage_repository.dart';
@@ -62,4 +64,9 @@ final storageRepositoryProvider = Provider<StorageRepository>(
 
 final suggestionRepositoryProvider = Provider<SuggestionRepository>(
   (ref) => FirestoreSuggestionRepository(ref.watch(firebaseFirestoreProvider)),
+);
+
+final favoriteItemRepositoryProvider = Provider<FavoriteItemRepository>(
+  (ref) =>
+      FirestoreFavoriteItemRepository(ref.watch(firebaseFirestoreProvider)),
 );

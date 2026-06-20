@@ -70,6 +70,14 @@ service cloud.firestore {
                               .data.memberIds;
       }
 
+      // よく買う物テンプレート（#43 Epic-04）: グループメンバーのみ読み書き可
+      match /favoriteItems/{favoriteId} {
+        allow read, write: if request.auth != null
+                           && request.auth.uid in
+                              get(/databases/$(database)/documents/groups/$(groupId))
+                              .data.memberIds;
+      }
+
       // 購買履歴（生イベント）: Functions（Admin SDK）のみが書き込む。
       // 読み取りはグループメンバーのみ（#37 Phase 0 PR2）。
       match /itemHistory/{eventId} {

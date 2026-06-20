@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../../domain/entities/favorite_item.dart';
 import '../../domain/entities/group.dart';
 import '../../domain/entities/item.dart';
 import '../../domain/entities/suggestion.dart';
@@ -70,6 +71,21 @@ Item itemFromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
     buyerId: data['buyerId'] as String?,
     tagId: data['tagId'] as String?,
     pendingWrite: doc.metadata.hasPendingWrites,
+  );
+}
+
+/// `groups/{groupId}/favoriteItems/{favoriteId}` ドキュメント → [FavoriteItem]。
+FavoriteItem favoriteItemFromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
+  final data = doc.data() ?? <String, dynamic>{};
+  return FavoriteItem(
+    id: doc.id,
+    name: (data['name'] as String?) ?? '',
+    tagId: data['tagId'] as String?,
+    note: (data['note'] as String?) ?? '',
+    imageUrl: (data['imageUrl'] as String?) ?? '',
+    order: (data['order'] as num?)?.toInt() ?? 0,
+    createdAt: toDateTime(data['createdAt']),
+    addedBy: (data['addedBy'] as String?) ?? '',
   );
 }
 
