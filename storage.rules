@@ -44,5 +44,26 @@ service firebase.storage {
                    && request.resource.size < 1 * 1024 * 1024
                    && request.resource.contentType.matches('image/.*');
     }
+
+    // -----------------------------------------------------------------------
+    // よく買う物テンプレート画像: groups/{groupId}/favoriteItems/{favoriteId}.jpg
+    // 商品画像（上記）と同一ポリシー。グループメンバーのみ読み書き可。
+    //   最終セグメントは拡張子混在不可のためファイル名全体を {fileName} で受ける。
+    // -----------------------------------------------------------------------
+    match /groups/{groupId}/favoriteItems/{fileName} {
+      allow read: if request.auth != null
+                  && request.auth.uid in
+                     firestore.get(
+                       /databases/(default)/documents/groups/$(groupId)
+                     ).data.memberIds;
+
+      allow write: if request.auth != null
+                   && request.auth.uid in
+                      firestore.get(
+                        /databases/(default)/documents/groups/$(groupId)
+                      ).data.memberIds
+                   && request.resource.size < 1 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+    }
   }
 }

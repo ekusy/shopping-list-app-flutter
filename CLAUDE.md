@@ -98,8 +98,9 @@ docker compose run --rm flutter firebase deploy --only storage          # storag
 docker compose run --rm flutter firebase emulators:start
 ```
 
-> **`storage.rules`（#38）**: リポジトリ管理の Storage Security Rules。
-> 商品画像（`groups/{groupId}/items/{itemId}.jpg`）はグループメンバーのみ読み書き可。
+> **`storage.rules`（#38 / #43）**: リポジトリ管理の Storage Security Rules。
+> 商品画像（`groups/{groupId}/items/{itemId}.jpg`）とよく買う物テンプレート画像
+> （`groups/{groupId}/favoriteItems/{favoriteId}.jpg`、#43）はグループメンバーのみ読み書き可。
 > アバター（`avatars/{uid}`）は本人のみ書き込み可。
 > 変更時は `firebase deploy --only storage` で反映すること。
 
