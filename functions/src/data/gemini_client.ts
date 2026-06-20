@@ -18,9 +18,7 @@ import { RESPONSE_SCHEMA, type RawSuggestionsResponse } from "../lib/suggestions
  *
  * Single constant so the model can be bumped in one place. Confirmed GA ID
  * (#56): the latest low-cost Flash-tier model (Gemini 2.0 Flash retired
- * 2026-06-01, the 2.5 series retires 2026-10-16). `asia-northeast1`
- * availability / pricing were verified during #56. If a future model move
- * makes it unavailable in this region, switch `getLocation()` to `"global"`.
+ * 2026-06-01, the 2.5 series retires 2026-10-16).
  */
 export const MODEL_ID = "gemini-3.1-flash-lite";
 
@@ -30,8 +28,12 @@ const MAX_OUTPUT_TOKENS = 1024;
 /** Single retry with exponential backoff for transient Gemini call failures. */
 const RETRY_DELAY_MS = 1000;
 
+// Gemini 3.x 系は Vertex AI のリージョンエンドポイント（例: asia-northeast1）では
+// 提供されず、`global` エンドポイント経由のみのことが多い。asia-northeast1 指定では
+// モデル呼び出しが 404 (ApiError) になったため（#40 初回スケジュール実行で実害）、
+// `global` を使用する。Functions 自体のリージョンは asia-northeast1 のまま。
 function getLocation(): string {
-  return "asia-northeast1";
+  return "global";
 }
 
 function getProjectId(): string | undefined {
