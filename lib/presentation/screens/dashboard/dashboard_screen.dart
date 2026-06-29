@@ -1,29 +1,29 @@
-import 'dart:typed_data';
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_theme.dart';
-import '../../../domain/entities/item.dart';
 import '../../../domain/entities/tag.dart';
 import '../../providers/auth_providers.dart';
 import '../../providers/group_members_provider.dart';
 import '../../providers/group_providers.dart';
+import '../../providers/item_controller.dart';
 import '../../providers/item_providers.dart';
 import '../../providers/network_providers.dart';
-import '../../providers/repository_providers.dart';
-import '../../widgets/add_item_form.dart';
 import '../../widgets/app_feedback.dart';
 import '../../widgets/app_sidebar.dart';
 import '../../widgets/confirm_dialog.dart';
+import '../../widgets/dashboard/dashboard_add_bar.dart';
 import '../../widgets/dashboard/dashboard_header.dart';
 import '../../widgets/filter_bar.dart';
 import '../../widgets/item_edit_modal.dart';
-import '../../widgets/quick_add_input.dart';
 import '../../widgets/shopping_list.dart';
 
-/// ダッシュボード（メイン画面）。買い物リストの追加・更新・削除を行う。
+/// ダッシュボード（メイン画面）。買い物リストの一覧表示・更新・削除を行う。
+///
+/// アイテムへの書き込み操作は [ItemController] に委譲し、本画面は一覧表示と
+/// UI フィードバック（トースト / 確認ダイアログ / 画面遷移）に専念する。追加 UI は
+/// [DashboardAddBar]、ヘッダーは [DashboardHeader] に分離している。
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 
@@ -35,112 +35,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   List<String> _filterTagIds = [];
 
-  String? get _groupId => ref.read(activeGroupProvider)?.id;
   String? get _uid => ref.read(currentUserProvider)?.uid;
 
-  int _nextOrder() {
-    final items = ref.read(itemsProvider).value ?? const [];
-    return items.fold<int>(
-          0,
-          (max, i) => (i.order ?? 0) > max ? i.order! : max,
-        ) +
-        1;
-  }
-
-  Future<void> _quickAdd(String name) async {
-    final groupId = _groupId;
-    if (groupId == null) return;
-    final draft = Item(
-      id: '',
-      name: name,
-      category: '',
-      note: '',
-      imageUrl: '',
-      status: ItemStatus.active,
-      buyingBy: null,
-      addedBy: _uid,
-    );
-    AppFeedback.showLoading(context, 'status.adding'.tr());
-    try {
-      await ref
-          .read(itemRepositoryProvider)
-          .addItem(groupId, draft, _nextOrder());
-    } catch (_) {
-      if (mounted) {
-        AppFeedback.showToast(
-          context,
-          'app.error.add'.tr(),
-          type: ToastType.error,
-        );
-      }
-    } finally {
-      if (mounted) AppFeedback.hide(context);
-    }
-  }
-
-  /// アイテム追加の 2 段階フロー:
-  ///   1. `addItem`（imageUrl 空）→ Firestore ドキュメント ID を確定
-  ///   2. 画像バイト列があれば Storage アップロード → `updateItemDetails` で imageUrl を更新
-  ///
-  /// ステップ 2 の失敗はトーストエラーで通知するが、アイテム本体は削除しない（画像なしで残す）。
-  Future<void> _addItem(Item draft, Uint8List? imageBytes) async {
-    final groupId = _groupId;
-    if (groupId == null) return;
-    String itemId;
-    try {
-      itemId = await ref
-          .read(itemRepositoryProvider)
-          .addItem(groupId, draft.copyWith(addedBy: _uid), _nextOrder());
-    } catch (_) {
-      if (mounted) {
-        AppFeedback.showToast(
-          context,
-          'app.error.add'.tr(),
-          type: ToastType.error,
-        );
-      }
-      return;
-    }
-
-    // ステップ 2: Storage アップロード + imageUrl 更新（best-effort）
-    var imageStepFailed = false;
-    if (imageBytes != null) {
-      try {
-        final url = await ref
-            .read(storageRepositoryProvider)
-            .uploadItemImage(groupId, itemId, imageBytes);
-        await ref
-            .read(itemRepositoryProvider)
-            .updateItemDetails(
-              groupId,
-              itemId,
-              name: draft.name,
-              tagId: draft.tagId,
-              note: draft.note,
-              imageUrl: url,
-            );
-      } catch (_) {
-        // アイテム本体は残す（画像なしで続行）。失敗は下でエラートーストのみ表示し、
-        // 成功トーストとの競合を避ける。
-        imageStepFailed = true;
-      }
-    }
-
-    if (mounted) {
-      Navigator.of(context).pop(); // フォームのボトムシートを閉じる
-      AppFeedback.showToast(
-        context,
-        imageStepFailed ? 'app.error.update'.tr() : 'app.success.add'.tr(),
-        type: imageStepFailed ? ToastType.error : ToastType.success,
-      );
-    }
-  }
-
   Future<void> _setVolunteer(String id, String? uid) async {
-    final groupId = _groupId;
-    if (groupId == null) return;
     try {
-      await ref.read(itemRepositoryProvider).setVolunteer(groupId, id, uid);
+      await ref.read(itemControllerProvider).setVolunteer(id, uid);
       if (uid != null && uid == _uid && mounted) {
         AppFeedback.showToast(
           context,
@@ -160,12 +59,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   Future<void> _setPurchased(String id, bool purchased) async {
-    final groupId = _groupId;
-    if (groupId == null) return;
     try {
-      await ref
-          .read(itemRepositoryProvider)
-          .setPurchased(groupId, id, purchased);
+      await ref.read(itemControllerProvider).setPurchased(id, purchased);
       if (purchased && mounted) {
         AppFeedback.showToast(
           context,
@@ -192,54 +87,18 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       context,
       item: target,
       onSave: (name, tagId, note, imageUrl, imageBytes) async {
-        final groupId = _groupId;
-        if (groupId == null) return;
-
-        // 新規画像が選択された場合は Storage アップロードを先に行い URL を取得する
-        String resolvedImageUrl = imageUrl;
-        if (imageBytes != null) {
-          try {
-            resolvedImageUrl = await ref
-                .read(storageRepositoryProvider)
-                .uploadItemImage(groupId, id, imageBytes);
-          } catch (_) {
-            if (mounted) {
-              AppFeedback.showToast(
-                context,
-                'app.error.update'.tr(),
-                type: ToastType.error,
-              );
-            }
-            return;
-          }
-        }
-
         try {
           await ref
-              .read(itemRepositoryProvider)
-              .updateItemDetails(
-                groupId,
+              .read(itemControllerProvider)
+              .updateItem(
                 id,
                 name: name,
                 tagId: tagId,
                 note: note,
-                imageUrl: resolvedImageUrl,
+                imageUrl: imageUrl,
+                imageBytes: imageBytes,
+                originalImageUrl: target.imageUrl,
               );
-          // 画像が削除された場合（新規バイト列なし・URL 空）、元アイテムに画像が
-          // あったなら Storage の孤児ファイルを best-effort で削除する。
-          // deleteItemImage は object-not-found を無視するため、dataURI 由来で
-          // Storage 実体が無いケースでも安全。
-          if (imageBytes == null &&
-              resolvedImageUrl.isEmpty &&
-              target.imageUrl.isNotEmpty) {
-            try {
-              await ref
-                  .read(storageRepositoryProvider)
-                  .deleteItemImage(groupId, id);
-            } catch (_) {
-              // best-effort: Storage 削除失敗は update 成功を妨げない
-            }
-          }
           if (mounted) {
             Navigator.of(context).pop();
             AppFeedback.showToast(
@@ -267,10 +126,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       message: 'app.info.delete_confirm'.tr(),
     );
     if (!confirmed) return;
-    final groupId = _groupId;
-    if (groupId == null) return;
     try {
-      await ref.read(itemRepositoryProvider).deleteItem(groupId, id);
+      await ref.read(itemControllerProvider).deleteItem(id);
       if (mounted) {
         AppFeedback.showToast(context, 'app.success.delete'.tr());
       }
@@ -286,19 +143,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   Future<void> _deleteSection(String? tagId) async {
-    final groupId = _groupId;
-    if (groupId == null) return;
-    final repo = ref.read(itemRepositoryProvider);
     try {
-      if (tagId != null) {
-        await repo.deleteItemsByTag(groupId, tagId);
-      } else {
-        final items = ref.read(itemsProvider).value ?? const [];
-        final noTagIds = items
-            .where((i) => i.tagId == null && !i.isPurchased)
-            .map((i) => i.id);
-        await Future.wait(noTagIds.map((id) => repo.deleteItem(groupId, id)));
-      }
+      await ref.read(itemControllerProvider).deleteSection(tagId);
       if (mounted) AppFeedback.showToast(context, 'app.success.delete'.tr());
     } catch (_) {
       if (mounted) {
@@ -312,12 +158,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   Future<void> _bulkTagChange(List<String> ids, String? tagId) async {
-    final groupId = _groupId;
-    if (groupId == null) return;
     try {
-      await ref
-          .read(itemRepositoryProvider)
-          .batchUpdateTag(groupId, ids, tagId);
+      await ref.read(itemControllerProvider).bulkTagChange(ids, tagId);
     } catch (_) {
       if (mounted) {
         AppFeedback.showToast(
@@ -349,49 +191,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     }
   }
 
-  void _openAddForm() {
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.xl)),
-      ),
-      builder: (ctx) => Padding(
-        padding: EdgeInsets.only(
-          left: AppSpacing.md,
-          right: AppSpacing.md,
-          top: AppSpacing.md,
-          bottom: MediaQuery.of(ctx).viewInsets.bottom + AppSpacing.md,
-        ),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'form.add_button'.tr(),
-                    style: const TextStyle(
-                      fontSize: AppFontSizes.xl,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.of(ctx).pop(),
-                  ),
-                ],
-              ),
-              AddItemForm(onAdd: _addItem),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     // easy_localization の .tr() は static インスタンスを使うため BuildContext 依存が
@@ -413,7 +212,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       }
     });
 
-    final hasGroup = ref.watch(activeGroupProvider.select((g) => g != null));
     final items = ref.watch(itemsProvider);
     final tags = ref.watch(
       tagsProvider.select((s) => s.value ?? const <Tag>[]),
@@ -501,37 +299,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 ),
               ),
             ),
-            _buildBottomBar(hasGroup),
+            const DashboardAddBar(),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBottomBar(bool hasGroup) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.white,
-        border: Border(top: BorderSide(color: AppColors.surfaceBorder)),
-      ),
-      padding: const EdgeInsets.all(AppSpacing.md),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxWidth: AppLayout.maxContentWidth,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              QuickAddInput(onAdd: _quickAdd, disabled: !hasGroup),
-              const SizedBox(height: AppSpacing.xs),
-              OutlinedButton(
-                onPressed: _openAddForm,
-                child: Text('＋ ${'list.detail_add'.tr()}'),
-              ),
-            ],
-          ),
         ),
       ),
     );
