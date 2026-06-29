@@ -3,7 +3,6 @@ import 'dart:typed_data';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../../../domain/entities/item.dart';
@@ -14,17 +13,15 @@ import '../../providers/group_providers.dart';
 import '../../providers/item_providers.dart';
 import '../../providers/network_providers.dart';
 import '../../providers/repository_providers.dart';
-import '../../providers/suggestion_providers.dart';
 import '../../widgets/add_item_form.dart';
 import '../../widgets/app_feedback.dart';
 import '../../widgets/app_sidebar.dart';
 import '../../widgets/confirm_dialog.dart';
+import '../../widgets/dashboard/dashboard_header.dart';
 import '../../widgets/filter_bar.dart';
-import '../../widgets/group_switcher.dart';
 import '../../widgets/item_edit_modal.dart';
 import '../../widgets/quick_add_input.dart';
 import '../../widgets/shopping_list.dart';
-import '../../widgets/tag_manager.dart';
 
 /// ダッシュボード（メイン画面）。買い物リストの追加・更新・削除を行う。
 class DashboardScreen extends ConsumerStatefulWidget {
@@ -416,7 +413,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       }
     });
 
-    final groupName = ref.watch(activeGroupProvider.select((g) => g?.name));
     final hasGroup = ref.watch(activeGroupProvider.select((g) => g != null));
     final items = ref.watch(itemsProvider);
     final tags = ref.watch(
@@ -429,9 +425,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
     final uid = ref.watch(currentUserProvider.select((u) => u?.uid));
     final isOnline = ref.watch(isOnlineProvider.select((s) => s.value ?? true));
-    final pendingCount = ref.watch(pendingItemCountProvider);
-    final hasUnreadSuggestion =
-        ref.watch(hasUnreadSuggestionProvider).value ?? false;
 
     return Scaffold(
       key: _scaffoldKey,
@@ -455,10 +448,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ),
                 ),
               ),
-            _buildHeader(
-              groupName ?? 'app.title'.tr(),
-              pendingCount,
-              hasUnreadSuggestion,
+            DashboardHeader(
+              onOpenMenu: () => _scaffoldKey.currentState?.openEndDrawer(),
             ),
             Expanded(
               child: Center(
@@ -512,112 +503,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
             _buildBottomBar(hasGroup),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader(String title, int pendingCount, bool hasUnread) {
-    return Container(
-      color: AppColors.white,
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
-      ),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxWidth: AppLayout.maxContentWidth,
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: InkWell(
-                  onTap: () => showGroupSwitcher(context),
-                  child: Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: AppFontSizes.xl,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                      ),
-                      const Text(
-                        ' ▼',
-                        style: TextStyle(color: AppColors.primary),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              if (pendingCount > 0)
-                Padding(
-                  padding: const EdgeInsets.only(right: AppSpacing.xs),
-                  child: Text(
-                    'status.pending_count'.tr(
-                      namedArgs: {'count': '$pendingCount'},
-                    ),
-                    style: const TextStyle(
-                      fontSize: AppFontSizes.xs,
-                      color: AppColors.textSecondary,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ),
-              OutlinedButton(
-                onPressed: () => showTagManager(context),
-                style: OutlinedButton.styleFrom(
-                  visualDensity: VisualDensity.compact,
-                  backgroundColor: AppColors.primaryLight,
-                ),
-                child: Text(
-                  'tag.manage'.tr(),
-                  style: const TextStyle(fontSize: AppFontSizes.xs),
-                ),
-              ),
-              // よく買う物ボタン
-              IconButton(
-                icon: const Icon(Icons.bookmark_outline),
-                tooltip: 'favorites.title'.tr(),
-                onPressed: () => context.push('/favorites'),
-              ),
-              // AI 提案ボタン（未読バッジ付き）
-              Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.auto_awesome),
-                    tooltip: 'suggestions.title'.tr(),
-                    onPressed: () => context.push('/suggestions'),
-                  ),
-                  if (hasUnread)
-                    Positioned(
-                      top: 6,
-                      right: 6,
-                      child: Container(
-                        width: 8,
-                        height: 8,
-                        decoration: const BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-              IconButton(
-                icon: const Icon(Icons.menu),
-                tooltip: 'sidebar.open'.tr(),
-                onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
-              ),
-            ],
-          ),
         ),
       ),
     );
