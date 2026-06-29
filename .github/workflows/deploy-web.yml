@@ -22,3 +22,9 @@ jobs:
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           projectId: household-shopping-list-f7c12
           channelId: live
+          # firebase-tools 15.22.1〜15.22.3 は keep-alive HTTP エージェントの不具合で
+          # 全 API 呼び出しが "premature close" → keep-alive 無しで自動リトライする。
+          # release POST はサーバ側で成功後に接続断 → リトライが
+          # 400 FAILED_PRECONDITION（既に current active version）となりデプロイが
+          # 失敗扱いになる（実体は公開済み）。最後に成功した 15.22.0 に固定する。
+          firebaseToolsVersion: '15.22.0'
