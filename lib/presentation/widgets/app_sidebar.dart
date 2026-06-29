@@ -6,8 +6,40 @@ import 'package:go_router/go_router.dart';
 import '../../core/theme/app_theme.dart';
 import '../providers/auth_providers.dart';
 import '../providers/group_providers.dart';
+import 'tag_manager.dart';
 
-/// 言語切替・プロフィール遷移・ログアウトを収容するサイドバー（エンドドロワー）。
+/// サイドバー（エンドドロワー）のナビゲーションエントリ。
+///
+/// 宣言的に列挙して `map` で描画することで、今後の遷移先追加（履歴 等）を
+/// 1 エントリの追記で済ませられるようにする。
+class _NavEntry {
+  const _NavEntry({
+    required this.labelKey,
+    required this.icon,
+    required this.onTap,
+  });
+
+  final String labelKey;
+  final IconData icon;
+  final void Function(BuildContext context) onTap;
+}
+
+/// ドロワーからモーダル（`showModalBottomSheet` 系）を開くための安全な導線。
+///
+/// ドロワーを `pop` した後の `context` は Overlay / Navigator 祖先が無効化しうるため、
+/// 先に **root navigator の context**（`main.dart` の `ProviderScope` / `Localizations` /
+/// `Overlay` をすべて祖先に持つ）を確保してから、ドロワーを閉じてモーダルを開く。
+/// route 遷移（`context.push`）はこのヘルパー不要（閉じた後の遷移で問題ない）。
+void _openFromDrawer(
+  BuildContext context,
+  void Function(BuildContext root) open,
+) {
+  final root = Navigator.of(context, rootNavigator: true).context;
+  Navigator.of(context).pop();
+  open(root);
+}
+
+/// 言語切替・グループ/タグ操作・各画面遷移・ログアウトを収容するサイドバー。
 class AppSidebar extends ConsumerWidget {
   const AppSidebar({super.key});
 
@@ -15,6 +47,42 @@ class AppSidebar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final group = ref.watch(activeGroupProvider);
     final lang = context.locale.languageCode;
+
+    // ナビゲーション項目（グループ未所属時はグループ依存の項目を出さない）。
+    final navEntries = <_NavEntry>[
+      if (group != null)
+        _NavEntry(
+          labelKey: 'group.settings.title',
+          icon: Icons.settings_outlined,
+          onTap: (ctx) {
+            Navigator.of(ctx).pop();
+            ctx.push('/group/settings');
+          },
+        ),
+      if (group != null)
+        _NavEntry(
+          labelKey: 'tag.manage',
+          icon: Icons.sell_outlined,
+          onTap: (ctx) => _openFromDrawer(ctx, showTagManager),
+        ),
+      if (group != null)
+        _NavEntry(
+          labelKey: 'favorites.title',
+          icon: Icons.bookmark_outline,
+          onTap: (ctx) {
+            Navigator.of(ctx).pop();
+            ctx.push('/favorites');
+          },
+        ),
+      _NavEntry(
+        labelKey: 'sidebar.profile',
+        icon: Icons.person_outline,
+        onTap: (ctx) {
+          Navigator.of(ctx).pop();
+          ctx.push('/profile');
+        },
+      ),
+    ];
 
     return Drawer(
       backgroundColor: AppColors.white,
@@ -42,22 +110,16 @@ class AppSidebar extends ConsumerWidget {
                 ],
               ),
               const Divider(height: AppSpacing.lg),
-              if (group != null)
+              for (final entry in navEntries)
                 ListTile(
-                  title: Text('group.settings.title'.tr()),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    context.push('/group/settings');
-                  },
+                  key: Key('sidebar_nav_${entry.labelKey}'),
+                  leading: Icon(entry.icon),
+                  title: Text(entry.labelKey.tr()),
+                  onTap: () => entry.onTap(context),
                 ),
+              const Divider(height: AppSpacing.lg),
               ListTile(
-                title: Text('sidebar.profile'.tr()),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  context.push('/profile');
-                },
-              ),
-              ListTile(
+                leading: const Icon(Icons.logout, color: AppColors.error),
                 title: Text(
                   'sidebar.logout'.tr(),
                   style: const TextStyle(color: AppColors.error),
