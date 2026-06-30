@@ -4,10 +4,21 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 
 /// クイック追加インプット（名前のみ）。Enter または追加ボタンで送信し、入力欄をリセット。
+///
+/// [onDetailAdd] を渡すと、末尾に詳細追加（モーダル）への導線アイコンを 1 行に並べる。
+/// 入力手段を増やす際は、この末尾アクション領域を拡張点とする。
 class QuickAddInput extends StatefulWidget {
-  const QuickAddInput({super.key, required this.onAdd, this.disabled = false});
+  const QuickAddInput({
+    super.key,
+    required this.onAdd,
+    this.onDetailAdd,
+    this.disabled = false,
+  });
 
   final Future<void> Function(String name) onAdd;
+
+  /// 詳細追加（モーダル）を開くコールバック。null の場合は導線を表示しない。
+  final VoidCallback? onDetailAdd;
   final bool disabled;
 
   @override
@@ -69,6 +80,16 @@ class _QuickAddInputState extends State<QuickAddInput> {
             onPressed: enabled ? _submit : null,
             child: Text('form.add_button'.tr()),
           ),
+          if (widget.onDetailAdd != null) ...[
+            const SizedBox(width: AppSpacing.xs),
+            IconButton(
+              key: const Key('quick_add_detail_button'),
+              onPressed: enabled ? widget.onDetailAdd : null,
+              icon: const Icon(Icons.tune),
+              tooltip: 'list.detail_add'.tr(),
+              visualDensity: VisualDensity.compact,
+            ),
+          ],
         ],
       ),
     );
