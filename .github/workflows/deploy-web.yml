@@ -4,6 +4,8 @@ name: Deploy Web (develop)
 on:
   push:
     branches: [develop]
+  # 手動実行を許可（デプロイのみの再実行・検証に使う）。
+  workflow_dispatch:
 
 jobs:
   deploy-web:
@@ -16,15 +18,19 @@ jobs:
           cache: true
       - run: flutter pub get
       - run: flutter build web --release --pwa-strategy=offline-first
+      # firebase-tools は GitHub runner の Node 24 上で googleapis への fetch が
+      # "Premature close" で失敗する（OAuth トークン取得が落ちて認証エラーになる）。
+      # Node 20 を用意し、その PATH 上で firebase-tools を実行させて回避する。
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           projectId: household-shopping-list-f7c12
           channelId: live
-          # firebase-tools 15.22.1〜15.22.3 は keep-alive HTTP エージェントの不具合で
-          # 全 API 呼び出しが "premature close" → keep-alive 無しで自動リトライする。
-          # release POST はサーバ側で成功後に接続断 → リトライが
-          # 400 FAILED_PRECONDITION（既に current active version）となりデプロイが
-          # 失敗扱いになる（実体は公開済み）。最後に成功した 15.22.0 に固定する。
+          # 主因は上の Node 20 固定（runner の Node 24 で premature close）。
+          # 併せて最後に成功実績のある版に固定しておく。Node 修正で安定後は
+          # latest へ戻して良い。
           firebaseToolsVersion: '15.22.0'
