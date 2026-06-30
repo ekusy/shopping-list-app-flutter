@@ -157,20 +157,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     }
   }
 
-  Future<void> _bulkTagChange(List<String> ids, String? tagId) async {
-    try {
-      await ref.read(itemControllerProvider).bulkTagChange(ids, tagId);
-    } catch (_) {
-      if (mounted) {
-        AppFeedback.showToast(
-          context,
-          'app.error.update'.tr(),
-          type: ToastType.error,
-        );
-      }
-    }
-  }
-
   Future<void> _clearPurchased() async {
     final confirmed = await showConfirmDialog(
       context,
@@ -290,7 +276,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                   onDelete: _deleteItem,
                                   onClearPurchased: _clearPurchased,
                                   onDeleteSection: _deleteSection,
-                                  onBulkTagChange: _bulkTagChange,
                                 ),
                         ),
                       ],

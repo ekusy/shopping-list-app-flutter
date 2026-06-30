@@ -6,10 +6,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../../../domain/entities/item.dart';
+import '../../../domain/entities/tag.dart';
 import '../../providers/group_providers.dart';
 import '../../providers/item_controller.dart';
+import '../../providers/selection_controller.dart';
 import '../add_item_form.dart';
 import '../app_feedback.dart';
+import '../bulk_action_bar.dart';
 import '../quick_add_input.dart';
 
 /// ダッシュボード下部の追加バー。
@@ -116,9 +119,33 @@ class DashboardAddBar extends ConsumerWidget {
     );
   }
 
+  /// 選択中アイテムのタグを一括変更し、選択を解除する。
+  Future<void> _bulkTagChange(
+    BuildContext context,
+    WidgetRef ref,
+    String? tagId,
+  ) async {
+    final ids = ref.read(selectionControllerProvider).ids.toList();
+    try {
+      await ref.read(itemControllerProvider).bulkTagChange(ids, tagId);
+    } catch (_) {
+      if (context.mounted) {
+        AppFeedback.showToast(
+          context,
+          'app.error.update'.tr(),
+          type: ToastType.error,
+        );
+      }
+    } finally {
+      ref.read(selectionControllerProvider.notifier).clear();
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final hasGroup = ref.watch(activeGroupProvider.select((g) => g != null));
+    // 選択モード中は追加 UI を一括操作バーに差し替える（ボトムに固定表示するため
+    // スクロールで流れず常に見える）。
+    final selectionActive = ref.watch(selectionActiveProvider);
     return Container(
       decoration: const BoxDecoration(
         color: AppColors.white,
@@ -130,13 +157,31 @@ class DashboardAddBar extends ConsumerWidget {
           constraints: const BoxConstraints(
             maxWidth: AppLayout.maxContentWidth,
           ),
-          child: QuickAddInput(
-            onAdd: (name) => _quickAdd(context, ref, name),
-            onDetailAdd: hasGroup ? () => _openAddForm(context, ref) : null,
-            disabled: !hasGroup,
-          ),
+          child: selectionActive
+              ? _buildBulkBar(context, ref)
+              : _buildAddRow(context, ref),
         ),
       ),
+    );
+  }
+
+  Widget _buildAddRow(BuildContext context, WidgetRef ref) {
+    final hasGroup = ref.watch(activeGroupProvider.select((g) => g != null));
+    return QuickAddInput(
+      onAdd: (name) => _quickAdd(context, ref, name),
+      onDetailAdd: hasGroup ? () => _openAddForm(context, ref) : null,
+      disabled: !hasGroup,
+    );
+  }
+
+  Widget _buildBulkBar(BuildContext context, WidgetRef ref) {
+    final count = ref.watch(selectionCountProvider);
+    final tags = ref.watch(tagsProvider).value ?? const <Tag>[];
+    return BulkActionBar(
+      count: count,
+      tags: tags,
+      onChangeTag: (tagId) => _bulkTagChange(context, ref, tagId),
+      onCancel: () => ref.read(selectionControllerProvider.notifier).clear(),
     );
   }
 }

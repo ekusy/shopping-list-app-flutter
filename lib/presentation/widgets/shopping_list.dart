@@ -6,12 +6,14 @@ import '../../core/theme/app_theme.dart';
 import '../../domain/entities/item.dart';
 import '../../domain/entities/tag.dart';
 import '../providers/group_providers.dart';
-import 'bulk_action_bar.dart';
 import 'confirm_dialog.dart';
-import 'item_card.dart';
+import 'dashboard/selectable_item_row.dart';
 
 /// タグ単位でグルーピングした買い物リスト表示。
-/// チェックボックスタップで複数選択モードに入り、一括タグ変更ができる。
+///
+/// 各行は [SelectableItemRow] が選択状態の provider に接続する。選択モード時の
+/// 一括操作バーはボトムバー（`DashboardAddBar`）側に固定表示するため、本ウィジェットは
+/// 選択状態を保持しない（セクションの折りたたみ表示のみ管理する）。
 class ShoppingList extends ConsumerStatefulWidget {
   const ShoppingList({
     super.key,
@@ -25,7 +27,6 @@ class ShoppingList extends ConsumerStatefulWidget {
     required this.onDelete,
     required this.onClearPurchased,
     required this.onDeleteSection,
-    required this.onBulkTagChange,
   });
 
   final List<Item> items;
@@ -38,8 +39,6 @@ class ShoppingList extends ConsumerStatefulWidget {
   final void Function(String itemId) onDelete;
   final VoidCallback onClearPurchased;
   final void Function(String? tagId) onDeleteSection;
-  final Future<void> Function(List<String> itemIds, String? tagId)
-  onBulkTagChange;
 
   @override
   ConsumerState<ShoppingList> createState() => _ShoppingListState();
@@ -48,8 +47,6 @@ class ShoppingList extends ConsumerStatefulWidget {
 class _ShoppingListState extends ConsumerState<ShoppingList> {
   bool _purchasedExpanded = true;
   final Set<String> _collapsed = {};
-  bool _selectionMode = false;
-  final Set<String> _selected = {};
 
   String _sectionKey(String? tagId) => tagId ?? '__no_tag__';
 
@@ -58,26 +55,6 @@ class _ShoppingListState extends ConsumerState<ShoppingList> {
     setState(() {
       if (!_collapsed.remove(key)) _collapsed.add(key);
     });
-  }
-
-  void _toggleSelect(String id) {
-    setState(() {
-      _selectionMode = true;
-      if (!_selected.remove(id)) _selected.add(id);
-      if (_selected.isEmpty) _selectionMode = false;
-    });
-  }
-
-  void _cancelSelection() {
-    setState(() {
-      _selectionMode = false;
-      _selected.clear();
-    });
-  }
-
-  Future<void> _bulkTagChange(String? tagId) async {
-    await widget.onBulkTagChange(_selected.toList(), tagId);
-    _cancelSelection();
   }
 
   Future<void> _confirmDeleteSection(String? tagId, String tagName) async {
@@ -136,13 +113,6 @@ class _ShoppingListState extends ConsumerState<ShoppingList> {
 
     return ListView(
       children: [
-        if (_selectionMode)
-          BulkActionBar(
-            count: _selected.length,
-            tags: tags,
-            onChangeTag: _bulkTagChange,
-            onCancel: _cancelSelection,
-          ),
         for (final section in sections) _buildSection(section),
         if (boughtItems.isNotEmpty) _buildPurchasedSection(boughtItems),
       ],
@@ -210,7 +180,7 @@ class _ShoppingListState extends ConsumerState<ShoppingList> {
         ),
         const SizedBox(height: AppSpacing.xs),
         if (!collapsed)
-          for (final item in section.items) _itemCard(item),
+          for (final item in section.items) _itemRow(item),
         const SizedBox(height: AppSpacing.sm),
       ],
     );
@@ -264,19 +234,16 @@ class _ShoppingListState extends ConsumerState<ShoppingList> {
         ),
         const SizedBox(height: AppSpacing.sm),
         if (_purchasedExpanded)
-          for (final item in boughtItems) _itemCard(item),
+          for (final item in boughtItems) _itemRow(item),
       ],
     );
   }
 
-  Widget _itemCard(Item item) => ItemCard(
+  Widget _itemRow(Item item) => SelectableItemRow(
     key: ValueKey(item.id),
     item: item,
     currentUid: widget.currentUid,
     memberNames: widget.memberNames,
-    selectionMode: _selectionMode,
-    isSelected: _selected.contains(item.id),
-    onSelect: () => _toggleSelect(item.id),
     onSetVolunteer: (uid) => widget.onSetVolunteer(item.id, uid),
     onSetPurchased: (purchased) => widget.onSetPurchased(item.id, purchased),
     onEdit: () => widget.onEdit(item.id),
