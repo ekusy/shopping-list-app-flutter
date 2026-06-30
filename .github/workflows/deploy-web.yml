@@ -4,6 +4,8 @@ name: Deploy Web (develop)
 on:
   push:
     branches: [develop]
+  # 手動実行を許可（デプロイのみの再実行・検証に使う）。
+  workflow_dispatch:
 
 jobs:
   deploy-web:
