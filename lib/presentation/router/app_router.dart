@@ -16,6 +16,7 @@ import '../screens/auth/signup_screen.dart' deferred as signup;
 import '../screens/group/group_create_screen.dart' deferred as group_create;
 import '../screens/group/group_join_screen.dart' deferred as group_join;
 import '../screens/group/group_settings_screen.dart' deferred as group_settings;
+import '../screens/history/history_screen.dart' deferred as history;
 import '../screens/profile/profile_screen.dart' deferred as profile;
 import '../screens/suggestions/suggestions_screen.dart' deferred as suggestions;
 import '../screens/favorites/favorites_screen.dart' deferred as favorites;
@@ -171,6 +172,18 @@ final routerProvider = Provider<GoRouter>((ref) {
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
               return favorites.FavoritesScreen();
+            }
+            return const _DeferredLoadingPlaceholder();
+          },
+        ),
+      ),
+      GoRoute(
+        path: '/history',
+        builder: (_, _) => FutureBuilder(
+          future: history.loadLibrary(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              return history.HistoryScreen();
             }
             return const _DeferredLoadingPlaceholder();
           },

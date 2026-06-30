@@ -259,6 +259,15 @@
       "limit_exceeded": "Favorite template limit reached"
     }
   },
+  "history": {
+    "title": "Purchase history",
+    "ttl_note": "Showing the last 6 months. History older than 6 months is kept only as per-item summaries.",
+    "week_of": "Week of {date}",
+    "purchased_by": "Bought by {name}",
+    "re_add": "Add again",
+    "empty": "No purchase history yet",
+    "error": "Failed to load history"
+  },
   "auth": {
     "login": "Log In",
     "signup": "Sign Up",

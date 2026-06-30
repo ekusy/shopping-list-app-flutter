@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/entities/favorite_item.dart';
 import '../../domain/entities/group.dart';
 import '../../domain/entities/item.dart';
+import '../../domain/entities/purchase_history_entry.dart';
 import '../../domain/entities/suggestion.dart';
 import '../../domain/entities/tag.dart';
 import '../../domain/entities/user_doc.dart';
@@ -86,6 +87,27 @@ FavoriteItem favoriteItemFromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
     order: (data['order'] as num?)?.toInt() ?? 0,
     createdAt: toDateTime(data['createdAt']),
     addedBy: (data['addedBy'] as String?) ?? '',
+  );
+}
+
+/// `groups/{groupId}/itemHistory/{eventId}` ドキュメント → [PurchaseHistoryEntry]。
+///
+/// Cloud Functions（`functions/src/lib/history.ts`）が書き込むフィールド名に合わせる
+/// （`itemId` / `name` / `tagId` / `purchasedBy` / `occurredAt`）。`type == 'purchased'`
+/// のドキュメントのみを対象とする想定。
+PurchaseHistoryEntry purchaseHistoryEntryFromDoc(
+  DocumentSnapshot<Map<String, dynamic>> doc,
+) {
+  final data = doc.data() ?? <String, dynamic>{};
+  return PurchaseHistoryEntry(
+    id: doc.id,
+    itemId: (data['itemId'] as String?) ?? '',
+    name: (data['name'] as String?) ?? '',
+    tagId: data['tagId'] as String?,
+    purchasedBy: data['purchasedBy'] as String?,
+    occurredAt:
+        toDateTime(data['occurredAt']) ??
+        DateTime.fromMillisecondsSinceEpoch(0),
   );
 }
 
