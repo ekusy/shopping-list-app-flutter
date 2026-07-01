@@ -74,6 +74,15 @@ class AppSidebar extends ConsumerWidget {
             ctx.push('/favorites');
           },
         ),
+      if (group != null)
+        _NavEntry(
+          labelKey: 'history.title',
+          icon: Icons.history,
+          onTap: (ctx) {
+            Navigator.of(ctx).pop();
+            ctx.push('/history');
+          },
+        ),
       _NavEntry(
         labelKey: 'sidebar.profile',
         icon: Icons.person_outline,
