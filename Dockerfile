@@ -42,7 +42,14 @@ RUN flutter precache --web --android \
         --no-linux --no-macos --no-windows --no-ios --no-fuchsia
 
 # Firebase CLI
-RUN curl -sL https://firebase.tools | bash
+# firebase.tools のスタンドアロンインストーラは Linux 版が x86_64 バイナリのみのため、
+# arm64 ホスト（Apple Silicon 等）でネイティブビルドしたコンテナでは実行できない（qemu 等の
+# エミュレーション基盤が無いため）。アーキテクチャ非依存にするため Node.js 経由の npm install に統一する。
+ENV NODE_MAJOR=22
+RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_MAJOR}.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs \
+    && rm -rf /var/lib/apt/lists/* \
+    && npm install -g firebase-tools
 
 WORKDIR /app
 
