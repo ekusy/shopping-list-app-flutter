@@ -2,8 +2,14 @@
   "mcpServers": {
     "dart": {
       "type": "stdio",
-      "command": "/snap/bin/dart",
+      "command": "docker",
       "args": [
+        "compose",
+        "run",
+        "--rm",
+        "-T",
+        "flutter",
+        "dart",
         "mcp-server"
       ],
       "env": {}
