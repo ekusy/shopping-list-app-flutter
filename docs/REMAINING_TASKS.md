@@ -54,9 +54,13 @@ Docker イメージに **Android SDK + JDK 21 を組み込み済み**。ホス�
 
 ## 3. 🟡 iOS ビルド（macOS 必須）
 
-`ios/` のシェルは用意済みですが、ビルド・署名には macOS + Xcode が必要です。
-`flutterfire configure` で `GoogleService-Info.plist` を配置後、Xcode で
-署名チーム・bundleId を設定してビルドしてください。
+**開発ビルドは検証済み**（2026-07-08、シミュレータ iOS 26.5 + 実機 iPhone 12 Pro / iOS 26.6）。
+環境構築から実機インストールまでの手順は `docs/IOS_LOCAL.md` を参照。
+
+残作業:
+- App Store 配布用の署名（有料 Apple Developer Program）・`flutter build ipa` の検証
+- `GoogleService-Info.plist` の配置（`flutterfire configure --platforms=ios`）は
+  ネイティブ設定が必要なプラグイン導入時のみ必要（現状は `lib/firebase_options.dart` で動作）
 
 ---
 

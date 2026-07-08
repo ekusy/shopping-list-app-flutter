@@ -11,7 +11,7 @@ Claude Code がこのリポジトリで作業する際のガイドライン。
 - 対応プラットフォーム: **Web / Android / iOS**
   - Web: コンテナ内で完結。ブラウザはホスト側を使用（`flutter run -d web-server` → `localhost:5000`）
   - Android: コンテナ内ビルド + ホスト側 adb 経由で実機・Wi-Fi デバッグ（手順は `docs/ANDROID_DOCKER.md`）
-  - iOS: **macOS + Xcode 必須**のため Docker 化対象外。Mac ホスト上で直接 `flutter` を実行する
+  - iOS: **macOS + Xcode 必須**のため Docker 化対象外。Mac ホスト上で直接 `flutter` を実行する（手順は `docs/IOS_LOCAL.md`）
 
 ## Docker コマンド
 
@@ -69,25 +69,27 @@ docker compose run --rm flutter flutter install
 
 ### iOS ビルド・デバッグ（macOS ホスト上で実行）
 
-iOS は Docker 不可。macOS + Xcode 環境で **コンテナを経由せず直接** 実行する：
+iOS は Docker 不可。macOS + Xcode 環境で **コンテナを経由せず直接** 実行する。
+**環境構築・実機セットアップ・トラブルシュートの詳細手順は `docs/IOS_LOCAL.md` を参照**
+（ホストにコンテナと同一バージョンの Flutter を導入して使う）。
 
 ```bash
-# 初回のみ: CocoaPods 同期
-cd ios && pod install && cd ..
-
 # シミュレータ / 実機ビルド & 実行
-flutter run -d "iPhone 15"        # 起動中のシミュレータを指定
-flutter run -d <device-id>        # 実機 (flutter devices で取得)
+flutter run -d <simulator-udid>    # xcrun simctl list devices available で取得
+flutter run -d <device-id>         # 実機 (flutter devices で取得)
 
 # 配布用ビルド
 flutter build ios --release        # Xcode で archive する前段
 flutter build ipa --release        # App Store 提出用 .ipa
 ```
 
-事前準備：
-- `flutterfire configure --platforms=ios` で `ios/Runner/GoogleService-Info.plist` を生成（`.gitignore` 済 / コミット禁止）
-- Xcode で Runner.xcworkspace を開き、Signing & Capabilities にチーム / bundleId を設定
-- App Tracking / Photo Library 等の Info.plist usage description が必要なら追加
+要点：
+- iOS ネイティブ依存は **Swift Package Manager** で解決（Podfile 無し / `pod install` 不要）
+- `IPHONEOS_DEPLOYMENT_TARGET` は **15.0**（Firebase iOS SDK の最低要件。下げないこと）
+- Firebase 初期化は `lib/firebase_options.dart` で完結。`GoogleService-Info.plist` は
+  ネイティブ設定が必要なプラグイン（google_sign_in 等）導入時のみ
+  `flutterfire configure --platforms=ios` で生成する（`.gitignore` 済 / コミット禁止）
+- 実機 debug 実行は USB 接続を推奨（Wi-Fi はタイムアウトしやすい。回避策は `docs/IOS_LOCAL.md` §3）
 
 ### Firebase
 
@@ -295,5 +297,5 @@ perf:     パフォーマンス改善
 
 詳細は `docs/REMAINING_TASKS.md` を参照。
 - Android: Docker に SDK 組込済。実機検証とリリース署名設定が残（`docs/ANDROID_DOCKER.md`）
-- iOS: scaffold あり。`flutterfire configure --platforms=ios` 後に Xcode で署名・実機ビルド検証が残
+- iOS: シミュレータ・実機での開発ビルド検証済み（2026-07-08、手順は `docs/IOS_LOCAL.md`）。App Store 配布用の署名・ビルドが残
 - Firebase Hosting デプロイ（`firebase deploy --only hosting`）
