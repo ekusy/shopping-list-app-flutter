@@ -175,6 +175,21 @@ xcrun devicectl device install app --device <devicectl-id> build/ios/iphoneos/Ru
 xcrun devicectl device process launch --device <devicectl-id> com.ekusy.shoppingListApp
 ```
 
+### 3-3. バッチインストール（scripts/ios-install.sh）
+
+§3-2 の「release ビルド → devicectl インストール」は `scripts/ios-install.sh` で
+バッチ化している。ペアリング済み iPhone の自動検出と、Wi-Fi 接続で起きやすい
+`Connection reset by peer` へのリトライ（最大 3 回）を含む:
+
+```bash
+scripts/ios-install.sh             # フルビルドしてインストール
+scripts/ios-install.sh --no-build  # 既存ビルドの再インストールのみ（7 日期限切れ時の更新）
+scripts/ios-install.sh --launch    # インストール後に起動も試みる（iPhone のロック解除が必要）
+```
+
+- 対象デバイスは `DEVICE_ID`（devicectl の identifier）で明示指定も可能。
+- Flutter のパスは `~/development/flutter/bin/flutter` を既定とし、`FLUTTER` 環境変数で上書き可能。
+
 ---
 
 ## 4. トラブルシューティング
@@ -198,3 +213,24 @@ App Store 提出は有料の Apple Developer Program 加入と配布用署名の
 flutter build ios --release        # Xcode で archive する前段
 flutter build ipa --release        # App Store 提出用 .ipa
 ```
+
+---
+
+## 6. OTA 配信（scripts/ota-deploy.sh・有料 Program 加入待ち）
+
+外出先から実機に配布するための Tailscale 経由 OTA 配信スクリプト。release ビルドを
+.ipa 化し、manifest.plist + インストールページを `tailscale serve` で配信する:
+
+```bash
+scripts/ota-deploy.sh            # フルビルドして配信（iPhone の Safari で表示された URL を開く）
+scripts/ota-deploy.sh --no-build # 既存ビルドを再パッケージ・再配信のみ
+scripts/ota-deploy.sh --stop     # 配信停止
+```
+
+前提: Mac / iPhone が同一 tailnet に参加済みで、tailnet の HTTPS 証明書が有効。
+
+> **既知のブロッカー**: 無料 Apple Developer アカウント（Personal Team）の
+> Xcode 管理プロファイルは `LocalProvision = True` のため、iOS が itms-services
+> OTA インストールを拒否する（配信・ダウンロードまでは成功する）。
+> 有料 Apple Developer Program 加入後に利用可能になる見込み。
+> それまでの実機インストールは §3-3 の `scripts/ios-install.sh` を使うこと。
