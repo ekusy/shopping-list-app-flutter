@@ -16,17 +16,18 @@ GitHub Issue に着手する際の標準フローを実行するスキル。
 
 ---
 
-## Step 2 — feature ブランチを作成する
+## Step 2 — 作業ブランチを作成する
 
 **ルール:**
-- ベースは必ず最新の `main` ブランチ
-- 命名規則: `feature/<slug>`, `fix/<slug>`, `chore/<slug>` など（CLAUDE.md 参照）
-- `main` への直接コミット・プッシュは禁止
+- ベースは必ず最新の `develop` ブランチ（`main` から新規ブランチを作成しない。CLAUDE.md のブランチ規約 / #25）
+- 命名規則: `feature/<slug>`, `fix/<slug>`, `chore/<slug>`, `docs/<slug>`, `perf/<slug>`（CLAUDE.md 参照）。
+  Issue に紐づく作業は Issue 番号を含める（例: `fix/24-first-login-list`）
+- `main` / `develop` への直接コミット・プッシュは禁止（ブランチ保護で強制）
 
 ```bash
-git checkout main
-git pull origin main
-git checkout -b feature/<slug>
+git checkout develop
+git pull origin develop
+git checkout -b feature/<issue番号>-<slug>
 ```
 
 ブランチ作成後、ユーザーに通知してから実装へ進む。
@@ -52,7 +53,9 @@ PR 作成前に以下を確認・実施する:
 
 ## Step 5 — 静的解析・テストを全件 OK にする
 
-以下のコマンドを実行し、**すべて成功すること**を確認してから次へ進む:
+以下のコマンドを実行し、**すべて成功すること**を確認してから次へ進む。
+
+Flutter 側（`lib/` / `test/` を変更した場合）:
 
 ```bash
 docker compose run --rm flutter flutter analyze
@@ -60,13 +63,21 @@ docker compose run --rm flutter dart format --output=none --set-exit-if-changed 
 docker compose run --rm flutter flutter test
 ```
 
+Cloud Functions 側（`functions/` を変更した場合）— flutter サービスではなく `functions` サービスで実行する:
+
+```bash
+docker compose run --rm functions sh -c "npm run build && npm run lint && npm test"
+```
+
+`functions/` のみの変更でも CI は Flutter 側のジョブを実行するため、最終的には両方が green である必要がある。
 エラーがあれば修正してから再実行する。
 
 ---
 
 ## Step 6 — PR を作成する
 
-`gh pr create` で PR を作成する。本文は以下のテンプレートを使う:
+`gh pr create --base develop` で PR を作成する（**ベースは `develop`**。`main` 宛の PR は
+`develop` → `main` のリリース時のみ）。本文は以下のテンプレートを使う:
 
 ```markdown
 ## 対応内容
@@ -108,4 +119,4 @@ PR 作成後はユーザーにレビューを依頼して待機する。
 
 - コミットメッセージは CLAUDE.md の規約（`feat:`, `fix:`, `refactor:` 等）に従う
 - `google-services.json` / `GoogleService-Info.plist` は絶対にコミットしない
-- 作業完了まで `main` への直接プッシュは行わない
+- `main` / `develop` への直接プッシュは行わない（必ず PR 経由）
