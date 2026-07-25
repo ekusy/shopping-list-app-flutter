@@ -113,5 +113,5 @@ src/
   グループ解散ガード・Gemini 呼び出しのモック統合）は未実施。純粋ロジックの vitest
   単体テストのみで担保している。
 - `data/gemini_client.ts` の `MODEL_ID` は公開モデル ID・料金の変動に注意
-  （Gemini 3.x Flash-Lite 系。2.5 系は 2026-10 廃止予定）。
+  （現在 `gemini-3.5-flash-lite`。Gemini 3.x Flash-Lite 系。2.5 系は 2026-10 廃止予定）。
 - Phase 2: FCM 通知（未実装）。
