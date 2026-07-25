@@ -10,7 +10,9 @@ Claude Code がこのリポジトリで作業する際のガイドライン。
 - **Flutter 3.44.0 / Dart 3.12.0**（コンテナ内）
 - 対応プラットフォーム: **Web / Android / iOS**
   - Web: コンテナ内で完結。ブラウザはホスト側を使用（`flutter run -d web-server` → `localhost:5000`）
-  - Android: コンテナ内ビルド + ホスト側 adb 経由で実機・Wi-Fi デバッグ（手順は `docs/ANDROID_DOCKER.md`）
+  - Android: コンテナ内ビルド + ホスト側 adb 経由で実機・Wi-Fi デバッグ（手順は `docs/ANDROID_DOCKER.md`）。
+    **Apple Silicon (arm64) Mac ではコンテナ内 adb が qemu 非互換で動作しないため使用不可**。
+    その場合はホスト Flutter 直接実行で対応する（手順は `docs/ANDROID_LOCAL.md`）
   - iOS: **macOS + Xcode 必須**のため Docker 化対象外。Mac ホスト上で直接 `flutter` を実行する（手順は `docs/IOS_LOCAL.md`）
 
 ## Docker コマンド
@@ -66,6 +68,26 @@ docker compose run --rm flutter flutter install
 ```
 
 詳細手順（USB / Wi-Fi 接続、署名、トラブルシュート）は `docs/ANDROID_DOCKER.md`。
+
+### Android 実機インストール（Apple Silicon Mac ホスト直接実行）
+
+Apple Silicon (arm64) Mac ではコンテナ内 adb が x86_64 バイナリの qemu 非互換で動作しないため、
+上記の Docker 経由デバッグは使えない。この場合はホスト Flutter 直接実行で対応する
+（`docs/IOS_LOCAL.md` と同方式）。**環境構築・トラブルシュートの詳細は `docs/ANDROID_LOCAL.md` を参照**。
+
+```bash
+# ビルド & インストール（scripts/android-install.sh で一括実行も可）
+flutter build apk --release
+adb install -r build/app/outputs/flutter-apk/app-release.apk
+
+# ホットリロード付きデバッグ実行
+flutter run -d <device-id>           # flutter devices で取得
+
+# 便利スクリプト
+scripts/android-install.sh           # release ビルド + インストール
+scripts/android-install.sh --debug   # debug ビルド + インストール
+scripts/android-install.sh --launch  # インストール後に起動
+```
 
 ### iOS ビルド・デバッグ（macOS ホスト上で実行）
 

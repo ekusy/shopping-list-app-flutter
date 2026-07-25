@@ -38,6 +38,12 @@ firebase deploy --only firestore:rules
 Docker イメージに **Android SDK + JDK 21 を組み込み済み**。ホスト側に必要なのは
 `adb`（platform-tools）だけ。完全手順は **[`docs/ANDROID_DOCKER.md`](./ANDROID_DOCKER.md)** を参照。
 
+> **Apple Silicon (arm64) Mac の場合**: コンテナ内 adb が qemu 非互換で動作しないため
+> 上記 Docker 経由の手順は使えない。ホスト Flutter 直接実行に切り替える
+> （**[`docs/ANDROID_LOCAL.md`](./ANDROID_LOCAL.md)**、`scripts/android-install.sh` で
+> ビルド〜インストールを一括実行可）。エミュレータ（Pixel7_API35）はこの方式で
+> 動作確認済み（2026-07-08）。
+
 ### 概要
 - ビルド: `docker compose run --rm flutter flutter build apk` / `... build appbundle`
 - デバッグ: ホストで `adb -a -P 5037 nodaemon server start` → コンテナの `flutter run`
@@ -45,7 +51,8 @@ Docker イメージに **Android SDK + JDK 21 を組み込み済み**。ホス�
 - USB / Wi-Fi デバッグ両対応（Android 11+）
 
 ### 残課題
-- **実機での動作検証**（メンテナ手元に Android 端末が無いため未確認）
+- **実機での動作検証**（メンテナ手元に Android 端末が無いため未確認。ホスト直接実行の
+  手順・スクリプトは整備済み — `docs/ANDROID_LOCAL.md` / `scripts/android-install.sh`）
 - **リリース署名設定**: `android/app/build.gradle.kts` の release ビルドは現状デバッグ
   キーで署名される。Play 配布時はキーストア生成 + `android/key.properties` 整備が必要
   （手順は `docs/ANDROID_DOCKER.md` §7）。
@@ -107,7 +114,7 @@ firebase deploy --only hosting       # firebase.json の hosting 設定を使用
 | 全機能を Flutter で再構成 | ✅ 完了（`lists` 等の廃止機能を除く） |
 | 同等の単体テストが成功 | ✅ 64 件成功 |
 | Web ビルド成功 | ✅ 確認済み |
-| Android ビルド成功 | 🟡 Docker に SDK 組込済（§2 / `ANDROID_DOCKER.md`）。実機検証は手元端末待ち |
+| Android ビルド成功 | 🟡 Docker（§2 / `ANDROID_DOCKER.md`）+ arm64 Mac 向けホスト直接実行（`ANDROID_LOCAL.md`）を整備済み。実機検証は手元端末待ち |
 | デプロイ準備完了 | 🟡 ✅ Firebase 接続済み・ルール/Hosting 設定済み。残: Firestore ルールデプロイ（§1）、Web Hosting deploy（§4） |
 | Flutter ベストプラクティス準拠 | ✅ クリーンアーキテクチャ + MVVM + Riverpod |
 | 直感的な UI | ✅ 元アプリの UX を踏襲 |
