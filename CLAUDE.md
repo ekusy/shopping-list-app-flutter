@@ -138,6 +138,16 @@ docker compose run --rm functions sh -c "cd /app && npx --yes firebase-tools dep
 > Storage Rules / Hosting / Firestore rules・indexes は flutter サービスの `firebase deploy` で可
 > （例: `firebase deploy --only storage`）。Functions のみ上記の `functions` サービス経由が必須。
 
+認証は `FIREBASE_TOKEN`（`.env`）のほか、**ホストの gcloud ADC をマウントする方式**も使える
+（`firebase login:ci` の対話認証が不要になる）。詳細は `docs/DEPLOYMENT.md` の「認証方式」を参照:
+
+```bash
+docker compose run --rm \
+  -v "$HOME/.config/gcloud:/root/.config/gcloud:ro" \
+  -e GOOGLE_APPLICATION_CREDENTIALS=/root/.config/gcloud/application_default_credentials.json \
+  functions sh -c "cd /app && npx --yes firebase-tools deploy --only functions --non-interactive"
+```
+
 ロジックと trigger wrapper の分離方針など詳細は `functions/README.md` を参照。
 
 ### Firestore インデックス / TTL
