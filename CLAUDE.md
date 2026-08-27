@@ -305,7 +305,9 @@ perf:     パフォーマンス改善
 
 ## 残作業
 
-詳細は `docs/REMAINING_TASKS.md` を参照。
-- Android: Docker に SDK 組込済。実機検証とリリース署名設定が残（`docs/ANDROID_DOCKER.md`）
+状態の一覧は `docs/REMAINING_TASKS.md`、着手順の提案は `docs/開発計画/実装順序.md` を参照。
+- Android: Docker に SDK 組込済。実機検証とリリース署名設定が残（`docs/ANDROID_DOCKER.md` / #36 / #91）
 - iOS: シミュレータ・実機での開発ビルド検証済み（2026-07-08、手順は `docs/IOS_LOCAL.md`）。App Store 配布用の署名・ビルドが残
-- Firebase Hosting デプロイ（`firebase deploy --only hosting`）
+- Web: `develop` へのマージで Firebase Hosting へ自動デプロイ済み（`.github/workflows/deploy-web.yml`）。
+  Firestore / Storage ルール・インデックス・Functions のデプロイは手動
+- 通知（FCM 実送信）は未実装（#44 / #45）。監視（Crashlytics / Analytics）も未導入（#92）

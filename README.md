@@ -258,6 +258,7 @@ test/
 | 内部設計 | [状態遷移](./docs/内部設計/状態遷移.md) | Item / 認証 / グループのライフサイクル |
 | 外部仕様 | [エラー仕様](./docs/外部仕様/エラー仕様.md) | AppError コード一覧・i18n キー対応 |
 | 開発計画 | [スプリント計画](./docs/開発計画/スプリント計画.md) | ロードマップ・Story 一覧 |
+| 開発計画 | [実装順序](./docs/開発計画/実装順序.md) | Open Issue の着手順とその根拠 |
 | 残作業 | [REMAINING_TASKS.md](./docs/REMAINING_TASKS.md) | デプロイ準備・残ユーザー作業 |
 
 ## 残作業・デプロイ準備
@@ -265,7 +266,8 @@ test/
 詳細は [docs/REMAINING_TASKS.md](./docs/REMAINING_TASKS.md) を参照してください。
 
 - Firebase プロジェクト接続: 完了（`firebase_options.dart` に実値投入・コミット済み）
-- Firestore ルール: `firestore.rules` 同梱済み（`firebase deploy --only firestore:rules` の実行は要ユーザー作業）
+- Web デプロイ: `develop` へのマージで Firebase Hosting へ自動デプロイ（[deploy-web.yml](./.github/workflows/deploy-web.yml)）
+- Firestore / Storage ルール・インデックス: リポジトリ管理済み（デプロイは手動実行が必要）
 - Android ビルド: Docker に Android SDK 組込済み・実機検証およびリリース署名設定は未（[docs/ANDROID_DOCKER.md](./docs/ANDROID_DOCKER.md)）
-- iOS ビルド: scaffold あり・`flutterfire configure --platforms=ios` 後に Xcode で署名・実機ビルド検証が必要
+- iOS ビルド: 開発ビルド（シミュレータ・実機）検証済み・App Store 配布用の署名は未（[docs/IOS_LOCAL.md](./docs/IOS_LOCAL.md)）
 - Web: ビルド検証済み / Firebase Hosting デプロイ: 未実施
