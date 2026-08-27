@@ -74,6 +74,19 @@ flutter:
   # i18n 翻訳ファイル（easy_localization で読み込む）
   assets:
     - assets/translations/
+    # バンドルフォントのライセンス（LicenseRegistry で読み込む / #75）
+    - assets/fonts/OFL.txt
+
+  # 日本語フォント（#75）。Web（CanvasKit）は OS のシステムフォントへ
+  # フォールバックしないため、日本語グリフを同梱しないと tofu（□）になる。
+  # サブセットの生成手順とライセンスは assets/fonts/README.md を参照。
+  fonts:
+    - family: NotoSansJP
+      fonts:
+        - asset: assets/fonts/NotoSansJP-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/NotoSansJP-Bold.ttf
+          weight: 700
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

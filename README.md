@@ -40,6 +40,10 @@ lib/
 ├── presentation/    # providers(ViewModel) / router / screens / widgets / utils
 ├── firebase_options.dart   # Firebase 設定（実値投入・コミット済み。再生成は flutterfire configure）
 └── main.dart        # エントリポイント（Firebase / easy_localization 初期化）
+
+assets/
+├── translations/    # i18n 翻訳ファイル（ja.json / en.json）
+└── fonts/           # 同梱フォント（Noto Sans JP サブセット + OFL）。詳細は assets/fonts/README.md
 ```
 
 ## クイックスタート（Web）

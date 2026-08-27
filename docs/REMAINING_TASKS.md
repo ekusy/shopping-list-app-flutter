@@ -18,6 +18,7 @@
 | テスト | ✅ Flutter: 34 ファイル / 約 190 ケース、Functions: 約 68 ケース（vitest） |
 | CI | ✅ `test.yml`（analyze + format + test / Functions lint + build + test） |
 | Web デプロイ | ✅ `deploy-web.yml` により `develop` マージで Firebase Hosting へ自動デプロイ |
+| 日本語フォント | ✅ Noto Sans JP のサブセットを同梱（#75。`assets/fonts/README.md`） |
 | モバイルデプロイ | 🔴 未署名のスモークビルドのみ（#91） |
 | 通知（FCM 実送信） | 🔴 未実装（#44 / #45）。現状は通知フラグの保存のみ |
 | 監視（Crashlytics / Analytics） | 🔴 未導入（#92） |
@@ -142,7 +143,7 @@ Docker イメージに Android SDK + JDK を組込済み。ホスト側に必要
 
 - #39 マネタイズ M0（PlanLimits 共通化）
 - #44 通知第 1 弾（FCM 基盤）→ #45 AI 提案 Phase 2（提案プッシュ）
-- #49 誤購入の取り消し / #10〜#14 UI 改善 / #75 Web の tofu 表示 / #77 コスト削減
+- #49 誤購入の取り消し / #10〜#14 UI 改善 / #77 コスト削減
 
 ### 未起票（着手条件が揃ってから起票）
 

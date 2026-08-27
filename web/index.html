@@ -20,9 +20,10 @@
   <link rel="manifest" href="manifest.json">
 
   <!--
-    Flutter web はデフォルトで Roboto フォントを fonts.googleapis.com / fonts.gstatic.com
-    から実行時ダウンロードする。preconnect でブラウザが事前に DNS 解決・TLS 確立を
-    完了させるため、フォントの取得レイテンシが短縮される。
+    日本語・ラテン文字は同梱の Noto Sans JP で描画するため CDN 取得は不要（#75）。
+    ただし絵文字・一部記号は同梱フォントに含まれず、Flutter エンジンが
+    fonts.googleapis.com / fonts.gstatic.com からフォールバックフォントを実行時取得する。
+    preconnect でブラウザが事前に DNS 解決・TLS 確立を完了させ、その取得レイテンシを短縮する。
     dns-prefetch は preconnect 非対応の旧ブラウザ向けフォールバック。
   -->
   <link rel="preconnect" href="https://fonts.googleapis.com">

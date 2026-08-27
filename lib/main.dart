@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/theme/app_theme.dart';
+import 'core/theme/font_license.dart';
 import 'firebase_options.dart';
 import 'presentation/router/app_router.dart';
 
@@ -20,6 +21,8 @@ const _emulatorHost = String.fromEnvironment(
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
+  // 同梱フォント（Noto Sans JP / OFL 1.1）のライセンスを登録する（#75）。
+  registerBundledFontLicenses();
 
   try {
     await Firebase.initializeApp(

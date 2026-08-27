@@ -83,20 +83,21 @@ class AppLayout {
 
 /// アプリ共通の [ThemeData] を構築する。
 ///
-/// **フォント戦略（Web）**
-/// - ラテン文字 UI: Flutter が Roboto を Google Fonts CDN から取得（web/index.html の
-///   preconnect でレイテンシ削減済み）。将来的にサブセットを自己ホストする場合は
-///   pubspec.yaml の fonts セクションに登録し fontFamily を 'Roboto' に変更する。
-/// - CJK（日本語）文字: Flutter のフォントフォールバックによりシステムフォントを使用。
-///   大容量の日本語フォントをダウンロードせず済み、転送量を最小化している。
+/// **フォント戦略**
+/// - 日本語・ラテン文字とも、同梱した Noto Sans JP のサブセット（`NotoSansJP`）で描画する。
+///   Web（CanvasKit）はエンジンがフォントを管理し OS のシステムフォントへフォールバック
+///   しないため、日本語グリフの同梱が必須（#75）。実行時ダウンロードに依存しないので
+///   オフライン優先 PWA の方針とも整合する。
+/// - 絵文字・一部の記号は Noto Sans JP に含まれないため、従来どおりエンジンが実行時に
+///   フォールバックフォントを取得して描画する（web/index.html の preconnect はこのため）。
+/// - 収録文字・サイズ・再生成手順は assets/fonts/README.md を参照。
 ThemeData buildAppTheme() {
   final base = ThemeData(
     useMaterial3: true,
     colorSchemeSeed: AppColors.primary,
     scaffoldBackgroundColor: AppColors.background,
-    // Roboto を明示し、CJK 文字はシステムフォントへフォールバックさせる。
-    // web/index.html の preconnect により CDN 接続を事前確立済み。
-    fontFamily: 'Roboto',
+    // 同梱フォント（pubspec.yaml の fonts セクションで登録）。
+    fontFamily: 'NotoSansJP',
   );
   return base.copyWith(
     colorScheme: base.colorScheme.copyWith(
