@@ -177,6 +177,11 @@ docker compose run --rm \
 
 新たな静的アセット種別を追加した場合は、ハッシュ付きファイル名かどうかを確認し、適切なルールを `firebase.json` に追記すること。
 
+> **注意**: 上表の `immutable` はビルド生成物（コンテンツハッシュ付き）を前提にしている。
+> `assets/` に置く同梱アセット（フォント等）はビルド時にハッシュが付かないため、
+> **ファイル名に版数を含めて更新のたびに上げる**運用とする
+> （例: `assets/fonts/NotoSansJP-Regular.v1.ttf` / 詳細は `assets/fonts/README.md`）。
+
 ### 依存管理
 
 ```bash

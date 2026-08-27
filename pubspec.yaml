@@ -79,13 +79,14 @@ flutter:
 
   # 日本語フォント（#75）。Web（CanvasKit）は OS のシステムフォントへ
   # フォールバックしないため、日本語グリフを同梱しないと tofu（□）になる。
-  # サブセットの生成手順とライセンスは assets/fonts/README.md を参照。
+  # ファイル名の版数（.v1）は firebase.json が ttf を immutable でキャッシュするため
+  # 必須。サブセットを更新する際は版数を上げること（assets/fonts/README.md）。
   fonts:
     - family: NotoSansJP
       fonts:
-        - asset: assets/fonts/NotoSansJP-Regular.ttf
+        - asset: assets/fonts/NotoSansJP-Regular.v1.ttf
           weight: 400
-        - asset: assets/fonts/NotoSansJP-Bold.ttf
+        - asset: assets/fonts/NotoSansJP-Bold.v1.ttf
           weight: 700
 
   # An image asset can refer to one or more resolution-specific "variants", see

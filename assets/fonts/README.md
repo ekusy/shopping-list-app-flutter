@@ -4,12 +4,13 @@
 
 Web（CanvasKit）はエンジンがフォントを管理し、OS のシステムフォントへフォールバック
 しない。そのため日本語グリフを持たない Roboto のみでは日本語が tofu（□）になる（#75）。
-オフライン優先 PWA の方針に合わせ、実行時ダウンロードではなく**サブセットを同梱**する。
+CDN からの実行時ダウンロードに依存しないよう、**サブセットを同梱**する。
 
 | 項目 | 内容 |
 |---|---|
 | ファミリー名 | `NotoSansJP`（`pubspec.yaml` の `fonts:` で登録） |
 | ウェイト | Regular (400) / Bold (700) |
+| ファイル名 | `NotoSansJP-{Regular,Bold}.v1.ttf`（末尾は版数。後述） |
 | 取得元 | Google Fonts CSS API v2（`https://fonts.googleapis.com/css2?family=Noto+Sans+JP`） |
 | 元バージョン | Version 2.004-H2（Noto Sans JP v56 / 2026-08 時点） |
 | 収録文字 | JIS X 0208（第1・第2水準）+ ASCII + Latin-1 + 半角カナ + 約物・矢印・記号（7,445 文字） |
@@ -22,6 +23,12 @@ Web（CanvasKit）はエンジンがフォントを管理し、OS のシステ�
 pip install fonttools brotli
 python3 scripts/subset-noto-sans-jp.py
 ```
+
+**サブセット内容を変えたらファイル名の版数（`.v1`）を必ず上げること。**
+`firebase.json` は `**/*.@(woff|woff2|ttf|eot)` を `immutable` で 1 年キャッシュする。
+Flutter の同梱アセットはビルド時にファイル名へハッシュが付かないため、同名のまま
+差し替えると再訪ユーザーのブラウザに古いフォントが残り続ける。版数を上げる際は
+`scripts/subset-noto-sans-jp.py` の `FONT_VERSION`・`pubspec.yaml`・本 README を更新する。
 
 ### 収録していない文字
 

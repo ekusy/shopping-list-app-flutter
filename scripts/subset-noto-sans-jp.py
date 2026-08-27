@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""assets/fonts/NotoSansJP-{Regular,Bold}.ttf を再生成する。
+"""assets/fonts/NotoSansJP-{Regular,Bold}.{VERSION}.ttf を再生成する。
 
 Google Fonts が配信する Noto Sans JP から、日本語 UI に必要な文字だけを残した
 サブセットを作る（#75）。フル版は 1 ウェイト約 5.1MB あり Web バンドルには重すぎるため、
@@ -13,7 +13,10 @@ JIS X 0208（第1・第2水準）+ ASCII + Latin-1 + 半角カナ + 記号に絞
 注意:
   - 絵文字（U+1F300〜 等）と一部の記号（✕ / ☑ 等）は Noto Sans JP に元から含まれない。
     これらは実行時に Flutter エンジンがフォールバックフォントを取得して描画する。
-  - フォントを差し替えたら `assets/fonts/README.md` のバージョンも更新すること。
+  - フォントを差し替えたら FONT_VERSION を上げ、pubspec.yaml のパスと
+    `assets/fonts/README.md` も合わせて更新すること。firebase.json が ttf を
+    `immutable` で 1 年キャッシュするため、同名で差し替えると再訪ユーザーに
+    古いフォントが残り続ける。
 """
 
 from __future__ import annotations
@@ -27,6 +30,8 @@ from pathlib import Path
 # Google Fonts CSS API v2。UA を送らないと TTF（Flutter が読める形式）が返る。
 CSS_URL = "https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@{weight}"
 WEIGHTS = {"Regular": 400, "Bold": 700}
+# ファイル名に埋め込む版数。サブセット内容を変えたら必ず上げる（キャッシュ破棄のため）。
+FONT_VERSION = "v1"
 OUT_DIR = Path(__file__).resolve().parent.parent / "assets" / "fonts"
 
 # JIS X 0208 以外に含める文字（記号・約物・矢印など）。
@@ -78,7 +83,7 @@ def main() -> int:
             url = ttf_url(weight)
             src = Path(tmp) / f"NotoSansJP-{name}-full.ttf"
             urllib.request.urlretrieve(url, src)
-            dst = OUT_DIR / f"NotoSansJP-{name}.ttf"
+            dst = OUT_DIR / f"NotoSansJP-{name}.{FONT_VERSION}.ttf"
             subprocess.run(
                 [
                     sys.executable,

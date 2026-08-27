@@ -22,12 +22,12 @@ void main() {
     test('Regular / Bold の両ウェイトが pubspec.yaml に登録されている', () async {
       for (final weight in ['Regular', 'Bold']) {
         final data = await rootBundle.load(
-          'assets/fonts/NotoSansJP-$weight.ttf',
+          'assets/fonts/NotoSansJP-$weight.v1.ttf',
         );
         expect(
           data.lengthInBytes,
           greaterThan(0),
-          reason: 'NotoSansJP-$weight.ttf がアセットとして解決できない',
+          reason: 'NotoSansJP-$weight.v1.ttf がアセットとして解決できない',
         );
       }
     });
