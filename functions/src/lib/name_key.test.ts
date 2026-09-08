@@ -1,27 +1,39 @@
+import { readFileSync } from "fs";
+import { resolve } from "path";
 import { describe, expect, it } from "vitest";
 import { nameKeyOf, normalizeName } from "./name_key";
 
-describe("normalizeName", () => {
-  it("trims leading and trailing whitespace", () => {
-    expect(normalizeName("  牛乳  ")).toBe("牛乳");
+/**
+ * Shared fixture read by BOTH the TypeScript and the Dart test suites (Issue #88),
+ * so the two `normalizeName` implementations cannot drift apart:
+ *
+ *   - TS   : functions/src/lib/name_key.ts   <- this file
+ *   - Dart : lib/core/utils/name_key.dart    <- test/core/name_key_test.dart
+ *
+ * Path is resolved from this file (functions/src/lib) up to the repository root.
+ */
+const FIXTURE_PATH = resolve(
+  __dirname,
+  "../../../test/fixtures/name_normalization_cases.json",
+);
+
+type NormalizationCase = {
+  description: string;
+  input: string;
+  expected: string;
+};
+
+const fixture: { cases: NormalizationCase[] } = JSON.parse(
+  readFileSync(FIXTURE_PATH, "utf8"),
+);
+
+describe("normalizeName (shared fixture with the Dart implementation)", () => {
+  it("loads the shared fixture", () => {
+    expect(fixture.cases.length).toBeGreaterThan(0);
   });
 
-  it("collapses runs of internal whitespace into a single space", () => {
-    expect(normalizeName("カット   トマト")).toBe("カット トマト");
-  });
-
-  it("lowercases ASCII letters", () => {
-    expect(normalizeName("Milk")).toBe("milk");
-  });
-
-  it("applies NFKC normalization (full-width alnum -> half-width)", () => {
-    // "Ｍｉｌｋ１" (full-width) -> "Milk1" -> lowercased -> "milk1"
-    expect(normalizeName("Ｍｉｌｋ１")).toBe("milk1");
-  });
-
-  it("applies NFKC normalization (half-width katakana -> full-width)", () => {
-    // half-width "ミルク" -> full-width "ミルク"
-    expect(normalizeName("ミルク")).toBe(normalizeName("ミルク"));
+  it.each(fixture.cases)("$description", ({ input, expected }) => {
+    expect(normalizeName(input)).toBe(expected);
   });
 });
 

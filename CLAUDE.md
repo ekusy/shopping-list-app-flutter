@@ -211,9 +211,10 @@ lib/
 ├── presentation/    # Riverpod providers / go_router / screens / widgets
 └── main.dart
 test/
-├── core/            # AppError, invite_code/url, item_icons
+├── core/            # AppError, invite_code/url, item_icons, name_key
 ├── data/            # repository 実装テスト（fake_cloud_firestore）
 ├── domain/          # エンティティロジック
+├── fixtures/        # Dart / TS 双方のテストが読む共通フィクスチャ（name_normalization_cases.json）
 ├── helpers/         # 共通テストユーティリティ（test_localization.dart）
 ├── presentation/    # provider/controller テスト
 └── widgets/         # ウィジェットテスト
