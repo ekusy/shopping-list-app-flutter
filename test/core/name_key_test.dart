@@ -1,51 +1,55 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shopping_list_app/core/utils/name_key.dart';
 
+/// Dart / TypeScript 双方のテストが読む共通フィクスチャ（#88）。
+///
+/// TS 側は `functions/src/lib/name_key.test.ts` が同じファイルを読む。
+/// 片側だけを更新すると必ずもう一方のテストが落ちるため、両実装の乖離を防げる。
+const _fixturePath = 'test/fixtures/name_normalization_cases.json';
+
 void main() {
-  group('normalizeName', () {
-    test('前後の空白を除去する', () {
-      expect(normalizeName('  牛乳  '), '牛乳');
+  final fixture =
+      jsonDecode(File(_fixturePath).readAsStringSync()) as Map<String, dynamic>;
+  final cases = (fixture['cases'] as List<dynamic>)
+      .cast<Map<String, dynamic>>();
+
+  group('normalizeName（TS 実装との共通フィクスチャ）', () {
+    test('フィクスチャが読み込めている', () {
+      expect(cases, isNotEmpty);
     });
 
-    test('前後の空白を除去する（タブ・改行含む）', () {
-      expect(normalizeName('\t牛乳\n'), '牛乳');
-    });
+    for (final testCase in cases) {
+      test(testCase['description'] as String, () {
+        expect(
+          normalizeName(testCase['input'] as String),
+          testCase['expected'] as String,
+        );
+      });
+    }
+  });
 
-    test('連続する空白（半角）を 1 つに圧縮する', () {
-      expect(normalizeName('牛乳  パン'), '牛乳 パン');
-    });
-
-    test('連続する空白（複数種混在）を 1 つに圧縮する', () {
-      expect(normalizeName('牛乳 \t パン'), '牛乳 パン');
-    });
-
-    test('小文字化する（ASCII）', () {
-      expect(normalizeName('MILK'), 'milk');
-    });
-
-    test('小文字化する（混在）', () {
-      expect(normalizeName('Apple Juice'), 'apple juice');
-    });
-
+  group('normalizeName（同一視の性質）', () {
     test('トリム後に「牛乳」と「牛乳 」が同一正規化になる', () {
       expect(normalizeName('牛乳'), equals(normalizeName('牛乳 ')));
     });
 
-    test('前後空白除去と連続空白圧縮を組み合わせる', () {
-      expect(normalizeName('  牛乳  パン  '), '牛乳 パン');
+    test('全角英字と半角英字が同一正規化になる（#88 の再現ケース）', () {
+      expect(normalizeName('ＡＢＣ牛乳'), equals(normalizeName('ABC牛乳')));
     });
 
-    test('空文字列はそのまま空文字列', () {
-      expect(normalizeName(''), '');
+    test('半角カナと全角カナが同一正規化になる', () {
+      expect(normalizeName('ﾐﾙｸ'), equals(normalizeName('ミルク')));
     });
 
-    test('空白のみは空文字列になる', () {
-      expect(normalizeName('   '), '');
+    test('全角スペース区切りと半角スペース区切りが同一正規化になる', () {
+      expect(normalizeName('牛乳　パン'), equals(normalizeName('牛乳 パン')));
     });
 
-    test('日本語はそのまま（NFKC 未対応）', () {
-      // NFKC 未適用のため全角英字はそのまま
-      expect(normalizeName('ＡＢＣＤ'), 'ａｂｃｄ');
+    test('異なる商品は別の正規化結果になる', () {
+      expect(normalizeName('牛乳'), isNot(equals(normalizeName('豆乳'))));
     });
   });
 }
