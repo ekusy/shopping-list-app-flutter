@@ -21,8 +21,12 @@
 
   <!--
     Flutter web はデフォルトで Roboto フォントを fonts.googleapis.com / fonts.gstatic.com
-    から実行時ダウンロードする。preconnect でブラウザが事前に DNS 解決・TLS 確立を
-    完了させるため、フォントの取得レイテンシが短縮される。
+    から実行時ダウンロードする。加えて CanvasKit は OS のシステムフォントを使わないため、
+    日本語などの CJK は Noto フォールバックが fonts.gstatic.com/s/notosansjp/ から
+    必要な Unicode ブロックのみをオンデマンド取得する（詳細は
+    lib/core/theme/app_theme.dart の「フォント戦略（Web）」を参照）。
+    preconnect でブラウザが事前に DNS 解決・TLS 確立を完了させるため、これら
+    フォントの取得レイテンシが短縮される。
     dns-prefetch は preconnect 非対応の旧ブラウザ向けフォールバック。
   -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
