@@ -80,9 +80,16 @@ docker compose run --rm flutter firebase deploy --only hosting
 Docker イメージに Android SDK + JDK を組込済み。ホスト側に必要なのは `adb` だけ。
 手順は **[`docs/ANDROID_DOCKER.md`](./ANDROID_DOCKER.md)**。
 
+> **Apple Silicon (arm64) Mac の場合**: コンテナ内 adb が qemu 非互換で動作しないため
+> 上記 Docker 経由の手順は使えない。ホスト Flutter 直接実行に切り替える
+> （**[`docs/ANDROID_LOCAL.md`](./ANDROID_LOCAL.md)**、`scripts/android-install.sh` で
+> ビルド〜インストールを一括実行可）。エミュレータ（Pixel7_API35）はこの方式で
+> 動作確認済み（2026-07-08）。
+
 ### 残課題
 
-- **実機での動作検証**（メンテナ手元に Android 端末が無いため未確認 / #36）
+- **実機での動作検証**（メンテナ手元に Android 端末が無いため未確認 / #36。ホスト直接
+  実行の手順・スクリプトは整備済み — `docs/ANDROID_LOCAL.md` / `scripts/android-install.sh`）
 - **リリース署名**: release ビルドは現状デバッグキーで署名される。キーストア生成と
   `android/key.properties` の整備が必要（#36 / 手順は `docs/ANDROID_DOCKER.md` §7）
 - **CI のリリースビルド化**: `build-mobile.yml` は `flutter build apk --debug` のまま（#91）
