@@ -144,3 +144,5 @@ app.*.symbols
 !**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
 !/dev/ci/**/Gemfile.lock
+# アプリの依存を再現可能にするため pubspec.lock はコミットする（CI の依存浮動対策）
+!/pubspec.lock

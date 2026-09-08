@@ -1,0 +1,135 @@
+{
+  "_comment": [
+    "normalizeName（アイテム名の正規化）の Dart / TypeScript 実装が同じ入力に対して",
+    "同じ出力を返すことを担保するための共通フィクスチャ（#88）。",
+    "",
+    "参照する実装:",
+    "  - Dart: lib/core/utils/name_key.dart      -> test/core/name_key_test.dart",
+    "  - TS  : functions/src/lib/name_key.ts     -> functions/src/lib/name_key.test.ts",
+    "",
+    "空白・合成文字など見た目で判別できない文字は \\uXXXX エスケープで記述すること。",
+    "ケースを追加する場合は両方のテストが同じこのファイルを読むため、片側だけの更新は起きない。"
+  ],
+  "cases": [
+    {
+      "description": "前後の半角空白を除去する",
+      "input": "  牛乳  ",
+      "expected": "牛乳"
+    },
+    {
+      "description": "前後のタブ・改行を除去する",
+      "input": "\t牛乳\n",
+      "expected": "牛乳"
+    },
+    {
+      "description": "連続する半角空白を 1 つに圧縮する",
+      "input": "牛乳  パン",
+      "expected": "牛乳 パン"
+    },
+    {
+      "description": "混在した空白（半角スペース・タブ）を 1 つに圧縮する",
+      "input": "牛乳 \t パン",
+      "expected": "牛乳 パン"
+    },
+    {
+      "description": "ASCII を小文字化する",
+      "input": "MILK",
+      "expected": "milk"
+    },
+    {
+      "description": "大文字小文字が混在する語を小文字化する",
+      "input": "Apple Juice",
+      "expected": "apple juice"
+    },
+    {
+      "description": "空文字列はそのまま空文字列",
+      "input": "",
+      "expected": ""
+    },
+    {
+      "description": "空白のみは空文字列になる",
+      "input": "   ",
+      "expected": ""
+    },
+    {
+      "description": "NFKC: 全角英字→半角 + 小文字化",
+      "input": "ＡＢＣＤ",
+      "expected": "abcd"
+    },
+    {
+      "description": "NFKC: 全角英数字→半角",
+      "input": "Ｍｉｌｋ１",
+      "expected": "milk1"
+    },
+    {
+      "description": "NFKC: 全角英字と漢字の混在（#88 の再現ケース）",
+      "input": "ＡＢＣ牛乳",
+      "expected": "abc牛乳"
+    },
+    {
+      "description": "NFKC: 半角カナ→全角カナ",
+      "input": "ﾐﾙｸ",
+      "expected": "ミルク"
+    },
+    {
+      "description": "NFKC: 半角カナ + 半角濁点→合成済みの全角カナ",
+      "input": "ｶﾞﾑ",
+      "expected": "ガム"
+    },
+    {
+      "description": "NFKC: 全角スペース (U+3000)→半角スペース",
+      "input": "牛乳　パン",
+      "expected": "牛乳 パン"
+    },
+    {
+      "description": "NFKC 変換後の全角スペースが前後トリムの対象になる",
+      "input": "　牛乳　",
+      "expected": "牛乳"
+    },
+    {
+      "description": "NFKC: NBSP (U+00A0)→半角スペース",
+      "input": "牛乳 パン",
+      "expected": "牛乳 パン"
+    },
+    {
+      "description": "NFKC: 全角数字・全角記号→半角",
+      "input": "１００％ジュース",
+      "expected": "100%ジュース"
+    },
+    {
+      "description": "NFKC: 単位記号 (U+338F ㎏) の互換分解",
+      "input": "㎏",
+      "expected": "kg"
+    },
+    {
+      "description": "NFKC: 丸数字 (U+2460 ①) の互換分解",
+      "input": "①",
+      "expected": "1"
+    },
+    {
+      "description": "NFC 合成: 分解済みの濁点 (か + U+3099) が合成される",
+      "input": "がむ",
+      "expected": "がむ"
+    },
+    {
+      "description": "NFKC: ラテン合字 (U+FB01 ﬁ) の互換分解",
+      "input": "ﬁsh",
+      "expected": "fish"
+    },
+    {
+      "description": "NFKC: 番号記号 (U+2116 №) の互換分解 + 小文字化",
+      "input": "№1",
+      "expected": "no1"
+    },
+    {
+      "description": "記号を含む通常の商品名は変化しない",
+      "input": "牛乳/豆乳 100% こだわり",
+      "expected": "牛乳/豆乳 100% こだわり"
+    },
+    {
+      "description": "変換不要な日本語はそのまま",
+      "input": "牛乳",
+      "expected": "牛乳"
+    }
+  ]
+}

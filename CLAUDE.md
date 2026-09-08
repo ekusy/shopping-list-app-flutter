@@ -160,6 +160,16 @@ docker compose run --rm functions sh -c "cd /app && npx --yes firebase-tools dep
 > Storage Rules / Hosting / Firestore rules・indexes は flutter サービスの `firebase deploy` で可
 > （例: `firebase deploy --only storage`）。Functions のみ上記の `functions` サービス経由が必須。
 
+認証は `FIREBASE_TOKEN`（`.env`）のほか、**ホストの gcloud ADC をマウントする方式**も使える
+（`firebase login:ci` の対話認証が不要になる）。詳細は `docs/DEPLOYMENT.md` の「認証方式」を参照:
+
+```bash
+docker compose run --rm \
+  -v "$HOME/.config/gcloud:/root/.config/gcloud:ro" \
+  -e GOOGLE_APPLICATION_CREDENTIALS=/root/.config/gcloud/application_default_credentials.json \
+  functions sh -c "cd /app && npx --yes firebase-tools deploy --only functions --non-interactive"
+```
+
 ロジックと trigger wrapper の分離方針など詳細は `functions/README.md` を参照。
 
 ### Firestore インデックス / TTL
@@ -223,9 +233,10 @@ lib/
 ├── presentation/    # Riverpod providers / go_router / screens / widgets
 └── main.dart
 test/
-├── core/            # AppError, invite_code/url, item_icons
+├── core/            # AppError, invite_code/url, item_icons, name_key
 ├── data/            # repository 実装テスト（fake_cloud_firestore）
 ├── domain/          # エンティティロジック
+├── fixtures/        # Dart / TS 双方のテストが読む共通フィクスチャ（name_normalization_cases.json）
 ├── helpers/         # 共通テストユーティリティ（test_localization.dart）
 ├── presentation/    # provider/controller テスト
 └── widgets/         # ウィジェットテスト
@@ -317,7 +328,9 @@ perf:     パフォーマンス改善
 
 ## 残作業
 
-詳細は `docs/REMAINING_TASKS.md` を参照。
-- Android: Docker に SDK 組込済。実機検証とリリース署名設定が残（`docs/ANDROID_DOCKER.md`）
+状態の一覧は `docs/REMAINING_TASKS.md`、着手順の提案は `docs/開発計画/実装順序.md` を参照。
+- Android: Docker に SDK 組込済。実機検証とリリース署名設定が残（`docs/ANDROID_DOCKER.md` / #36 / #91）
 - iOS: シミュレータ・実機での開発ビルド検証済み（2026-07-08、手順は `docs/IOS_LOCAL.md`）。App Store 配布用の署名・ビルドが残
-- Firebase Hosting デプロイ（`firebase deploy --only hosting`）
+- Web: `develop` へのマージで Firebase Hosting へ自動デプロイ済み（`.github/workflows/deploy-web.yml`）。
+  Firestore / Storage ルール・インデックス・Functions のデプロイは手動
+- 通知（FCM 実送信）は未実装（#44 / #45）。監視（Crashlytics / Analytics）も未導入（#92）

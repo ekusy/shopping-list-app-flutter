@@ -16,11 +16,11 @@ import { RESPONSE_SCHEMA, type RawSuggestionsResponse } from "../lib/suggestions
 /**
  * Gemini model ID used for weekly suggestion generation.
  *
- * Single constant so the model can be bumped in one place. Confirmed GA ID
- * (#56): the latest low-cost Flash-tier model (Gemini 2.0 Flash retired
- * 2026-06-01, the 2.5 series retires 2026-10-16).
+ * Single constant so the model can be bumped in one place. Currently the
+ * latest low-cost Flash-Lite tier model (bumped from `gemini-3.1-flash-lite`;
+ * Gemini 2.0 Flash retired 2026-06-01, the 2.5 series retires 2026-10-16).
  */
-export const MODEL_ID = "gemini-3.1-flash-lite";
+export const MODEL_ID = "gemini-3.5-flash-lite";
 
 const GENERATION_TEMPERATURE = 0.3;
 const MAX_OUTPUT_TOKENS = 1024;

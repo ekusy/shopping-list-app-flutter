@@ -84,18 +84,33 @@ class AppLayout {
 /// アプリ共通の [ThemeData] を構築する。
 ///
 /// **フォント戦略（Web）**
-/// - ラテン文字 UI: Flutter が Roboto を Google Fonts CDN から取得（web/index.html の
-///   preconnect でレイテンシ削減済み）。将来的にサブセットを自己ホストする場合は
-///   pubspec.yaml の fonts セクションに登録し fontFamily を 'Roboto' に変更する。
-/// - CJK（日本語）文字: Flutter のフォントフォールバックによりシステムフォントを使用。
-///   大容量の日本語フォントをダウンロードせず済み、転送量を最小化している。
+///
+/// アプリはフォントを同梱していない（pubspec.yaml の `fonts:` セクションは未使用）。
+/// Web ではどちらも実行時に Google Fonts CDN から取得される。
+///
+/// - ラテン文字 UI: Flutter が Roboto を `fonts.gstatic.com` から取得する。
+/// - CJK（日本語）文字: **CanvasKit は OS のシステムフォントにフォールバックしない。**
+///   代わりに Flutter Web エンジンの Noto フォールバックが、描画に必要な Unicode
+///   ブロックだけを `fonts.gstatic.com/s/notosansjp/` から**オンデマンドで**取得する。
+///
+/// `web/index.html` の preconnect は、この 2 つの取得のレイテンシを削減するためにある。
+///
+/// **実測（本番 / 2026-09-08、ログイン画面）**: Noto Sans JP のサブセット 4 ブロック =
+/// 合計 71 KB（`cache-control: max-age=31536000`）。`main.dart.js` が 3.77 MB であるため、
+/// 日本語フォントを同梱する案（フル TTF で 4〜5 MB）は転送量を倍以上にする割に、
+/// 置き換える対象が 71 KB のオンデマンド取得にすぎない（#75 で検討・見送り）。
+///
+/// **既知の制約**: `fonts.gstatic.com` に到達できない環境では日本語が tofu（□）になる。
+/// 保証が必要になった場合は、フル同梱ではなく「かな＋常用漢字のサブセットを同梱し、
+/// 稀な字は従来どおり Noto フォールバックに任せる」構成を検討すること。
 ThemeData buildAppTheme() {
   final base = ThemeData(
     useMaterial3: true,
     colorSchemeSeed: AppColors.primary,
     scaffoldBackgroundColor: AppColors.background,
-    // Roboto を明示し、CJK 文字はシステムフォントへフォールバックさせる。
-    // web/index.html の preconnect により CDN 接続を事前確立済み。
+    // Roboto を明示する。CJK 文字はこの family に無いため、Flutter Web エンジンの
+    // Noto フォールバックが該当ブロックを CDN から取得して描画する（上記コメント参照）。
+    // Android / iOS では端末のシステムフォントへフォールバックする。
     fontFamily: 'Roboto',
   );
   return base.copyWith(
