@@ -15,7 +15,7 @@
 | Flutter 実装 | ✅ Phase 1（Sprint 1〜6）の機能 + AI 提案 / 購入履歴 / よく買う物リスト / 画像 Storage 移行まで実装済み |
 | 画面 | ✅ 認証 / ダッシュボード / グループ（作成・参加・設定）/ プロフィール / 提案 / よく買う物 / 履歴 |
 | バックエンド | ✅ Cloud Functions（TypeScript / Node 22）で履歴集計・週次 AI 提案・削除連動を運用中 |
-| テスト | ✅ Flutter: 34 ファイル / 約 190 ケース、Functions: 約 68 ケース（vitest） |
+| テスト | ✅ Flutter: 34 ファイル / 209 ケース、Functions: 88 ケース（vitest） |
 | CI | ✅ `test.yml`（analyze + format + test / Functions lint + build + test） |
 | Web デプロイ | ✅ `deploy-web.yml` により `develop` マージで Firebase Hosting へ自動デプロイ |
 | モバイルデプロイ | 🔴 未署名のスモークビルドのみ（#91） |
@@ -118,14 +118,20 @@ Docker イメージに Android SDK + JDK を組込済み。ホスト側に必要
 
 | 内容 | Issue | 状態 |
 |---|---|---|
-| **Web 版の日本語が tofu（□）表示になる** | #75 | 🔴 本番で発生中。最優先 |
+| **Flutter 3.44 の SW 廃止で Web の更新配信が壊れている** | #98 | 🔴 deploy が既存ユーザーに届かない恐れ |
 | 招待リンクがネイティブで開けない（intent-filter / URL scheme 未設定） | #87 | |
-| `normalizeName` の Dart / TS 乖離（NFKC 未対応） | #88 | 🔧 対応中（PR #95） |
 | Firestore / Storage セキュリティルールの自動テストが無い | #89 | |
 | `integration_test`（E2E）が無い | #90 | |
 | モバイル CI のリリース署名 / AAB 化・iOS 連携 | #91 | |
 | Crashlytics / Analytics 未導入（βゲート指標が計測不能） | #92 | |
 | アプリ名・テーマカラーのブランド不統一 | #93 | |
+| ~~`normalizeName` の Dart / TS 乖離（NFKC 未対応）~~ | #88 | ✅ 対応済み（PR #95） |
+| ~~Web 版の日本語が tofu（□）表示になる~~ | #75 | ✅ 再現せずクローズ（PR #97 でコメント修正） |
+
+> **#98 の要点**: `main.dart.js` / `flutter_bootstrap.js` はコンテンツハッシュ無しの固定名なのに
+> `immutable, max-age=31536000` で配信されており、更新検知を担っていた service worker は
+> Flutter 3.44 で廃止された（生成される SW は自分を unregister するスタブ）。
+> `--pwa-strategy=offline-first` は事実上の no-op で、Web のオフライン起動も成立していない。
 
 ---
 
@@ -149,7 +155,8 @@ Docker イメージに Android SDK + JDK を組込済み。ホスト側に必要
 - #44 通知第 1 弾（FCM 基盤）→ #45 AI 提案 Phase 2（提案プッシュ）
 - #49 誤購入の取り消し / #10〜#14 UI 改善 / #77 コスト削減
 
-> Web の tofu 表示（#75）は機能ロードマップではなく**本番で発生中の不具合**のため §6 に移した。
+> Web の tofu 表示（#75）は本番実測で再現せず（Flutter Web の Noto フォールバックが
+> 必要ブロックのみ 71 KB を取得して機能している）、2026-09-08 にクローズした。
 
 ### 未起票（着手条件が揃ってから起票）
 
