@@ -1,0 +1,73 @@
+name: Deploy Firebase Backend (develop)
+
+# develop へのマージ時に Cloud Functions / Firestore ルール・インデックス / Storage ルールを自動デプロイする。
+# Hosting は deploy-web.yml が担当する。
+on:
+  push:
+    branches: [develop]
+    paths:
+      - 'functions/**'
+      - 'firestore.rules'
+      - 'firestore.indexes.json'
+      - 'storage.rules'
+      - 'firebase.json'
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Deploy target (all, functions, firestore:rules, firestore:indexes, storage)'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - functions
+          - firestore:rules
+          - firestore:indexes
+          - storage
+
+concurrency:
+  group: deploy-firebase-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy-firebase:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # deploy-web.yml と同様、firebase-tools が Node 24 上で OAuth トークン取得に失敗する問題を避けるため Node 20 を使用する。
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+
+      - name: Install, lint, build, and test functions
+        working-directory: functions
+        run: |
+          npm ci
+          npm run lint
+          npm run build
+          npm test
+
+      - name: Deploy Firebase backend resources
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          DEPLOY_TARGET: ${{ github.event_name == 'workflow_dispatch' && inputs.target != 'all' && inputs.target || 'firestore:rules,firestore:indexes,storage,functions' }}
+        run: |
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then
+            echo "::error::FIREBASE_SERVICE_ACCOUNT secret is not set."
+            exit 1
+          fi
+          SA_FILE="$RUNNER_TEMP/firebase-sa.json"
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$SA_FILE"
+          chmod 600 "$SA_FILE"
+          export GOOGLE_APPLICATION_CREDENTIALS="$SA_FILE"
+          npx --yes firebase-tools@15.22.0 deploy \
+            --only "$DEPLOY_TARGET" \
+            --non-interactive \
+            --project household-shopping-list-f7c12
+
+      - name: Clean up service account key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/firebase-sa.json"
