@@ -189,11 +189,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       final wasOffline = prev?.value == false;
       final isOnline = next.value == true;
       if (wasOffline && isOnline && mounted) {
-        final messenger = ScaffoldMessenger.of(context);
-        AppFeedback.showLoading(context, 'network.syncing'.tr());
-        Future.delayed(
-          const Duration(seconds: 3),
-          messenger.hideCurrentSnackBar,
+        AppFeedback.showLoading(
+          context,
+          'network.syncing'.tr(),
+          duration: const Duration(seconds: 3),
         );
       }
     });
