@@ -19,6 +19,7 @@ docker compose run --rm functions npm ci
 docker compose run --rm functions npm run build   # tsc → lib/
 docker compose run --rm functions npm run lint
 docker compose run --rm functions npm test
+docker compose run --rm functions sh -c "cd /app && npx firebase-tools emulators:exec --only firestore,storage --project demo-shopping-list-rules-test 'npm --prefix functions run test:rules'"
 ```
 
 ## 設計原則: bootstrap / trigger wrapper / lib / data の分離
