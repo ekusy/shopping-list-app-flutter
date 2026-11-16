@@ -12,11 +12,11 @@ class AppColors {
   static const Color primaryLight = Color(0xFFEEEEFF);
   static const Color textPrimary = Color(0xFF2C3E50);
   static const Color textSecondary = Color(0xFF546E7A);
-  static const Color background = Color(0xFFF0F4F8);
+  static const Color background = Color(0xFFF6F5F2);
   static const Color surface = Color(0xFFFFFFFF);
-  static const Color surfaceBorder = Color(0xFFE2E4EF);
+  static const Color surfaceBorder = Color(0xFFE7E5DF);
   static const Color inputBg = Color(0xFFFFFFFF);
-  static const Color inputBorder = Color(0xFFD1D5E0);
+  static const Color inputBorder = Color(0xFFD9D6CE);
   static const Color overlay = Color(0x0D000000); // rgba(0,0,0,0.05)
   static const Color error = Color(0xFFC62828);
   static const Color errorBg = Color(0xFFFFEBEE);
@@ -26,6 +26,11 @@ class AppColors {
   static const Color successAccent = Color(0xFF4CAF50);
   static const Color errorAccent = Color(0xFFF44336);
   static const Color infoAccent = Color(0xFF2196F3);
+  static const Color accentGreen = Color(0xFF2E9E6B);
+  static const Color accentGreenLight = Color(0xFFE6F5EE);
+  static const Color accentApricot = Color(0xFFF4A259);
+  static const Color accentApricotLight = Color(0xFFFCEEDD);
+  static const Color accentApricotText = Color(0xFFB26426);
   static const Color buyerBadgeBg = Color(0xFFE3F2FD);
   static const Color buyerBadgeText = Color(0xFF1976D2);
   static const Color deleteBg = Color(0x1AF44336); // rgba(244,67,54,0.1)
