@@ -64,184 +64,201 @@ class ItemCard extends StatelessWidget {
     final Color bg = selectionMode && isSelected
         ? AppColors.primaryLight
         : isBought
-        ? AppColors.boughtBg
-        : (declaredBy != null ? AppColors.primaryLight : AppColors.surface);
-    final Color border =
-        (selectionMode && isSelected) || (declaredBy != null && !isBought)
-        ? AppColors.primary
-        : AppColors.surfaceBorder;
+        ? AppColors.accentGreenLight
+        : isMine
+        ? AppColors.accentApricotLight
+        : isOthers
+        ? AppColors.buyerBadgeBg
+        : AppColors.surface;
+    final BoxBorder? border = selectionMode && isSelected
+        ? Border.all(color: AppColors.primary, width: 2)
+        : null;
+    final List<BoxShadow>? shadows = isBought
+        ? null
+        : const [
+            BoxShadow(
+              color: Color(0x0F2C3E50),
+              blurRadius: 2,
+              offset: Offset(0, 1),
+            ),
+            BoxShadow(
+              color: Color(0x0D2C3E50),
+              blurRadius: 3,
+              offset: Offset(0, 1),
+            ),
+          ];
 
     final preview = imageProviderFromUrl(item.imageUrl);
 
-    return Opacity(
-      opacity: isBought ? 0.6 : 1,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-        padding: const EdgeInsets.all(AppSpacing.sm),
-        decoration: BoxDecoration(
-          color: bg,
-          border: Border.all(
-            color: border,
-            width: selectionMode && isSelected ? 2 : 1,
-          ),
-          borderRadius: BorderRadius.circular(AppRadii.md),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                IconButton(
-                  visualDensity: VisualDensity.compact,
-                  onPressed: onSelect,
-                  icon: Text(
-                    selectionMode && isSelected ? '☑' : '☐',
-                    style: TextStyle(
-                      fontSize: AppFontSizes.xl,
-                      color: selectionMode && isSelected
-                          ? AppColors.primary
-                          : AppColors.textSecondary,
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Text(
-                    item.name,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: AppFontSizes.lg,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
-                      decoration: isBought ? TextDecoration.lineThrough : null,
-                    ),
-                  ),
-                ),
-                if (item.pendingWrite)
-                  Padding(
-                    padding: const EdgeInsets.only(left: AppSpacing.xs),
-                    child: Text(
-                      icons.pendingSync,
-                      style: const TextStyle(fontSize: AppFontSizes.sm),
-                    ),
-                  ),
-              ],
-            ),
-            if (preview != null)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(AppRadii.sm),
-                  child: Image(
-                    image: preview,
-                    height: 150,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => const SizedBox.shrink(),
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return SizedBox(
-                        height: 150,
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            value: loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded /
-                                      loadingProgress.expectedTotalBytes!
-                                : null,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                      );
-                    },
+    return Container(
+      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+      padding: const EdgeInsets.all(AppSpacing.sm + 4),
+      decoration: BoxDecoration(
+        color: bg,
+        border: border,
+        borderRadius: BorderRadius.circular(AppRadii.lg),
+        boxShadow: shadows,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              IconButton(
+                visualDensity: VisualDensity.compact,
+                onPressed: onSelect,
+                icon: Text(
+                  selectionMode && isSelected ? '☑' : '☐',
+                  style: TextStyle(
+                    fontSize: AppFontSizes.xl,
+                    color: selectionMode && isSelected
+                        ? AppColors.primary
+                        : AppColors.textSecondary,
                   ),
                 ),
               ),
-            if (item.note.isNotEmpty)
-              Container(
-                width: double.infinity,
-                margin: const EdgeInsets.only(top: AppSpacing.xs),
-                padding: const EdgeInsets.all(AppSpacing.sm),
-                decoration: BoxDecoration(
-                  color: const Color(0x08000000),
-                  borderRadius: BorderRadius.circular(AppRadii.sm),
-                ),
+              Expanded(
                 child: Text(
-                  item.note,
-                  style: const TextStyle(
-                    fontSize: AppFontSizes.sm,
-                    color: AppColors.textSecondary,
+                  item.name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: AppFontSizes.lg,
+                    fontWeight: FontWeight.w600,
+                    color: isBought
+                        ? AppColors.textSecondary
+                        : AppColors.textPrimary,
+                    decoration: isBought ? TextDecoration.lineThrough : null,
                   ),
                 ),
               ),
-            if (!selectionMode)
-              Padding(
-                padding: const EdgeInsets.only(top: AppSpacing.xs),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: isMine
-                          ? _badge(
-                              '${icons.volunteerBadge} ${'item.volunteer_badge'.tr()}',
-                              AppColors.buyerBadgeBg,
-                              AppColors.buyerBadgeText,
-                            )
-                          : isOthers
-                          ? _badge(
-                              '${icons.othersBadge} $truncatedName',
-                              AppColors.categoryBadgeBg,
-                              AppColors.primary,
-                            )
-                          : const SizedBox.shrink(),
-                    ),
-                    if (!isBought)
-                      _iconButton(
-                        isMine
-                            ? icons.cancelVolunteer
-                            : isOthers
-                            ? icons.takeOver
-                            : icons.volunteer,
-                        active: isMine,
-                        semanticLabel: isMine
-                            ? 'item.cancel_volunteer'.tr()
-                            : isOthers
-                            ? 'item.someone_volunteering'.tr()
-                            : 'item.volunteer'.tr(),
-                        onTap: () => _handleVolunteer(
-                          context,
-                          isMine: isMine,
-                          isOthers: isOthers,
-                          declarerName: declarerName,
+              if (item.pendingWrite)
+                Padding(
+                  padding: const EdgeInsets.only(left: AppSpacing.xs),
+                  child: Text(
+                    icons.pendingSync,
+                    style: const TextStyle(fontSize: AppFontSizes.sm),
+                  ),
+                ),
+            ],
+          ),
+          if (preview != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(AppRadii.sm),
+                child: Image(
+                  image: preview,
+                  height: 150,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, _, _) => const SizedBox.shrink(),
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return SizedBox(
+                      height: 150,
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          value: loadingProgress.expectedTotalBytes != null
+                              ? loadingProgress.cumulativeBytesLoaded /
+                                    loadingProgress.expectedTotalBytes!
+                              : null,
+                          color: AppColors.primary,
                         ),
                       ),
-                    _iconButton(
-                      isBought ? icons.returnToBuy : icons.bought,
-                      semanticLabel: isBought
-                          ? 'item.return'.tr()
-                          : 'item.bought'.tr(),
-                      onTap: () => onSetPurchased(!isBought),
-                    ),
-                    if (onEdit != null)
-                      _iconButton(
-                        '✏️',
-                        materialIcon: Icons.edit,
-                        background: AppColors.categoryBadgeBg,
-                        foreground: AppColors.primary,
-                        semanticLabel: 'item.edit_button'.tr(),
-                        onTap: onEdit!,
-                      ),
-                    _iconButton(
-                      icons.delete,
-                      materialIcon: Icons.delete,
-                      background: AppColors.deleteBg,
-                      foreground: AppColors.deleteText,
-                      semanticLabel: 'common.delete'.tr(),
-                      onTap: onDelete,
-                    ),
-                  ],
+                    );
+                  },
                 ),
               ),
-          ],
-        ),
+            ),
+          if (item.note.isNotEmpty)
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.only(top: AppSpacing.xs),
+              padding: const EdgeInsets.all(AppSpacing.sm),
+              decoration: BoxDecoration(
+                color: const Color(0x08000000),
+                borderRadius: BorderRadius.circular(AppRadii.sm),
+              ),
+              child: Text(
+                item.note,
+                style: const TextStyle(
+                  fontSize: AppFontSizes.sm,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ),
+          if (!selectionMode)
+            Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.xs),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: isMine
+                        ? _badge(
+                            '${icons.volunteerBadge} ${'item.volunteer_badge'.tr()}',
+                            AppColors.accentApricot,
+                            AppColors.white,
+                          )
+                        : isOthers
+                        ? _badge(
+                            '${icons.othersBadge} $truncatedName',
+                            AppColors.white,
+                            AppColors.buyerBadgeText,
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+                  if (!isBought)
+                    _iconButton(
+                      isMine
+                          ? icons.cancelVolunteer
+                          : isOthers
+                          ? icons.takeOver
+                          : icons.volunteer,
+                      active: isMine,
+                      semanticLabel: isMine
+                          ? 'item.cancel_volunteer'.tr()
+                          : isOthers
+                          ? 'item.someone_volunteering'.tr()
+                          : 'item.volunteer'.tr(),
+                      onTap: () => _handleVolunteer(
+                        context,
+                        isMine: isMine,
+                        isOthers: isOthers,
+                        declarerName: declarerName,
+                      ),
+                    ),
+                  _iconButton(
+                    isBought ? icons.returnToBuy : icons.bought,
+                    materialIcon: isBought ? null : Icons.check,
+                    background: isBought ? null : AppColors.accentGreenLight,
+                    foreground: isBought ? null : AppColors.accentGreen,
+                    semanticLabel: isBought
+                        ? 'item.return'.tr()
+                        : 'item.bought'.tr(),
+                    onTap: () => onSetPurchased(!isBought),
+                  ),
+                  if (onEdit != null)
+                    _iconButton(
+                      '✏️',
+                      materialIcon: Icons.edit,
+                      background: AppColors.categoryBadgeBg,
+                      foreground: AppColors.primary,
+                      semanticLabel: 'item.edit_button'.tr(),
+                      onTap: onEdit!,
+                    ),
+                  _iconButton(
+                    icons.delete,
+                    materialIcon: Icons.delete,
+                    background: AppColors.deleteBg,
+                    foreground: AppColors.deleteText,
+                    semanticLabel: 'common.delete'.tr(),
+                    onTap: onDelete,
+                  ),
+                ],
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -316,7 +333,7 @@ class ItemCard extends StatelessWidget {
         ? AppColors.infoAccent
         : (background ?? AppColors.overlay);
     return Padding(
-      padding: const EdgeInsets.only(left: AppSpacing.xs),
+      padding: const EdgeInsets.only(left: AppSpacing.sm),
       child: Semantics(
         button: true,
         label: semanticLabel,
@@ -324,8 +341,8 @@ class ItemCard extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(AppRadii.md),
           child: Container(
-            width: 40,
-            height: 40,
+            width: 44,
+            height: 44,
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: bg,
