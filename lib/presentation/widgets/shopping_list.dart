@@ -8,6 +8,7 @@ import '../../domain/entities/tag.dart';
 import '../providers/group_providers.dart';
 import 'confirm_dialog.dart';
 import 'dashboard/selectable_item_row.dart';
+import 'filter_bar.dart';
 
 /// タグ単位でグルーピングした買い物リスト表示。
 ///
@@ -135,6 +136,15 @@ class _ShoppingListState extends ConsumerState<ShoppingList> {
             ),
             child: Row(
               children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: tagColor(section.tagId),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: Text.rich(
                     TextSpan(
