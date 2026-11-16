@@ -167,10 +167,43 @@ class DashboardAddBar extends ConsumerWidget {
 
   Widget _buildAddRow(BuildContext context, WidgetRef ref) {
     final hasGroup = ref.watch(activeGroupProvider.select((g) => g != null));
-    return QuickAddInput(
-      onAdd: (name) => _quickAdd(context, ref, name),
-      onDetailAdd: hasGroup ? () => _openAddForm(context, ref) : null,
-      disabled: !hasGroup,
+    return Row(
+      children: [
+        Expanded(
+          child: QuickAddInput(
+            onAdd: (name) => _quickAdd(context, ref, name),
+            disabled: !hasGroup,
+          ),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        DecoratedBox(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            boxShadow: hasGroup
+                ? [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.35),
+                      blurRadius: 14,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
+                : const [],
+          ),
+          child: FloatingActionButton.small(
+            key: const Key('dashboard_detail_add_fab'),
+            heroTag: null,
+            elevation: 0,
+            highlightElevation: 0,
+            onPressed: hasGroup ? () => _openAddForm(context, ref) : null,
+            backgroundColor: hasGroup
+                ? AppColors.primary
+                : AppColors.primary.withValues(alpha: 0.45),
+            foregroundColor: AppColors.white,
+            tooltip: 'list.detail_add'.tr(),
+            child: const Icon(Icons.add),
+          ),
+        ),
+      ],
     );
   }
 
