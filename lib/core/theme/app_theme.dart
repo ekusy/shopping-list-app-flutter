@@ -108,10 +108,11 @@ ThemeData buildAppTheme() {
     useMaterial3: true,
     colorSchemeSeed: AppColors.primary,
     scaffoldBackgroundColor: AppColors.background,
-    // Roboto を明示する。CJK 文字はこの family に無いため、Flutter Web エンジンの
-    // Noto フォールバックが該当ブロックを CDN から取得して描画する（上記コメント参照）。
-    // Android / iOS では端末のシステムフォントへフォールバックする。
+    // Roboto をベースにしつつ、JIS 第1水準・かな・記号のサブセットフォントを
+    // フォールバックに指定してモバイルブラウザでの豆腐文字を防ぐ。
+    // 稀な漢字は従来どおり Flutter Web の Noto フォールバックがオンデマンド取得する。
     fontFamily: 'Roboto',
+    fontFamilyFallback: const ['NotoSansJP'],
   );
   return base.copyWith(
     colorScheme: base.colorScheme.copyWith(

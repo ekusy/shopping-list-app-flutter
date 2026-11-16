@@ -55,8 +55,9 @@ class AppSidebar extends ConsumerWidget {
           labelKey: 'group.settings.title',
           icon: Icons.settings_outlined,
           onTap: (ctx) {
+            final router = GoRouter.of(ctx);
             Navigator.of(ctx).pop();
-            ctx.push('/group/settings');
+            router.push('/group/settings');
           },
         ),
       if (group != null)
@@ -70,8 +71,9 @@ class AppSidebar extends ConsumerWidget {
           labelKey: 'favorites.title',
           icon: Icons.bookmark_outline,
           onTap: (ctx) {
+            final router = GoRouter.of(ctx);
             Navigator.of(ctx).pop();
-            ctx.push('/favorites');
+            router.push('/favorites');
           },
         ),
       if (group != null)
@@ -79,16 +81,18 @@ class AppSidebar extends ConsumerWidget {
           labelKey: 'history.title',
           icon: Icons.history,
           onTap: (ctx) {
+            final router = GoRouter.of(ctx);
             Navigator.of(ctx).pop();
-            ctx.push('/history');
+            router.push('/history');
           },
         ),
       _NavEntry(
         labelKey: 'sidebar.profile',
         icon: Icons.person_outline,
         onTap: (ctx) {
+          final router = GoRouter.of(ctx);
           Navigator.of(ctx).pop();
-          ctx.push('/profile');
+          router.push('/profile');
         },
       ),
     ];
