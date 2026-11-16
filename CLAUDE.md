@@ -139,6 +139,7 @@ docker compose run --rm functions npm ci          # 依存インストール（p
 docker compose run --rm functions npm run build   # tsc で lib/ へコンパイル
 docker compose run --rm functions npm run lint    # eslint
 docker compose run --rm functions npm test        # vitest
+docker compose run --rm functions sh -c "cd /app && npx firebase-tools emulators:exec --only firestore,storage --project demo-shopping-list-rules-test 'npm --prefix functions run test:rules'"  # Firestore / Storage ルールテスト
 ```
 
 エミュレータ（Functions のみ）:

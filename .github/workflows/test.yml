@@ -38,3 +38,20 @@ jobs:
       - run: npm run lint
       - run: npm run build
       - run: npm test
+
+  # Firestore / Storage セキュリティルールテスト（Issue #89）。
+  rules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+      - run: npm --prefix functions ci
+      - run: npx --yes firebase-tools@15.22.0 emulators:exec --only firestore,storage --project demo-shopping-list-rules-test "npm --prefix functions run test:rules"
