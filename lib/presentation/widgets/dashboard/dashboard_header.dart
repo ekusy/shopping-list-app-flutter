@@ -61,9 +61,9 @@ class DashboardHeader extends ConsumerWidget {
                           ),
                         ),
                       ),
-                      const Text(
-                        ' ▼',
-                        style: TextStyle(color: AppColors.primary),
+                      const Icon(
+                        Icons.arrow_drop_down,
+                        color: AppColors.primary,
                       ),
                     ],
                   ),

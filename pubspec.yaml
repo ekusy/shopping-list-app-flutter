@@ -76,6 +76,12 @@ flutter:
   assets:
     - assets/translations/
 
+  # モバイルブラウザでの豆腐文字対策用サブセット日本語フォント
+  fonts:
+    - family: NotoSansJP
+      fonts:
+        - asset: assets/fonts/NotoSansJP-Subset.ttf
+
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 
