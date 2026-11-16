@@ -109,4 +109,56 @@ void main() {
     await tester.pump();
     expect(purchasedArg, isFalse);
   });
+
+  testWidgets('状態に応じた背景ウォッシュ（通常/自分ボランティア/他メンバー/購入済み）を適用する', (tester) async {
+    Future<Color?> pumpAndGetBg(Item item) async {
+      await pumpLocalized(
+        tester,
+        ItemCard(
+          item: item,
+          currentUid: 'me',
+          memberNames: const {'other': 'Bob'},
+          onSetVolunteer: (_) {},
+          onSetPurchased: (_) {},
+          onDelete: () {},
+        ),
+      );
+      final container = tester.widget<Container>(find.byType(Container).first);
+      return (container.decoration as BoxDecoration?)?.color;
+    }
+
+    expect(await pumpAndGetBg(_item()), const Color(0xFFFFFFFF));
+    expect(
+      await pumpAndGetBg(
+        Item(
+          id: 'i2',
+          name: 'Bread',
+          category: '',
+          note: '',
+          imageUrl: '',
+          status: ItemStatus.active,
+          buyingBy: 'me',
+        ),
+      ),
+      const Color(0xFFFCEEDD),
+    );
+    expect(
+      await pumpAndGetBg(
+        Item(
+          id: 'i3',
+          name: 'Eggs',
+          category: '',
+          note: '',
+          imageUrl: '',
+          status: ItemStatus.active,
+          buyingBy: 'other',
+        ),
+      ),
+      const Color(0xFFE3F2FD),
+    );
+    expect(
+      await pumpAndGetBg(_item(status: ItemStatus.purchased)),
+      const Color(0xFFE6F5EE),
+    );
+  });
 }
