@@ -17,7 +17,7 @@ jobs:
           flutter-version: '3.44.0'
           cache: true
       - run: flutter pub get
-      - run: flutter build web --release --pwa-strategy=offline-first
+      - run: flutter build web --release
       # firebase-tools は GitHub runner の Node 24 上で googleapis への fetch が
       # "Premature close" で失敗する（OAuth トークン取得が落ちて認証エラーになる）。
       # Node 20 を用意し、その PATH 上で firebase-tools を実行させて回避する。

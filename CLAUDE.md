@@ -52,7 +52,7 @@ docker compose run --rm flutter flutter test --coverage
 ### ビルド
 
 ```bash
-docker compose run --rm flutter flutter build web --release --pwa-strategy=offline-first
+docker compose run --rm flutter flutter build web --release
 docker compose run --rm flutter flutter build apk --release          # Android APK
 docker compose run --rm flutter flutter build appbundle --release    # Android App Bundle (.aab)
 ```
@@ -188,17 +188,19 @@ docker compose run --rm \
 
 ### Firebase Hosting キャッシュ制御
 
+Flutter Web のビルド成果物（`main.dart.js`, `flutter_bootstrap.js`, アセット類）は**ファイル名にコンテンツハッシュを含まない固定名**で出力され、かつ Flutter 3.44 で Service Worker のキャッシュ機能（`--pwa-strategy`）が廃止された（生成される `flutter_service_worker.js` は自己 unregister スタブ）。そのため、固定名ファイルに `immutable` を付与するとデプロイ後も古いバンドルがキャッシュされ続ける（#98）。
+
 `firebase.json` の `hosting.headers` で以下の方針を維持すること。
 
 | 対象 | Cache-Control | 理由 |
 |---|---|---|
-| `**/*.@(js\|css\|wasm)` | `public, max-age=31536000, immutable` | Flutter ビルドはコンテンツハッシュ付きファイル名のため安全 |
-| `**/*.@(png\|jpg\|jpeg\|webp\|avif\|svg\|gif\|ico)` | `public, max-age=31536000, immutable` | 同上 |
-| `**/*.@(woff\|woff2\|ttf\|eot)` | `public, max-age=31536000, immutable` | 同上 |
-| `/index.html` | `no-cache` | エントリポイントは常に最新を取得する必要がある |
-| `/flutter_service_worker.js` | `no-cache` | SW の更新を即時反映するために no-cache が必要 |
+| `/`・`/index.html` | `no-cache` | エントリポイントは常に最新を取得する必要がある（リクエストパス照合のため `/` と `/index.html` の双方に指定） |
+| `**/*.@(js\|css\|wasm)` | `no-cache` | Flutter Web の JS/WASM はコンテンツハッシュ無しの固定名のため、毎回 ETag で再検証してデプロイ後の更新を即時反映する |
+| `/flutter_service_worker.js` | `no-cache` | Flutter 3.44 では自己 unregister スタブ。旧 SW の解除を即時反映するために `no-cache` を維持 |
+| `**/*.@(png\|jpg\|jpeg\|webp\|avif\|svg\|gif\|ico)` | `public, max-age=86400` | ハッシュ無し固定名のため `immutable` は使わず、1 日キャッシュ＋期限後の ETag 再検証とする |
+| `**/*.@(woff\|woff2\|ttf\|eot)` | `public, max-age=86400` | 同上 |
 
-新たな静的アセット種別を追加した場合は、ハッシュ付きファイル名かどうかを確認し、適切なルールを `firebase.json` に追記すること。
+`immutable` はファイル名にコンテンツハッシュを含むアセットのみに限定し、ハッシュ無しファイルには絶対に使用しないこと。
 
 ### 依存管理
 
